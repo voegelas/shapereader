@@ -1,0 +1,22 @@
+---
+name: linux
+on:
+  push:
+    branches:
+      - '*'
+    tags-ignore:
+      - '*'
+  pull_request:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    container:
+      image: voegelas/debian-devel
+    steps:
+      - uses: actions/checkout@v3
+      - name: Run tests
+        run: |
+          autoreconf -i
+          env CFLAGS="-std=c99 -pedantic-errors -Wall -Werror" ./configure
+          make
+          make check VERBOSE=1
