@@ -1,4 +1,5 @@
 DIST_SUBDIRS = data
+EXTRA_DIST = create_data.pl
 
 LDADD = ../libshapereader.a
 

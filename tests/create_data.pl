@@ -4,8 +4,9 @@ use strict;
 use warnings;
 use utf8;
 
-use Encode     qw(encode);
-use List::Util qw(any reduce);
+use Encode                qw(encode);
+use File::Spec::Functions qw(catfile);
+use List::Util            qw(any reduce);
 use Time::Piece;
 
 my $SHPT_NULL        = 0;
@@ -308,7 +309,7 @@ sub strptime {
 }
 
 write_dbf(
-    file   => 'types.dbf',
+    file   => catfile(qw(data types.dbf)),
     header => {
         version => 0x30,
         fields  => [
@@ -384,7 +385,7 @@ write_dbf(
 );
 
 write_dbf(
-    file   => 'polygon.dbf',
+    file   => catfile(qw(data polygon.dbf)),
     header => {
         fields => [{
             name   => 'tzid',
@@ -403,7 +404,7 @@ write_dbf(
 );
 
 write_shp(
-    file   => 'polygon.shp',
+    file   => catfile(qw(data polygon.shp)),
     header => {
         shape_type => $SHPT_POLYGON,
         x_min      => -180.0,
