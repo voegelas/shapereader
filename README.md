@@ -1,16 +1,14 @@
 # shapereader
 
-This C library reads ESRI shapefiles.
-
-The shapefile format is a geospatial vector data format for geographic
-information system software.
+A C library for reading ESRI shapefiles.  The shapefile format is a geospatial
+vector data format for geographic information system software.
 
 The library supports the shp, shx and dbf formats.
 
 ## DEPENDENCIES
 
-Requires a C compiler that supports the C99 standard, autoconf 2.69 or newer,
-automake 1.11.2 or newer, make and pkg-config.
+Requires a C compiler that supports the C99 standard, autoconf, automake, make
+and pkg-config.
 
 ## INSTALLATION
 
