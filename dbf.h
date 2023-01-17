@@ -396,7 +396,7 @@ extern int dbf_record_strtoul(const dbf_record_t *record,
  * @memberof dbf_record_t
  * @param record a record.
  * @param field a field in the record.
- * @param base 10 for decimal.  See strtoul(3) for details.
+ * @param base 10 for decimal.  See strtoull(3) for details.
  * @param[out] pvalue the converted value.
  * @return true on success, otherwise false.
  */
