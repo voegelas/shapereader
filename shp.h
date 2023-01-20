@@ -79,10 +79,10 @@ typedef struct shp_record_t {
  * File handle
  */
 typedef struct shp_file_t {
-    FILE *fp;           /**< File pointer */
-    void *user_data;    /**< Callback data */
-    size_t num_bytes;   /**< Number of bytes read */
-    char error[1024];   /**< Error message */
+    FILE *fp;         /**< File pointer */
+    void *user_data;  /**< Callback data */
+    size_t num_bytes; /**< Number of bytes read */
+    char error[1024]; /**< Error message */
 } shp_file_t;
 
 /**

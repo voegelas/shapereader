@@ -9,8 +9,8 @@
 
 /* SPDX-License-Identifier: ISC OR Artistic-1.0-Perl OR GPL-1.0-or-later */
 
-#include "convert.h"
 #include "shp.h"
+#include "convert.h"
 #include <assert.h>
 #include <errno.h>
 #include <stdarg.h>
