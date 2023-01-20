@@ -261,11 +261,12 @@ sub pack_shp_record {
     return $pack_shp_record{$shape{shape_type}}->(%shape);
 }
 
-sub write_shp {
+sub write_shp_and_shx {
     my (%args) = @_;
 
-    my $file   = $args{file};
-    my %header = (
+    my $shp_file = $args{shp_file};
+    my $shx_file = $args{shx_file};
+    my %header   = (
         file_code   => 9994,
         file_length => 0,
         version     => 1000,
@@ -293,12 +294,20 @@ sub write_shp {
     my $size = reduce { $a + length $b } 0, @packed_shapes;
     $header{file_length} = (100 + $size) / 2;
 
-    open my $fh, '>:raw', $file or die "Can't open $file: $!";
-    print {$fh} pack_shp_header(%header);
+    open my $shp_fh, '>:raw', $shp_file or die "Can't open $shp_file: $!";
+    open my $shx_fh, '>:raw', $shx_file or die "Can't open $shx_file: $!";
+    print {$shp_fh} pack_shp_header(%header);
+    $header{file_length} = (100 + 8 * @shapes) / 2;
+    print {$shx_fh} pack_shp_header(%header);
     for my $record (@packed_shapes) {
-        print {$fh} $record;
+        my $file_offset    = tell($shp_fh) / 2;
+        my $content_length = substr $record, 4, 4;
+        my $index_record   = pack('N', $file_offset) . $content_length;
+        print {$shp_fh} $record;
+        print {$shx_fh} $index_record;
     }
-    close $fh;
+    close $shp_fh;
+    close $shx_fh;
     return;
 }
 
@@ -403,9 +412,10 @@ write_dbf(
     ]
 );
 
-write_shp(
-    file   => catfile(qw(data polygon.shp)),
-    header => {
+write_shp_and_shx(
+    shp_file => catfile(qw(data polygon.shp)),
+    shx_file => catfile(qw(data polygon.shx)),
+    header   => {
         shape_type => $SHPT_POLYGON,
         x_min      => -180.0,
         y_min      => -90.0,

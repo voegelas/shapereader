@@ -1,1 +1,1 @@
-EXTRA_DIST = polygon.dbf polygon.shp types.dbf
+EXTRA_DIST = polygon.dbf polygon.shp polygon.shx types.dbf
