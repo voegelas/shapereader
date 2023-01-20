@@ -1,17 +1,9 @@
-#ifdef HAVE_CONFIG_H
-#include "config.h"
-#else
-#define HAVE_UNISTD_H 1
-#define HAVE_CHDIR 1
-#endif
 #include "../shapereader.h"
 #include "tap.h"
 #include <errno.h>
 #include <stdio.h>
 #include <string.h>
-#if HAVE_UNISTD_H
 #include <unistd.h>
-#endif
 
 #define FESTIVAL 0
 #define FROM 1
@@ -62,7 +54,7 @@ test_num_records(void)
 static int
 test_header_size(void)
 {
-    return header->header_size == 32 + header->num_fields * 32 + 1;
+    return header->header_size == 32 + (size_t) header->num_fields * 32 + 1;
 }
 
 static int

@@ -22,31 +22,6 @@ AM_PROG_AR
 AC_C_BIGENDIAN
 
 # Checks for library functions.
-AC_MSG_CHECKING([for chdir])
-have_chdir=no
-AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
-#include <unistd.h>
-]],[[
-chdir(".");
-]])],
-[AC_DEFINE([HAVE_CHDIR], [1], [Define to 1 if chdir() exists.])]
-have_chdir=yes
-)
-AC_MSG_RESULT([$have_chdir])
-
-AC_MSG_CHECKING([for stat])
-have_stat=no
-AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
-#include <sys/stat.h>
-]],[[
-struct stat statbuf;
-stat(".", &statbuf);
-]])],
-[AC_DEFINE([HAVE_STAT], [1], [Define to 1 if stat() exists.])]
-have_stat=yes
-)
-AC_MSG_RESULT([$have_stat])
-
 AC_MSG_CHECKING([for strtold])
 have_strtold=no
 AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
