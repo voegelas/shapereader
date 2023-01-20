@@ -12,12 +12,11 @@ int tests_failed = 0;
 
 struct shape_index {
     size_t file_offset;
-    int32_t content_length;
+    size_t record_size;
 };
 
 struct shape_index *shape_index;
 
-const shx_header_t *index_header;
 shx_file_t index_fh;
 
 const shp_header_t *header;
@@ -25,6 +24,7 @@ const shp_record_t *record;
 const shp_polygon_t *polygon;
 shp_file_t fh;
 
+const shx_header_t *index_header;
 size_t index_file_size;
 size_t main_file_size;
 size_t record_file_offset;
@@ -45,9 +45,9 @@ get_file_size(const char *filename)
  */
 
 static int
-test_index_file_length(void)
+test_index_file_size(void)
 {
-    return 2 * (size_t) index_header->file_length == index_file_size;
+    return index_header->file_size == index_file_size;
 }
 
 static int
@@ -61,7 +61,7 @@ handle_shx_header(shx_file_t *fh, const shx_header_t *h)
 {
     record_number = 0;
     index_header = h;
-    ok(test_index_file_length, "index file length matches index file size");
+    ok(test_index_file_size, "index file sizes match");
     return 1;
 }
 
@@ -69,8 +69,8 @@ static int
 handle_shx_record(shx_file_t *fh, const shx_header_t *h,
                   const shx_record_t *r)
 {
-    shape_index[record_number].file_offset = 2 * r->file_offset;
-    shape_index[record_number].content_length = r->content_length;
+    shape_index[record_number].file_offset = r->file_offset;
+    shape_index[record_number].record_size = r->record_size;
     ++record_number;
     return 1;
 }
@@ -109,8 +109,6 @@ read_index_file(const char *filename)
 
     ok(test_index_file_read, "entire index file has been read");
 
-    fclose(fp);
-
     return 1;
 }
 
@@ -129,9 +127,9 @@ test_file_code(void)
 }
 
 static int
-test_main_file_length(void)
+test_main_file_size(void)
 {
-    return 2 * (size_t) header->file_length == main_file_size;
+    return header->file_size == main_file_size;
 }
 
 static int
@@ -319,22 +317,21 @@ test_is_oslo(void)
 }
 
 static int
-test_record_number_matches(void)
+test_record_numbers_match(void)
 {
     return record->record_number == record_number;
 }
 
 static int
-test_file_offset_matches(void)
+test_file_offsets_match(void)
 {
     return record_file_offset == shape_index[record_number].file_offset;
 }
 
 static int
-test_content_length_matches(void)
+test_record_sizes_match(void)
 {
-    return record->content_length ==
-           shape_index[record_number].content_length;
+    return record->record_size == shape_index[record_number].record_size;
 }
 
 static int
@@ -343,7 +340,7 @@ handle_shp_header(shp_file_t *fh, const shp_header_t *h)
     record_number = 0;
     header = h;
     ok(test_file_code, "file code is 9994");
-    ok(test_main_file_length, "file length matches file size");
+    ok(test_main_file_size, "main file sizes match");
     ok(test_version, "version is 1000");
     ok(test_shape_type, "shape type is polygon");
     ok(test_x_min, "x_min is set");
@@ -363,9 +360,9 @@ handle_shp_record(shp_file_t *fh, const shp_header_t *h,
     record_file_offset = file_offset;
     switch (record_number) {
     case 0:
-        ok(test_record_number_matches, "1st record number matches");
-        ok(test_file_offset_matches, "1st file offset matches");
-        ok(test_content_length_matches, "1st content length matches");
+        ok(test_record_numbers_match, "1st record number matches");
+        ok(test_file_offsets_match, "1st file offset matches");
+        ok(test_record_sizes_match, "1st content length matches");
         ok(test_is_polygon, "shape is polygon");
         ok(test_is_inside, "point is inside");
         ok(test_is_outside, "point is outside");
@@ -376,9 +373,9 @@ handle_shp_record(shp_file_t *fh, const shp_header_t *h,
         ok(test_is_outside_box, "point is outside bounding box");
         break;
     case 1:
-        ok(test_record_number_matches, "2nd record number matches");
-        ok(test_file_offset_matches, "2nd file offset matches");
-        ok(test_content_length_matches, "2nd content length matches");
+        ok(test_record_numbers_match, "2nd record number matches");
+        ok(test_file_offsets_match, "2nd file offset matches");
+        ok(test_record_sizes_match, "2nd content length matches");
         ok(test_has_two_parts, "polygon has two parts");
         ok(test_has_eight_points, "polygon has eight points");
         ok(test_is_inside_with_hole, "point is inside polygon with hole");
@@ -388,27 +385,27 @@ handle_shp_record(shp_file_t *fh, const shp_header_t *h,
         ok(test_is_on_outside_egde, "point is on outside edge");
         break;
     case 2:
-        ok(test_record_number_matches, "3rd record number matches");
-        ok(test_file_offset_matches, "3rd file offset matches");
-        ok(test_content_length_matches, "3rd content length matches");
+        ok(test_record_numbers_match, "3rd record number matches");
+        ok(test_file_offsets_match, "3rd file offset matches");
+        ok(test_record_sizes_match, "3rd content length matches");
         ok(test_is_los_angeles, "location is in America/Los_Angeles");
         break;
     case 3:
-        ok(test_record_number_matches, "4th record number matches");
-        ok(test_file_offset_matches, "4th file offset matches");
-        ok(test_content_length_matches, "4th content length matches");
+        ok(test_record_numbers_match, "4th record number matches");
+        ok(test_file_offsets_match, "4th file offset matches");
+        ok(test_record_sizes_match, "4th content length matches");
         ok(test_is_africa_juba, "location is in Africa/Juba");
         break;
     case 4:
-        ok(test_record_number_matches, "5th record number matches");
-        ok(test_file_offset_matches, "5th file offset matches");
-        ok(test_content_length_matches, "5th content length matches");
+        ok(test_record_numbers_match, "5th record number matches");
+        ok(test_file_offsets_match, "5th file offset matches");
+        ok(test_record_sizes_match, "5th content length matches");
         ok(test_is_africa_khartoum, "location is in Africa/Khartoum");
         break;
     case 5:
-        ok(test_record_number_matches, "6th record number matches");
-        ok(test_file_offset_matches, "6th file offset matches");
-        ok(test_content_length_matches, "6th content length matches");
+        ok(test_record_numbers_match, "6th record number matches");
+        ok(test_file_offsets_match, "6th file offset matches");
+        ok(test_record_sizes_match, "6th content length matches");
         ok(test_is_oslo, "location is in Europe/Oslo");
         break;
     }
@@ -443,9 +440,32 @@ read_main_file(const char *filename)
 
     ok(test_main_file_read, "entire main file has been read");
 
-    fclose(fp);
-
     return 1;
+}
+
+void
+seek_test(void)
+{
+    shx_record_t ir;
+    shp_record_t *r = NULL;
+
+    record_number = 5;
+    if (shx_seek_record(&index_fh, record_number, &ir) > 0) {
+        if (shp_seek_record(&fh, ir.file_offset, &r) > 0) {
+            record = r;
+            polygon = &r->shape.polygon;
+            ok(test_is_oslo, "location is in Europe/Oslo");
+            free(r);
+        }
+        else {
+            fprintf(stderr, "# Cannot set file position in main file: %s\n",
+                    index_fh.error);
+        }
+    }
+    else {
+        fprintf(stderr, "# Cannot set file position in index file: %s\n",
+                index_fh.error);
+    }
 }
 
 int
@@ -453,7 +473,7 @@ main(int argc, char *argv[])
 {
     const char *datadir = getenv("datadir");
 
-    plan(48);
+    plan(49);
 
     if (datadir == NULL) {
         fprintf(stderr,
@@ -476,6 +496,11 @@ main(int argc, char *argv[])
         free(shape_index);
         return 1;
     }
+
+    seek_test();
+
+    fclose(fh.fp);
+    fclose(index_fh.fp);
 
     free(shape_index);
 

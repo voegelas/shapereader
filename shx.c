@@ -15,7 +15,6 @@
 #include <errno.h>
 #include <stdarg.h>
 #include <stdio.h>
-#include <stdlib.h>
 
 shx_file_t *
 shx_file(shx_file_t *fh, FILE *fp, void *user_data)
@@ -37,22 +36,23 @@ shx_error(shx_file_t *fh, const char *format, ...)
 }
 
 int
-shx_read_header(shx_file_t *fh, shx_header_t **pheader)
+shx_read_header(shx_file_t *fh, shx_header_t *header)
 {
-    return shp_read_header(fh, pheader);
+    return shp_read_header(fh, header);
 }
 
 static int
-read_record(shx_file_t *fh, shx_record_t *precord)
+read_record(shx_file_t *fh, shx_record_t *record)
 {
     int rc = -1;
     char buf[8];
     size_t nr;
+    int32_t offset, content_length;
 
     nr = fread(buf, 1, 8, fh->fp);
     fh->num_bytes += nr;
     if (ferror(fh->fp)) {
-        shp_error(fh, "Cannot read index record");
+        shx_error(fh, "Cannot read index record");
         goto cleanup;
     }
     if (feof(fh->fp)) {
@@ -61,14 +61,28 @@ read_record(shx_file_t *fh, shx_record_t *precord)
         goto cleanup;
     }
     if (nr != 8) {
-        shp_error(fh, "Expected index record of %zu bytes, got %zu",
+        shx_error(fh, "Expected index record of %zu bytes, got %zu",
                   (size_t) 8, nr);
         errno = EINVAL;
         goto cleanup;
     }
 
-    precord->file_offset = shp_be32_to_int32(&buf[0]);
-    precord->content_length = shp_be32_to_int32(&buf[4]);
+    offset = shp_be32_to_int32(&buf[0]);
+    if (offset < 50) {
+        shx_error(fh, "Offset %ld is invalid", (long) offset);
+        errno = EINVAL;
+        goto cleanup;
+    }
+
+    content_length = shp_be32_to_int32(&buf[4]);
+    if (content_length < 2) {
+        shx_error(fh, "Content length %ld is invalid", (long) content_length);
+        errno = EINVAL;
+        goto cleanup;
+    }
+
+    record->file_offset = 2 * (size_t) offset;
+    record->record_size = 2 * (size_t) content_length;
 
     rc = 1;
 
@@ -78,29 +92,45 @@ cleanup:
 }
 
 int
-shx_read_record(shx_file_t *fh, shx_record_t **precord)
+shx_read_record(shx_file_t *fh, shx_record_t *record)
 {
     int rc = -1;
-    shx_record_t *record = NULL;
 
     assert(fh != NULL);
     assert(fh->fp != NULL);
-    assert(precord != NULL);
+    assert(record != NULL);
 
-    record = (shx_record_t *) malloc(sizeof(*record));
-    if (record == NULL) {
-        shx_error(fh, "Cannot allocate %zu bytes", sizeof(*record));
+    rc = read_record(fh, record);
+
+    return rc;
+}
+
+int
+shx_seek_record(shx_file_t *fh, int32_t record_number, shx_record_t *record)
+{
+    int rc = -1;
+    long n, file_offset;
+
+    assert(fh != NULL);
+    assert(fh->fp != NULL);
+    assert(record != NULL);
+
+    n = (long) record_number;
+    if (n < 0) {
+        shx_error(fh, "Record number %ld is negative\n", n);
+        errno = EINVAL;
         goto cleanup;
     }
-    rc = read_record(fh, record);
-    if (rc <= 0) {
-        free(record);
-        record = NULL;
+
+    file_offset = 100 + 8 * n;
+    if (fseek(fh->fp, file_offset, SEEK_SET) != 0) {
+        shx_error(fh, "Cannot set file position to record number %ld\n", n);
+        goto cleanup;
     }
 
-cleanup:
+    rc = read_record(fh, record);
 
-    *precord = record;
+cleanup:
 
     return rc;
 }
@@ -110,7 +140,7 @@ shx_read(shx_file_t *fh, shx_header_callback_t handle_header,
          shx_record_callback_t handle_record)
 {
     int rc = -1, rc2;
-    shx_header_t *header = NULL;
+    shx_header_t header;
     shx_record_t record;
 
     assert(fh != NULL);
@@ -127,9 +157,7 @@ shx_read(shx_file_t *fh, shx_header_callback_t handle_header,
         goto cleanup;
     }
 
-    assert(header != NULL);
-
-    rc2 = (*handle_header)(fh, header);
+    rc2 = (*handle_header)(fh, &header);
     if (rc2 == 0) {
         /* Stop processing. */
         rc = 0;
@@ -148,7 +176,7 @@ shx_read(shx_file_t *fh, shx_header_callback_t handle_header,
             goto cleanup;
         }
 
-        rc2 = (*handle_record)(fh, header, &record);
+        rc2 = (*handle_record)(fh, &header, &record);
         if (rc2 == 0) {
             /* Stop processing. */
             rc = 0;
@@ -159,8 +187,6 @@ shx_read(shx_file_t *fh, shx_header_callback_t handle_header,
     }
 
 cleanup:
-
-    free(header);
 
     return rc;
 }

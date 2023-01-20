@@ -96,7 +96,7 @@ int read_shp(const char *filename) {
   int rc = -1;
   FILE *fp;
   shp_file_t fh;
-  shp_header_t *header;
+  shp_header_t header;
   shp_record_t *record;
 
   fp = fopen(filename, "rb");
@@ -107,7 +107,6 @@ int read_shp(const char *filename) {
         print_shape(record);
         free(record);
       }
-      free(header);
     }
     if (rc < 0) {
       fprintf(stderr, "%s", fh.error);

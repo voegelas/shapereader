@@ -26,11 +26,11 @@
 typedef shp_header_t shx_header_t;
 
 /**
- * Record
+ * Index record
  */
 typedef struct shx_record_t {
-    int32_t file_offset;    /**< Offset in the ".shp" file in 16-bit words */
-    int32_t content_length; /**< Content length in 16-bit words */
+    size_t file_offset; /**< Offset in the ".shp" file in bytes */
+    size_t record_size; /**< Content length in bytes */
 } shx_record_t;
 
 /**
@@ -51,7 +51,7 @@ typedef shp_file_t shx_file_t;
 extern shx_file_t *shx_file(shx_file_t *fh, FILE *fp, void *user_data);
 
 /**
- * Set an error message.
+ * Set an error message
  *
  * Formats and sets an error message.
  *
@@ -62,7 +62,7 @@ extern shx_file_t *shx_file(shx_file_t *fh, FILE *fp, void *user_data);
 extern void shx_error(shx_file_t *fh, const char *format, ...);
 
 /**
- * Handle the file header.
+ * Handle the file header
  *
  * A callback function that is called for the file header.
  *
@@ -76,7 +76,7 @@ typedef int (*shx_header_callback_t)(shx_file_t *fh,
                                      const shx_header_t *header);
 
 /**
- * Handle a record.
+ * Handle a record
  *
  * A callback function that is called for each record.
  *
@@ -92,13 +92,33 @@ typedef int (*shx_record_callback_t)(shx_file_t *fh,
                                      const shx_record_t *record);
 
 /**
- * Read an index file.
+ * Read an index file
  *
- * Reads files that have the file extension ".shx" and calls functions for the
+ * Reads a file that has the file extension ".shx" and calls functions for the
  * file header and each record.
  *
  * The data that is passed to the callback functions is only valid during the
  * function call.  Do not keep pointers to the data.
+ *
+ * @b Example
+ *
+ * @code{.c}
+ * int handle_header(shx_file_t *fh, const shx_header_t *header) {
+ *   mydata_t *mydata = (mydata_t *) fh->user_data;
+ *   // Do something
+ *   return 1;
+ * }
+ *
+ * int handle_record(shx_file_t *fh, const shx_header_t *header,
+ *                   const shx_record_t *record) {
+ *   mydata_t *mydata = (mydata_t *) fh->user_data;
+ *   // Do something
+ *   return 1;
+ * }
+ *
+ * shx_file(fh, fp, mydata)
+ * rc = shx_read(fh, handle_header, handle_record);
+ * @endcode
  *
  * @param fh a file handle.
  * @param handle_header a function that is called for the file header.
@@ -113,31 +133,60 @@ extern int shx_read(shx_file_t *fh, shx_header_callback_t handle_header,
                     shx_record_callback_t handle_record);
 
 /**
- * Read the file header.
+ * Read the file header
  *
- * Reads the header from files that have the file extension ".shx".
+ * Reads the header from a file that has the file extension ".shx".
  *
  * @param fh a file handle.
- * @param[out] pheader on sucess, a pointer to a shx_header_t structure.
- *                     Free the header with @c free() when you are done.
+ * @param[out] header a shx_header_t structure.
  * @retval 1 on success.
  * @retval 0 on end of file.
  * @retval -1 on error.
+ * @see shx_read_record
  */
-extern int shx_read_header(shx_file_t *fh, shx_header_t **pheader);
+extern int shx_read_header(shx_file_t *fh, shx_header_t *header);
 
 /**
- * Read a record.
+ * Read an index record
  *
- * Reads a record from files that have the file extension ".shx".
+ * Reads an index record from a file that has the file extension ".shx".
+ *
+ * @b Example
+ *
+ * @code{.c}
+ * shx_header_t header;
+ * shx_record_t record;
+ *
+ * if ((rc = shx_read_header(fh, &header)) > 0) {
+ *   while ((rc = shx_read_record(fh, &record)) > 0) {
+ *     // Do something
+ *   }
+ * }
+ * @endcode
  *
  * @param fh a file handle.
- * @param[out] precord on success, a pointer to a shx_record_t structure.
- *                     Free the record with @c free() when you are done.
+ * @param[out] record a shx_record_t structure.
+ * @retval 1 on success.
+ * @retval 0 on end of file.
+ * @retval -1 on error.
+ * @see shx_read_header
+ */
+extern int shx_read_record(shx_file_t *fh, shx_record_t *record);
+
+/**
+ * Read an index record by record number
+ *
+ * Sets the file position to the specified record number and reads the
+ * requested index record.
+ *
+ * @param fh a file handle.
+ * @param record_number a zero-based record number.
+ * @param[out] record a shx_record_t structure.
  * @retval 1 on success.
  * @retval 0 on end of file.
  * @retval -1 on error.
  */
-extern int shx_read_record(shx_file_t *fh, shx_record_t **precord);
+extern int shx_seek_record(shx_file_t *fh, int32_t record_number,
+                           shx_record_t *record);
 
 #endif

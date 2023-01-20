@@ -13,6 +13,7 @@
 #include "convert.h"
 #include <assert.h>
 #include <errno.h>
+#include <limits.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -49,17 +50,16 @@ shp_error(shp_file_t *fh, const char *format, ...)
 }
 
 int
-shp_read_header(shp_file_t *fh, shp_header_t **pheader)
+shp_read_header(shp_file_t *fh, shp_header_t *header)
 {
     int rc = -1;
-    shp_header_t *header = NULL;
     char buf[100];
-    int32_t file_code;
+    int32_t file_code, file_length;
     size_t nr;
 
     assert(fh != NULL);
     assert(fh->fp != NULL);
-    assert(pheader != NULL);
+    assert(header != NULL);
 
     nr = fread(buf, 1, 100, fh->fp);
     fh->num_bytes += nr;
@@ -81,9 +81,10 @@ shp_read_header(shp_file_t *fh, shp_header_t **pheader)
         goto cleanup;
     }
 
-    header = (shp_header_t *) malloc(sizeof(*header));
-    if (header == NULL) {
-        shp_error(fh, "Cannot allocate %zu bytes", sizeof(*header));
+    file_length = shp_be32_to_int32(&buf[24]);
+    if (file_length < 0) {
+        shp_error(fh, "File length %ld is negative", (long) file_length);
+        errno = EINVAL;
         goto cleanup;
     }
 
@@ -93,7 +94,7 @@ shp_read_header(shp_file_t *fh, shp_header_t **pheader)
     header->unused[2] = shp_be32_to_int32(&buf[12]);
     header->unused[3] = shp_be32_to_int32(&buf[16]);
     header->unused[4] = shp_be32_to_int32(&buf[20]);
-    header->file_length = shp_be32_to_int32(&buf[24]);
+    header->file_size = 2 * (size_t) file_length;
     header->version = shp_le32_to_int32(&buf[28]);
     header->shape_type = (shp_shpt_t) shp_le32_to_int32(&buf[32]);
     header->x_min = shp_le64_to_double(&buf[36]);
@@ -106,8 +107,6 @@ shp_read_header(shp_file_t *fh, shp_header_t **pheader)
     header->m_max = shp_le64_to_double(&buf[92]);
 
     if (feof(fh->fp)) {
-        free(header);
-        header = NULL;
         rc = 0;
         goto cleanup;
     }
@@ -116,15 +115,7 @@ shp_read_header(shp_file_t *fh, shp_header_t **pheader)
 
 cleanup:
 
-    *pheader = header;
-
     return rc;
-}
-
-static size_t
-get_record_size(const shp_record_t *record)
-{
-    return 2 * record->content_length;
 }
 
 static int
@@ -133,7 +124,7 @@ get_point(const char *buf, shp_record_t *record)
     int rc = -1;
     shp_point_t *point = &record->shape.point;
 
-    if (get_record_size(record) != 16) {
+    if (record->record_size != 16) {
         errno = EINVAL;
         goto cleanup;
     }
@@ -155,8 +146,8 @@ get_polygon(const char *buf, shp_record_t *record)
     shp_polygon_t *polygon = &record->shape.polygon;
     size_t record_size, parts_size, points_size;
 
-    record_size = get_record_size(record);
-    if (get_record_size(record) < 44) {
+    record_size = record->record_size;
+    if (record_size < 44) {
         errno = EINVAL;
         goto cleanup;
     }
@@ -187,7 +178,7 @@ cleanup:
 }
 
 static int
-read_record(shp_file_t *fh, shp_record_t **precord, size_t *psize)
+read_record(shp_file_t *fh, shp_record_t **precord, size_t *size)
 {
     int rc = -1;
     char header_buf[8], *buf;
@@ -223,18 +214,18 @@ read_record(shp_file_t *fh, shp_record_t **precord, size_t *psize)
         goto cleanup;
     }
 
-    record_size = 2 * content_length;
+    record_size = 2 * (size_t) content_length;
 
     record = *precord;
     buf_size = sizeof(*record) + record_size;
-    if (record == NULL || *psize < buf_size) {
+    if (record == NULL || *size < buf_size) {
         record = (shp_record_t *) realloc(record, buf_size);
         if (record == NULL) {
             shp_error(fh, "Cannot allocate %zu bytes", buf_size);
             goto cleanup;
         }
         *precord = record;
-        *psize = buf_size;
+        *size = buf_size;
     }
 
     buf = ((char *) record) + sizeof(*record);
@@ -253,7 +244,7 @@ read_record(shp_file_t *fh, shp_record_t **precord, size_t *psize)
     }
 
     record->record_number = record_number;
-    record->content_length = content_length;
+    record->record_size = record_size;
     record->shape_type = (shp_shpt_t) shp_le32_to_int32(&buf[0]);
     switch (record->shape_type) {
     case SHPT_NULL:
@@ -299,11 +290,41 @@ shp_read_record(shp_file_t *fh, shp_record_t **precord)
 }
 
 int
+shp_seek_record(shp_file_t *fh, size_t file_offset, shp_record_t **precord)
+{
+    int rc = -1;
+    shp_record_t *record = NULL;
+    size_t buf_size = 0;
+
+    assert(fh != NULL);
+    assert(fh->fp != NULL);
+    assert(precord != NULL);
+
+    if (file_offset > LONG_MAX ||
+        fseek(fh->fp, (long) file_offset, SEEK_SET) != 0) {
+        shp_error(fh, "Cannot set file position to %zu\n", file_offset);
+        goto cleanup;
+    }
+
+    rc = read_record(fh, &record, &buf_size);
+    if (rc <= 0) {
+        free(record);
+        record = NULL;
+    }
+
+cleanup:
+
+    *precord = record;
+
+    return rc;
+}
+
+int
 shp_read(shp_file_t *fh, shp_header_callback_t handle_header,
          shp_record_callback_t handle_record)
 {
     int rc = -1, rc2;
-    shp_header_t *header = NULL;
+    shp_header_t header;
     shp_record_t *record = NULL;
     size_t buf_size;
     size_t file_offset;
@@ -322,9 +343,7 @@ shp_read(shp_file_t *fh, shp_header_callback_t handle_header,
         goto cleanup;
     }
 
-    assert(header != NULL);
-
-    rc2 = (*handle_header)(fh, header);
+    rc2 = (*handle_header)(fh, &header);
     if (rc2 == 0) {
         /* Stop processing. */
         rc = 0;
@@ -353,7 +372,7 @@ shp_read(shp_file_t *fh, shp_header_callback_t handle_header,
             goto cleanup;
         }
 
-        rc2 = (*handle_record)(fh, header, record, file_offset);
+        rc2 = (*handle_record)(fh, &header, record, file_offset);
         if (rc2 == 0) {
             /* Stop processing. */
             rc = 0;
@@ -366,7 +385,6 @@ shp_read(shp_file_t *fh, shp_header_callback_t handle_header,
 cleanup:
 
     free(record);
-    free(header);
 
     return rc;
 }
