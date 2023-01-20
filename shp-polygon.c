@@ -9,14 +9,14 @@
 
 /* SPDX-License-Identifier: ISC OR Artistic-1.0-Perl OR GPL-1.0-or-later */
 
-#include "convert.h"
 #include "shp-polygon.h"
+#include "convert.h"
 #include <assert.h>
 #include <stddef.h>
 
 int32_t
 shp_polygon_points(const shp_polygon_t *polygon, int32_t part_num,
-                   int32_t *pstart, int32_t *pend)
+                   int32_t *start, int32_t *end)
 {
     int32_t num_points = 0;
     int32_t i, j, m;
@@ -25,8 +25,8 @@ shp_polygon_points(const shp_polygon_t *polygon, int32_t part_num,
     assert(polygon != NULL);
     assert(part_num >= 0);
     assert(part_num < polygon->num_parts);
-    assert(pstart != NULL);
-    assert(pend != NULL);
+    assert(start != NULL);
+    assert(end != NULL);
 
     m = polygon->num_points;
 
@@ -39,8 +39,8 @@ shp_polygon_points(const shp_polygon_t *polygon, int32_t part_num,
         j = m;
     }
 
-    *pstart = i;
-    *pend = j;
+    *start = i;
+    *end = j;
 
     /* Is the range valid? */
     if (i >= 0 && i < m && j >= 0 && j <= m && i < j) {

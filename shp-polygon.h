@@ -23,9 +23,9 @@
 /**
  * Polygon
  *
- * A polygon consists of one or more rings.  A ring is a connected sequence of
- * four or more points that form a closed, non-self-intersecting loop.  See
- * the "ESRI Shapefile Technical Description" @cite ESRI_shape for more
+ * A polygon consists of one or more parts.  A part is a connected sequence of
+ * four or more points that form a closed, non-self-intersecting loop.  See the
+ * "ESRI Shapefile Technical Description" @cite ESRI_shape for more
  * information.
  */
 typedef struct shp_polygon_t {
@@ -37,27 +37,43 @@ typedef struct shp_polygon_t {
 } shp_polygon_t;
 
 /**
- * Get the points that form a ring.
+ * Get the points that form a part
  *
  * Gets the indices for the points specified by @p part_num.
  *
  * @memberof shp_polygon_t
  * @param polygon a polygon.
  * @param part_num a zero-based part number.
- * @param[out] pstart the range start.
- * @param[out] pend the range end (exclusive).
+ * @param[out] start the range start.
+ * @param[out] end the range end (exclusive).
  * @return the number of points in the range.
  *
  * @see shp_polygon_point
  */
 extern int32_t shp_polygon_points(const shp_polygon_t *polygon,
-                                  int32_t part_num, int32_t *pstart,
-                                  int32_t *pend);
+                                  int32_t part_num, int32_t *start,
+                                  int32_t *end);
 
 /**
- * Get a point.
+ * Get a point
  *
  * Gets a point that belongs to the edges of a polygon.
+ *
+ * @b Example
+ *
+ * @code{.c}
+ * // Iterate over all parts and points
+ * int32_t part_num, i, n;
+ * shp_point_t point;
+ *
+ * for (part_num = 0; part_num < polygon->num_parts; ++part_num) {
+ *   shp_polygon_points(polygon, part_num, &i, &n);
+ *   while (i < n) {
+ *     shp_polygon_point(polygon, i, &point);
+ *     ++i;
+ *   }
+ * }
+ * @endcode
  *
  * @memberof shp_polygon_t
  * @param polygon a polygon.
@@ -70,7 +86,7 @@ extern void shp_polygon_point(const shp_polygon_t *polygon, int32_t point_num,
                               shp_point_t *ppoint);
 
 /**
- * Check whether a point is in a polygon.
+ * Check whether a point is in a polygon
  *
  * Determines whether a point is inside or outside a polygon.  Uses the
  * algorithm described in the article "Optimal Reliable Point-in-Polygon Test

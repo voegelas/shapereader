@@ -198,14 +198,14 @@ day_of_year(int day, int month, int year)
 }
 
 void
-shp_jd_to_tm(int32_t jd, int32_t jt, struct tm *ptm)
+shp_jd_to_tm(int32_t jd, int32_t jt, struct tm *tm)
 {
     int sec, min, hour, day, month, year;
     int64_t a, b, c, d, e, alpha;
     double s, m, h;
     const double month_days_without_jan_feb = (365 - 31 - 28) / 10.0;
 
-    assert(ptm != NULL);
+    assert(tm != NULL);
 
     a = jd;
     if (jd >= 2299161) {
@@ -243,20 +243,20 @@ shp_jd_to_tm(int32_t jd, int32_t jt, struct tm *ptm)
     min = (int) ((h - hour) * 60.0);
     sec = (int) ((m - min) * 60.0 - hour * 3600.0);
 
-    memset(ptm, 0, sizeof(*ptm)); /* NOLINT */
-    ptm->tm_sec = sec;
-    ptm->tm_min = min;
-    ptm->tm_hour = hour;
-    ptm->tm_mday = day;
-    ptm->tm_mon = month - 1;
-    ptm->tm_year = year - 1900;
-    ptm->tm_wday = (int) ((jd + 1) % 7);
-    ptm->tm_yday = day_of_year(day, month, year) - 1;
-    ptm->tm_isdst = -1;
+    memset(tm, 0, sizeof(*tm)); /* NOLINT */
+    tm->tm_sec = sec;
+    tm->tm_min = min;
+    tm->tm_hour = hour;
+    tm->tm_mday = day;
+    tm->tm_mon = month - 1;
+    tm->tm_year = year - 1900;
+    tm->tm_wday = (int) ((jd + 1) % 7);
+    tm->tm_yday = day_of_year(day, month, year) - 1;
+    tm->tm_isdst = -1;
 }
 
 int
-shp_yyyymmdd_to_tm(const char *ymd, size_t n, struct tm *ptm)
+shp_yyyymmdd_to_tm(const char *ymd, size_t n, struct tm *tm)
 {
     int ok = 0;
     int day = 0, month = 0, year = 0, wday = 0, yday = 0;
@@ -264,7 +264,7 @@ shp_yyyymmdd_to_tm(const char *ymd, size_t n, struct tm *ptm)
     int c;
 
     assert(ymd != NULL);
-    assert(ptm != NULL);
+    assert(tm != NULL);
 
     k = 0;
     z = 1;
@@ -303,15 +303,15 @@ shp_yyyymmdd_to_tm(const char *ymd, size_t n, struct tm *ptm)
         }
     }
 
-    memset(ptm, 0, sizeof(*ptm)); /* NOLINT */
+    memset(tm, 0, sizeof(*tm)); /* NOLINT */
     if (ok) {
-        ptm->tm_mday = day;
-        ptm->tm_mon = month - 1;
-        ptm->tm_year = year - 1900;
-        ptm->tm_wday = wday;
-        ptm->tm_yday = yday - 1;
+        tm->tm_mday = day;
+        tm->tm_mon = month - 1;
+        tm->tm_year = year - 1900;
+        tm->tm_wday = wday;
+        tm->tm_yday = yday - 1;
     }
-    ptm->tm_isdst = -1;
+    tm->tm_isdst = -1;
 
     return ok;
 }

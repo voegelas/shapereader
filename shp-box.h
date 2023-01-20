@@ -31,7 +31,7 @@ typedef struct shp_box_t {
 } shp_box_t;
 
 /**
- * Check whether a point is in a bounding box.
+ * Check whether a point is in a bounding box
  *
  * Determines whether a point is inside or outside a bounding box.
  *

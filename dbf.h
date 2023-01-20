@@ -106,7 +106,7 @@ typedef struct dbf_record_t {
 } dbf_record_t;
 
 /**
- * Get bytes.
+ * Get bytes
  *
  * Gets the bytes and the number of bytes from a field in a record.
  *
@@ -114,11 +114,11 @@ typedef struct dbf_record_t {
  * @param record a record.
  * @param field a field in the record.
  * @param[out] pbytes a pointer to the bytes.
- * @param[out] plen the number of bytes.
+ * @param[out] len the number of bytes.
  */
 extern void dbf_record_bytes(const dbf_record_t *record,
                              const dbf_field_t *field, const char **pbytes,
-                             size_t *plen);
+                             size_t *len);
 
 /**
  * Get a date
@@ -134,11 +134,11 @@ extern void dbf_record_bytes(const dbf_record_t *record,
  * @memberof dbf_record_t
  * @param record a record.
  * @param field a field in the record.
- * @param[out] ptm a tm structure.
+ * @param[out] tm a tm structure.
  * @return true on success, otherwise false.
  */
 extern int dbf_record_date(const dbf_record_t *record,
-                           const dbf_field_t *field, struct tm *ptm);
+                           const dbf_field_t *field, struct tm *tm);
 
 /**
  * Get a date and a time
@@ -150,11 +150,11 @@ extern int dbf_record_date(const dbf_record_t *record,
  * @memberof dbf_record_t
  * @param record a record.
  * @param field a field in the record.
- * @param[out] ptm a tm structure.
+ * @param[out] tm a tm structure.
  * @return true on success, otherwise false.
  */
 extern int dbf_record_datetime(const dbf_record_t *record,
-                               const dbf_field_t *field, struct tm *ptm);
+                               const dbf_field_t *field, struct tm *tm);
 
 /**
  * Get a double value
@@ -164,11 +164,11 @@ extern int dbf_record_datetime(const dbf_record_t *record,
  * @memberof dbf_record_t
  * @param record a record.
  * @param field a field in the record.
- * @param[out] pvalue the double value.
+ * @param[out] value the double value.
  * @return true on success, otherwise false.
  */
 extern int dbf_record_double(const dbf_record_t *record,
-                             const dbf_field_t *field, double *pvalue);
+                             const dbf_field_t *field, double *value);
 
 /**
  * Get a 32-bit integer value
@@ -178,11 +178,11 @@ extern int dbf_record_double(const dbf_record_t *record,
  * @memberof dbf_record_t
  * @param record a record.
  * @param field a field in the record.
- * @param[out] pvalue the unscaled value.
+ * @param[out] value the unscaled value.
  * @return true on success, otherwise false.
  */
 extern int dbf_record_int32(const dbf_record_t *record,
-                            const dbf_field_t *field, int32_t *pvalue);
+                            const dbf_field_t *field, int32_t *value);
 
 /**
  * Get a 64-bit integer value
@@ -196,14 +196,14 @@ extern int dbf_record_int32(const dbf_record_t *record,
  * @memberof dbf_record_t
  * @param record a record.
  * @param field a field in the record.
- * @param[out] pvalue the unscaled value.
+ * @param[out] value the unscaled value.
  * @return true on success, otherwise false.
  */
 extern int dbf_record_int64(const dbf_record_t *record,
-                            const dbf_field_t *field, int64_t *pvalue);
+                            const dbf_field_t *field, int64_t *value);
 
 /**
- * Check if a record is deleted.
+ * Check if a record is deleted
  *
  * Returns true if the record is marked as deleted.
  *
@@ -214,7 +214,7 @@ extern int dbf_record_int64(const dbf_record_t *record,
 extern int dbf_record_is_deleted(const dbf_record_t *record);
 
 /**
- * Check if a field is null.
+ * Check if a field is null
  *
  * Returns true if the field contains an empty string, if a number field
  * contains asterisks, if a date field is "00000000" or if a logical field is
@@ -229,7 +229,7 @@ extern int dbf_record_is_null(const dbf_record_t *record,
                               const dbf_field_t *field);
 
 /**
- * Get a logical value.
+ * Get a logical value
  *
  * Returns the value of a logical field.
  *
@@ -248,7 +248,7 @@ extern int dbf_record_logical(const dbf_record_t *record,
                               const dbf_field_t *field);
 
 /**
- * Check if a logical value is false.
+ * Check if a logical value is false
  *
  * Returns true if a field's value is 'F', 'f', 'N' or 'n'.
  *
@@ -263,7 +263,7 @@ extern int dbf_record_logical_is_false(const dbf_record_t *record,
                                        const dbf_field_t *field);
 
 /**
- * Check if a logical value is true.
+ * Check if a logical value is true
  *
  * Returns true if a field's value is 'T', 't', 'Y' or 'y'.
  *
@@ -278,7 +278,7 @@ extern int dbf_record_logical_is_true(const dbf_record_t *record,
                                       const dbf_field_t *field);
 
 /**
- * Duplicate a string.
+ * Duplicate a string
  *
  * Duplicates a string.  The string is not decoded to UTF-8.
  *
@@ -292,7 +292,7 @@ extern char *dbf_record_strdup(const dbf_record_t *record,
                                const dbf_field_t *field);
 
 /**
- * Get a string.
+ * Get a string
  *
  * Gets a string and its length.  The string is not null-terminated and not
  * decoded to UTF-8.
@@ -301,14 +301,14 @@ extern char *dbf_record_strdup(const dbf_record_t *record,
  * @param record a record.
  * @param field a field in the record.
  * @param[out] pstr a pointer to the string.
- * @param[out] plen the length.
+ * @param[out] len the length.
  */
 extern void dbf_record_string(const dbf_record_t *record,
                               const dbf_field_t *field, const char **pstr,
-                              size_t *plen);
+                              size_t *len);
 
 /**
- * Convert a string to double representation.
+ * Convert a string to double representation
  *
  * Converts a numeric string to a floating-point number.  Fails if the string
  * does not contain a number.
@@ -316,14 +316,14 @@ extern void dbf_record_string(const dbf_record_t *record,
  * @memberof dbf_record_t
  * @param record a record.
  * @param field a field in the record.
- * @param[out] pvalue the converted value.
+ * @param[out] value the converted value.
  * @return true on success, otherwise false.
  */
 extern int dbf_record_strtod(const dbf_record_t *record,
-                             const dbf_field_t *field, double *pvalue);
+                             const dbf_field_t *field, double *value);
 
 /**
- * Convert a string to a long integer.
+ * Convert a string to a long integer
  *
  * Converts a numeric string to a long integer.  Fails if the string does not
  * contain a number with no decimal places.
@@ -332,15 +332,14 @@ extern int dbf_record_strtod(const dbf_record_t *record,
  * @param record a record.
  * @param field a field in the record.
  * @param base 10 for decimal.  See strtol(3) for details.
- * @param[out] pvalue the converted value.
+ * @param[out] value the converted value.
  * @return true on success, otherwise false.
  */
 extern int dbf_record_strtol(const dbf_record_t *record,
-                             const dbf_field_t *field, int base,
-                             long *pvalue);
+                             const dbf_field_t *field, int base, long *value);
 
 /**
- * Convert a string to long double representation.
+ * Convert a string to long double representation
  *
  * Converts a numeric string field to a floating-point number.  Fails if the
  * string does not contain a number.
@@ -348,14 +347,14 @@ extern int dbf_record_strtol(const dbf_record_t *record,
  * @memberof dbf_record_t
  * @param record a record.
  * @param field a field in the record.
- * @param[out] pvalue the converted value.
+ * @param[out] value the converted value.
  * @return true on success, otherwise false.
  */
 extern int dbf_record_strtold(const dbf_record_t *record,
-                              const dbf_field_t *field, long double *pvalue);
+                              const dbf_field_t *field, long double *value);
 
 /**
- * Convert a string to a long long integer.
+ * Convert a string to a long long integer
  *
  * Converts a numeric string to a long long integer.  Fails if the string
  * does not contain a number with no decimal places.
@@ -364,15 +363,15 @@ extern int dbf_record_strtold(const dbf_record_t *record,
  * @param record a record.
  * @param field a field in the record.
  * @param base 10 for decimal.  See strtol(3) for details.
- * @param[out] pvalue the converted value.
+ * @param[out] value the converted value.
  * @return true on success, otherwise false.
  */
 extern int dbf_record_strtoll(const dbf_record_t *record,
                               const dbf_field_t *field, int base,
-                              long long *pvalue);
+                              long long *value);
 
 /**
- * Convert a string to an unsigned long integer.
+ * Convert a string to an unsigned long integer
  *
  * Converts a numeric string to an unsigned long integer.  Fails if the
  * string does not contain a non-negative number with no decimal places.
@@ -381,15 +380,15 @@ extern int dbf_record_strtoll(const dbf_record_t *record,
  * @param record a record.
  * @param field a field in the record.
  * @param base 10 for decimal.  See strtoul(3) for details.
- * @param[out] pvalue the converted value.
+ * @param[out] value the converted value.
  * @return true on success, otherwise false.
  */
 extern int dbf_record_strtoul(const dbf_record_t *record,
                               const dbf_field_t *field, int base,
-                              unsigned long *pvalue);
+                              unsigned long *value);
 
 /**
- * Convert a string to an unsigned long long integer.
+ * Convert a string to an unsigned long long integer
  *
  * Converts a numeric string to an unsigned long long integer.  Fails if the
  * string does not contain a non-negative number with no decimal places.
@@ -398,12 +397,12 @@ extern int dbf_record_strtoul(const dbf_record_t *record,
  * @param record a record.
  * @param field a field in the record.
  * @param base 10 for decimal.  See strtoull(3) for details.
- * @param[out] pvalue the converted value.
+ * @param[out] value the converted value.
  * @return true on success, otherwise false.
  */
 extern int dbf_record_strtoull(const dbf_record_t *record,
                                const dbf_field_t *field, int base,
-                               unsigned long long *pvalue);
+                               unsigned long long *value);
 
 /**
  * File handle
@@ -429,7 +428,7 @@ typedef struct dbf_file_t {
 extern dbf_file_t *dbf_file(dbf_file_t *fh, FILE *fp, void *user_data);
 
 /**
- * Set an error message.
+ * Set an error message
  *
  * Formats and sets an error message.
  *
@@ -440,7 +439,7 @@ extern dbf_file_t *dbf_file(dbf_file_t *fh, FILE *fp, void *user_data);
 extern void dbf_error(dbf_file_t *fh, const char *format, ...);
 
 /**
- * Handle the file header.
+ * Handle the file header
  *
  * A callback function that is called for the file header.
  *
@@ -454,7 +453,7 @@ typedef int (*dbf_header_callback_t)(dbf_file_t *fh,
                                      const dbf_header_t *header);
 
 /**
- * Handle a record.
+ * Handle a record
  *
  * A callback function that is called for each record.
  *
@@ -472,13 +471,33 @@ typedef int (*dbf_record_callback_t)(dbf_file_t *fh,
                                      size_t file_offset);
 
 /**
- * Read a data file.
+ * Read a data file
  *
- * Reads files that have the file extension ".dbf" and calls functions for the
+ * Reads a file that has the file extension ".dbf" and calls functions for the
  * file header and each record.
  *
  * The data that is passed to the callback functions is only valid during the
  * function call.  Do not keep pointers to the data.
+ *
+ * @b Example
+ *
+ * @code{.c}
+ * int handle_header(dbf_file_t *fh, const dbf_header_t *header) {
+ *   mydata_t *mydata = (mydata_t *) fh->user_data;
+ *   // Do something
+ *   return 1;
+ * }
+ *
+ * int handle_record(dbf_file_t *fh, const dbf_header_t *header,
+ *                   const dbf_record_t *record, size_t file_offset) {
+ *   mydata_t *mydata = (mydata_t *) fh->user_data;
+ *   // Do something
+ *   return 1;
+ * }
+ *
+ * dbf_file(fh, fp, mydata)
+ * rc = dbf_read(fh, handle_header, handle_record);
+ * @endcode
  *
  * @param fh a file handle.
  * @param handle_header a function that is called for the file header.
@@ -493,9 +512,9 @@ extern int dbf_read(dbf_file_t *fh, dbf_header_callback_t handle_header,
                     dbf_record_callback_t handle_record);
 
 /**
- * Read the file header.
+ * Read the file header
  *
- * Reads the header from files that have the file extension ".dbf".
+ * Reads the header from a file that has the file extension ".dbf".
  *
  * @param fh a file handle.
  * @param[out] pheader on sucess, a pointer to a dbf_header_t structure.
@@ -503,13 +522,29 @@ extern int dbf_read(dbf_file_t *fh, dbf_header_callback_t handle_header,
  * @retval 1 on success.
  * @retval 0 on end of file.
  * @retval -1 on error.
+ * @see dbf_read_record
  */
 extern int dbf_read_header(dbf_file_t *fh, dbf_header_t **pheader);
 
 /**
- * Read a record.
+ * Read a record
  *
- * Reads a record from files that have the file extension ".dbf".
+ * Reads a record from a file that has the file extension ".dbf".
+ *
+ * @b Example
+ *
+ * @code{.c}
+ * dbf_header_t *header;
+ * dbf_record_t *record;
+ *
+ * if ((rc = dbf_read_header(fh, &header)) > 0) {
+ *   while ((rc = dbf_read_record(fh, &record)) > 0) {
+ *     // Do something
+ *     free(record);
+ *   }
+ *   free(header);
+ * }
+ * @endcode
  *
  * @param fh a file handle.
  * @param[out] precord on sucess, a pointer to a dbf_record_t structure.
@@ -517,6 +552,7 @@ extern int dbf_read_header(dbf_file_t *fh, dbf_header_t **pheader);
  * @retval 1 on success.
  * @retval 0 on end of file.
  * @retval -1 on error.
+ * @see dbf_read_header
  */
 extern int dbf_read_record(dbf_file_t *fh, dbf_record_t **precord);
 

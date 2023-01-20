@@ -61,16 +61,16 @@ field_size(const dbf_field_t *field)
 
 static void
 get_bytes_readonly(const dbf_record_t *record, const dbf_field_t *field,
-                   const char **pbytes, size_t *plen)
+                   const char **pbytes, size_t *len)
 {
     *pbytes = record->_bytes + field->_offset;
-    *plen = field->_size;
+    *len = field->_size;
 }
 
 static void
 get_left_justified_string(const dbf_record_t *record,
                           const dbf_field_t *field, const char **pstr,
-                          size_t *plen)
+                          size_t *len)
 {
     const char *s;
     size_t n;
@@ -80,13 +80,13 @@ get_left_justified_string(const dbf_record_t *record,
         --n;
     }
     *pstr = s;
-    *plen = n;
+    *len = n;
 }
 
 static void
 get_right_justified_string(const dbf_record_t *record,
                            const dbf_field_t *field, const char **pstr,
-                           size_t *plen)
+                           size_t *len)
 {
     const char *s;
     size_t n;
@@ -97,39 +97,39 @@ get_right_justified_string(const dbf_record_t *record,
         --n;
     }
     *pstr = s;
-    *plen = n;
+    *len = n;
 }
 
 void
 dbf_record_bytes(const dbf_record_t *record, const dbf_field_t *field,
-                 const char **pbytes, size_t *plen)
+                 const char **pbytes, size_t *len)
 {
     assert(record != NULL);
     assert(field != NULL);
     assert(pbytes != NULL);
-    assert(plen != NULL);
+    assert(len != NULL);
 
-    get_bytes_readonly(record, field, pbytes, plen);
+    get_bytes_readonly(record, field, pbytes, len);
 }
 
 int
 dbf_record_date(const dbf_record_t *record, const dbf_field_t *field,
-                struct tm *ptm)
+                struct tm *tm)
 {
     const char *s;
     size_t n;
 
     assert(record != NULL);
     assert(field != NULL);
-    assert(ptm != NULL);
+    assert(tm != NULL);
 
     get_bytes_readonly(record, field, &s, &n);
-    return shp_yyyymmdd_to_tm(s, n, ptm);
+    return shp_yyyymmdd_to_tm(s, n, tm);
 }
 
 int
 dbf_record_datetime(const dbf_record_t *record, const dbf_field_t *field,
-                    struct tm *ptm)
+                    struct tm *tm)
 {
     int ok = 0;
     const char *bytes;
@@ -138,7 +138,7 @@ dbf_record_datetime(const dbf_record_t *record, const dbf_field_t *field,
 
     assert(record != NULL);
     assert(field != NULL);
-    assert(ptm != NULL);
+    assert(tm != NULL);
 
     get_bytes_readonly(record, field, &bytes, &n);
     if (n == 8) {
@@ -146,13 +146,13 @@ dbf_record_datetime(const dbf_record_t *record, const dbf_field_t *field,
         jt = shp_le32_to_int32(&bytes[4]);
         ok = 1;
     }
-    shp_jd_to_tm(jdn, jt, ptm);
+    shp_jd_to_tm(jdn, jt, tm);
     return ok;
 }
 
 int
 dbf_record_double(const dbf_record_t *record, const dbf_field_t *field,
-                  double *pvalue)
+                  double *value)
 {
     int ok = 0;
     const char *bytes;
@@ -161,20 +161,20 @@ dbf_record_double(const dbf_record_t *record, const dbf_field_t *field,
 
     assert(record != NULL);
     assert(field != NULL);
-    assert(pvalue != NULL);
+    assert(value != NULL);
 
     get_bytes_readonly(record, field, &bytes, &n);
     if (n == 8) {
         d = shp_le64_to_double(bytes);
         ok = 1;
     }
-    *pvalue = d;
+    *value = d;
     return ok;
 }
 
 int
 dbf_record_int32(const dbf_record_t *record, const dbf_field_t *field,
-                 int32_t *pvalue)
+                 int32_t *value)
 {
     int ok = 0;
     const char *bytes;
@@ -183,20 +183,20 @@ dbf_record_int32(const dbf_record_t *record, const dbf_field_t *field,
 
     assert(record != NULL);
     assert(field != NULL);
-    assert(pvalue != NULL);
+    assert(value != NULL);
 
     get_bytes_readonly(record, field, &bytes, &n);
     if (n == 4) {
         i = shp_le32_to_int32(bytes);
         ok = 1;
     }
-    *pvalue = i;
+    *value = i;
     return ok;
 }
 
 int
 dbf_record_int64(const dbf_record_t *record, const dbf_field_t *field,
-                 int64_t *pvalue)
+                 int64_t *value)
 {
     int ok = 0;
     int64_t i = 0;
@@ -205,14 +205,14 @@ dbf_record_int64(const dbf_record_t *record, const dbf_field_t *field,
 
     assert(record != NULL);
     assert(field != NULL);
-    assert(pvalue != NULL);
+    assert(value != NULL);
 
     get_bytes_readonly(record, field, &bytes, &n);
     if (n == 8) {
         i = shp_le64_to_int64(&bytes[0]);
         ok = 1;
     }
-    *pvalue = i;
+    *value = i;
     return ok;
 }
 
@@ -366,19 +366,19 @@ dbf_record_strdup(const dbf_record_t *record, const dbf_field_t *field)
 
 void
 dbf_record_string(const dbf_record_t *record, const dbf_field_t *field,
-                  const char **pstr, size_t *plen)
+                  const char **pstr, size_t *len)
 {
     assert(record != NULL);
     assert(field != NULL);
     assert(pstr != NULL);
-    assert(plen != NULL);
+    assert(len != NULL);
 
-    get_left_justified_string(record, field, pstr, plen);
+    get_left_justified_string(record, field, pstr, len);
 }
 
 int
 dbf_record_strtod(const dbf_record_t *record, const dbf_field_t *field,
-                  double *pvalue)
+                  double *value)
 {
     int ok = 0;
     double d = 0.0;
@@ -388,7 +388,7 @@ dbf_record_strtod(const dbf_record_t *record, const dbf_field_t *field,
 
     assert(record != NULL);
     assert(field != NULL);
-    assert(pvalue != NULL);
+    assert(value != NULL);
 
     get_right_justified_string(record, field, &s, &n);
     if (n > 0) {
@@ -399,13 +399,13 @@ dbf_record_strtod(const dbf_record_t *record, const dbf_field_t *field,
             ok = (end[0] == '\0');
         }
     }
-    *pvalue = d;
+    *value = d;
     return ok;
 }
 
 int
 dbf_record_strtol(const dbf_record_t *record, const dbf_field_t *field,
-                  int base, long *pvalue)
+                  int base, long *value)
 {
     int ok = 0;
     long l = 0;
@@ -415,7 +415,7 @@ dbf_record_strtol(const dbf_record_t *record, const dbf_field_t *field,
 
     assert(record != NULL);
     assert(field != NULL);
-    assert(pvalue != NULL);
+    assert(value != NULL);
 
     get_right_justified_string(record, field, &s, &n);
     if (n > 0) {
@@ -426,13 +426,13 @@ dbf_record_strtol(const dbf_record_t *record, const dbf_field_t *field,
             ok = (end[0] == '\0');
         }
     }
-    *pvalue = l;
+    *value = l;
     return ok;
 }
 
 int
 dbf_record_strtold(const dbf_record_t *record, const dbf_field_t *field,
-                   long double *pvalue)
+                   long double *value)
 {
     int ok = 0;
     long double d = 0.0;
@@ -442,7 +442,7 @@ dbf_record_strtold(const dbf_record_t *record, const dbf_field_t *field,
 
     assert(record != NULL);
     assert(field != NULL);
-    assert(pvalue != NULL);
+    assert(value != NULL);
 
     get_right_justified_string(record, field, &s, &n);
     if (n > 0) {
@@ -453,13 +453,13 @@ dbf_record_strtold(const dbf_record_t *record, const dbf_field_t *field,
             ok = (end[0] == '\0');
         }
     }
-    *pvalue = d;
+    *value = d;
     return ok;
 }
 
 int
 dbf_record_strtoll(const dbf_record_t *record, const dbf_field_t *field,
-                   int base, long long *pvalue)
+                   int base, long long *value)
 {
     int ok = 0;
     long long l = 0;
@@ -469,7 +469,7 @@ dbf_record_strtoll(const dbf_record_t *record, const dbf_field_t *field,
 
     assert(record != NULL);
     assert(field != NULL);
-    assert(pvalue != NULL);
+    assert(value != NULL);
 
     get_right_justified_string(record, field, &s, &n);
     if (n > 0) {
@@ -480,13 +480,13 @@ dbf_record_strtoll(const dbf_record_t *record, const dbf_field_t *field,
             ok = (end[0] == '\0');
         }
     }
-    *pvalue = l;
+    *value = l;
     return ok;
 }
 
 int
 dbf_record_strtoul(const dbf_record_t *record, const dbf_field_t *field,
-                   int base, unsigned long *pvalue)
+                   int base, unsigned long *value)
 {
     int ok = 0;
     unsigned long l = 0;
@@ -496,7 +496,7 @@ dbf_record_strtoul(const dbf_record_t *record, const dbf_field_t *field,
 
     assert(record != NULL);
     assert(field != NULL);
-    assert(pvalue != NULL);
+    assert(value != NULL);
 
     get_right_justified_string(record, field, &s, &n);
     if (n > 0) {
@@ -507,13 +507,13 @@ dbf_record_strtoul(const dbf_record_t *record, const dbf_field_t *field,
             ok = (end[0] == '\0');
         }
     }
-    *pvalue = l;
+    *value = l;
     return ok;
 }
 
 int
 dbf_record_strtoull(const dbf_record_t *record, const dbf_field_t *field,
-                    int base, unsigned long long *pvalue)
+                    int base, unsigned long long *value)
 {
     int ok = 0;
     unsigned long long l = 0;
@@ -523,7 +523,7 @@ dbf_record_strtoull(const dbf_record_t *record, const dbf_field_t *field,
 
     assert(record != NULL);
     assert(field != NULL);
-    assert(pvalue != NULL);
+    assert(value != NULL);
 
     get_right_justified_string(record, field, &s, &n);
     if (n > 0) {
@@ -534,7 +534,7 @@ dbf_record_strtoull(const dbf_record_t *record, const dbf_field_t *field,
             ok = (end[0] == '\0');
         }
     }
-    *pvalue = l;
+    *value = l;
     return ok;
 }
 
@@ -571,7 +571,7 @@ database_type(dbf_version_t version)
 }
 
 static void
-get_field_dbase2(const char *buf, size_t *poffset, dbf_field_t *field)
+get_field_dbase2(const char *buf, size_t *offset, dbf_field_t *field)
 {
     int i;
 
@@ -586,12 +586,12 @@ get_field_dbase2(const char *buf, size_t *poffset, dbf_field_t *field)
     }
 
     field->_size = field_size(field);
-    field->_offset = *poffset;
-    *poffset += field->_size;
+    field->_offset = *offset;
+    *offset += field->_size;
 }
 
 static void
-get_field_dbase3(const char *buf, size_t *poffset, dbf_field_t *field)
+get_field_dbase3(const char *buf, size_t *offset, dbf_field_t *field)
 {
     int i;
 
@@ -606,8 +606,8 @@ get_field_dbase3(const char *buf, size_t *poffset, dbf_field_t *field)
     }
 
     field->_size = field_size(field);
-    field->_offset = *poffset;
-    *poffset += field->_size;
+    field->_offset = *offset;
+    *offset += field->_size;
 }
 
 static int
@@ -897,6 +897,7 @@ dbf_read_header(dbf_file_t *fh, dbf_header_t **pheader)
     default:
         dbf_error(fh, "Database version %d is not supported", version);
         errno = EINVAL;
+        *pheader = NULL;
         goto cleanup;
     }
 

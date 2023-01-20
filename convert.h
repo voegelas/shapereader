@@ -80,22 +80,23 @@ extern int64_t shp_le64_to_int64(const char *bytes);
 extern double shp_le64_to_double(const char *bytes);
 
 /**
- * Convert a Julian date into a tm structure.
+ * Convert a Julian date into a tm structure
  *
- * Calculates the calendar date from a Julian date and the time since midnight.
+ * Calculates the calendar date from a Julian date and the time since
+ * midnight.
  *
  * The tm_isdst member of the tm structure is always set to -1.
  *
  * @param jd days since 1 January -4712.
  * @param jt milliseconds since midnight.
- * @param[out] ptm the converted date.
+ * @param[out] tm the converted date.
  * @see "Astronomical Algorithms" @cite Astronomical_Algorithms, p. 63 for a
  *      description of the algorithm.
  */
-extern void shp_jd_to_tm(int32_t jd, int32_t jt, struct tm *ptm);
+extern void shp_jd_to_tm(int32_t jd, int32_t jt, struct tm *tm);
 
 /**
- * Converts a date string in the format "YYYYMMDD" into a tm structure.
+ * Converts a date string in the format "YYYYMMDD" into a tm structure
  *
  * Fills a tm structure with the day, month and year from a date string.
  *
@@ -106,9 +107,9 @@ extern void shp_jd_to_tm(int32_t jd, int32_t jt, struct tm *ptm);
  *
  * @param ymd a date string in the format "YYYYMMDD".
  * @param n the string length
- * @param[out] ptm the converted date.
+ * @param[out] tm the converted date.
  * @return true on success, otherwise false.
  */
-extern int shp_yyyymmdd_to_tm(const char *ymd, size_t n, struct tm *ptm);
+extern int shp_yyyymmdd_to_tm(const char *ymd, size_t n, struct tm *tm);
 
 #endif
