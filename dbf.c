@@ -219,7 +219,7 @@ dbf_record_int64(const dbf_record_t *record, const dbf_field_t *field,
 int
 dbf_record_is_deleted(const dbf_record_t *record)
 {
-     return (record->_bytes[0] == '*');
+    return (record->_bytes[0] == '*');
 }
 
 static int
@@ -541,7 +541,7 @@ dbf_record_strtoull(const dbf_record_t *record, const dbf_field_t *field,
 static dbf_version_t
 database_type(dbf_version_t version)
 {
-    dbf_version_t type = 0;
+    dbf_version_t type;
 
     switch (version) {
     case DBFV_DBASE2:
@@ -562,6 +562,9 @@ database_type(dbf_version_t version)
         break;
     case DBFV_DBASE7:
         type = DBFV_DBASE7;
+        break;
+    default:
+        type = DBFV_UNKNOWN;
         break;
     }
     return type;

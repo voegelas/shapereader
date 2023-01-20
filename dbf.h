@@ -24,6 +24,7 @@
  * Versions
  */
 typedef enum dbf_version_t {
+    DBFV_UNKNOWN = 0x00,                 /**< Unknown */
     DBFV_DBASE2 = 0x02,                  /**< dBase II */
     DBFV_DBASE3 = 0x03,                  /**< dBase III */
     DBFV_DBASE4 = 0x04,                  /**< dBase IV */
