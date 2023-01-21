@@ -175,6 +175,7 @@ typedef int (*shp_record_callback_t)(shp_file_t *fh,
  * @retval 1 on success.
  * @retval 0 on end of file.
  * @retval -1 on error.
+ *
  * @see the "ESRI Shapefile Technical Description" @cite ESRI_shape for
  *      information on the file format.
  */
@@ -191,6 +192,7 @@ extern int shp_read(shp_file_t *fh, shp_header_callback_t handle_header,
  * @retval 1 on success.
  * @retval 0 on end of file.
  * @retval -1 on error.
+ *
  * @see shp_read_record
  */
 extern int shp_read_header(shp_file_t *fh, shp_header_t *header);
@@ -220,6 +222,7 @@ extern int shp_read_header(shp_file_t *fh, shp_header_t *header);
  * @retval 1 on success.
  * @retval 0 on end of file.
  * @retval -1 on error.
+ *
  * @see shp_read_header
  */
 extern int shp_read_record(shp_file_t *fh, shp_record_t **precord);
@@ -251,6 +254,8 @@ extern int shp_read_record(shp_file_t *fh, shp_record_t **precord);
  * @retval 1 on success.
  * @retval 0 on end of file.
  * @retval -1 on error.
+ *
+ * @see shx_seek_record
  */
 extern int shp_seek_record(shp_file_t *fh, size_t file_offset,
                            shp_record_t **precord);

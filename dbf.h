@@ -505,6 +505,7 @@ typedef int (*dbf_record_callback_t)(dbf_file_t *fh,
  * @retval 1 on success.
  * @retval 0 on end of file.
  * @retval -1 on error.
+ *
  * @see the "Xbase File Format Description" @cite Xbase_format for
  *      information on the file format.
  */
@@ -522,6 +523,7 @@ extern int dbf_read(dbf_file_t *fh, dbf_header_callback_t handle_header,
  * @retval 1 on success.
  * @retval 0 on end of file.
  * @retval -1 on error.
+ *
  * @see dbf_read_record
  */
 extern int dbf_read_header(dbf_file_t *fh, dbf_header_t **pheader);
@@ -552,6 +554,7 @@ extern int dbf_read_header(dbf_file_t *fh, dbf_header_t **pheader);
  * @retval 1 on success.
  * @retval 0 on end of file.
  * @retval -1 on error.
+ *
  * @see dbf_read_header
  */
 extern int dbf_read_record(dbf_file_t *fh, dbf_record_t **precord);

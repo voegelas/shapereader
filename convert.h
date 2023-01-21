@@ -90,6 +90,7 @@ extern double shp_le64_to_double(const char *bytes);
  * @param jd days since 1 January -4712.
  * @param jt milliseconds since midnight.
  * @param[out] tm the converted date.
+ *
  * @see "Astronomical Algorithms" @cite Astronomical_Algorithms, p. 63 for a
  *      description of the algorithm.
  */
