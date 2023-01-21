@@ -48,7 +48,7 @@ typedef shp_file_t shx_file_t;
  * @param user_data callback data or NULL.
  * @return the initialized file handle.
  */
-extern shx_file_t *shx_file(shx_file_t *fh, FILE *fp, void *user_data);
+extern shx_file_t *shx_init_file(shx_file_t *fh, FILE *fp, void *user_data);
 
 /**
  * Set an error message
@@ -59,7 +59,7 @@ extern shx_file_t *shx_file(shx_file_t *fh, FILE *fp, void *user_data);
  * @param format a printf format string followed by a variable number of
  *               arguments.
  */
-extern void shx_error(shx_file_t *fh, const char *format, ...);
+extern void shx_set_error(shx_file_t *fh, const char *format, ...);
 
 /**
  * Handle the file header
@@ -116,7 +116,7 @@ typedef int (*shx_record_callback_t)(shx_file_t *fh,
  *   return 1;
  * }
  *
- * shx_file(fh, fp, mydata)
+ * shx_init_file(fh, fp, mydata)
  * rc = shx_read(fh, handle_header, handle_record);
  * @endcode
  *

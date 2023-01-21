@@ -101,7 +101,7 @@ read_index_file(const char *filename)
         return 0;
     }
 
-    shx_file(&index_fh, fp, NULL);
+    shx_init_file(&index_fh, fp, NULL);
     if (shx_read(&index_fh, handle_shx_header, handle_shx_record) == -1) {
         fprintf(stderr, "# Cannot read file \"%s\": %s\n", filename,
                 index_fh.error);
@@ -432,7 +432,7 @@ read_main_file(const char *filename)
         return 0;
     }
 
-    shp_file(&fh, fp, NULL);
+    shp_init_file(&fh, fp, NULL);
     if (shp_read(&fh, handle_shp_header, handle_shp_record) == -1) {
         fprintf(stderr, "# Cannot read file \"%s\": %s\n", filename,
                 fh.error);

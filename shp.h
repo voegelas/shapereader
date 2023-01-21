@@ -95,7 +95,7 @@ typedef struct shp_file_t {
  * @param user_data callback data or NULL.
  * @return the initialized file handle.
  */
-extern shp_file_t *shp_file(shp_file_t *fh, FILE *fp, void *user_data);
+extern shp_file_t *shp_init_file(shp_file_t *fh, FILE *fp, void *user_data);
 
 /**
  * Set an error message
@@ -106,7 +106,7 @@ extern shp_file_t *shp_file(shp_file_t *fh, FILE *fp, void *user_data);
  * @param format a printf format string followed by a variable number of
  *               arguments.
  */
-extern void shp_error(shp_file_t *fh, const char *format, ...);
+extern void shp_set_error(shp_file_t *fh, const char *format, ...);
 
 /**
  * Handle the file header
@@ -165,7 +165,7 @@ typedef int (*shp_record_callback_t)(shp_file_t *fh,
  *   return 1;
  * }
  *
- * shp_file(fh, fp, mydata)
+ * shp_init_file(fh, fp, mydata)
  * rc = shp_read(fh, handle_header, handle_record);
  * @endcode
  *

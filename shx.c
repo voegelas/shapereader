@@ -17,13 +17,13 @@
 #include <stdio.h>
 
 shx_file_t *
-shx_file(shx_file_t *fh, FILE *fp, void *user_data)
+shx_init_file(shx_file_t *fh, FILE *fp, void *user_data)
 {
-    return shp_file(fh, fp, user_data);
+    return shp_init_file(fh, fp, user_data);
 }
 
 void
-shx_error(shx_file_t *fh, const char *format, ...)
+shx_set_error(shx_file_t *fh, const char *format, ...)
 {
     va_list ap;
 
@@ -52,7 +52,7 @@ read_record(shx_file_t *fh, shx_record_t *record)
     nr = fread(buf, 1, 8, fh->fp);
     fh->num_bytes += nr;
     if (ferror(fh->fp)) {
-        shx_error(fh, "Cannot read index record");
+        shx_set_error(fh, "Cannot read index record");
         goto cleanup;
     }
     if (feof(fh->fp)) {
@@ -61,22 +61,23 @@ read_record(shx_file_t *fh, shx_record_t *record)
         goto cleanup;
     }
     if (nr != 8) {
-        shx_error(fh, "Expected index record of %zu bytes, got %zu",
-                  (size_t) 8, nr);
+        shx_set_error(fh, "Expected index record of %zu bytes, got %zu",
+                      (size_t) 8, nr);
         errno = EINVAL;
         goto cleanup;
     }
 
     offset = shp_be32_to_int32(&buf[0]);
     if (offset < 50) {
-        shx_error(fh, "Offset %ld is invalid", (long) offset);
+        shx_set_error(fh, "Offset %ld is invalid", (long) offset);
         errno = EINVAL;
         goto cleanup;
     }
 
     content_length = shp_be32_to_int32(&buf[4]);
     if (content_length < 2) {
-        shx_error(fh, "Content length %ld is invalid", (long) content_length);
+        shx_set_error(fh, "Content length %ld is invalid",
+                      (long) content_length);
         errno = EINVAL;
         goto cleanup;
     }
@@ -117,14 +118,15 @@ shx_seek_record(shx_file_t *fh, int32_t record_number, shx_record_t *record)
 
     n = (long) record_number;
     if (n < 0) {
-        shx_error(fh, "Record number %ld is negative\n", n);
+        shx_set_error(fh, "Record number %ld is negative\n", n);
         errno = EINVAL;
         goto cleanup;
     }
 
     file_offset = 100 + 8 * n;
     if (fseek(fh->fp, file_offset, SEEK_SET) != 0) {
-        shx_error(fh, "Cannot set file position to record number %ld\n", n);
+        shx_set_error(fh, "Cannot set file position to record number %ld\n",
+                      n);
         goto cleanup;
     }
 

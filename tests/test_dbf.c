@@ -494,7 +494,7 @@ main(int argc, char *argv[])
         return 1;
     }
 
-    dbf_file(&fh, fp, NULL);
+    dbf_init_file(&fh, fp, NULL);
     if (dbf_read(&fh, handle_dbf_header, handle_dbf_record) == -1) {
         fprintf(stderr, "# Cannot read file \"%s\": %s\n", filename,
                 fh.error);

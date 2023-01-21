@@ -23,7 +23,7 @@
 #endif
 
 shp_file_t *
-shp_file(shp_file_t *fh, FILE *fp, void *user_data)
+shp_init_file(shp_file_t *fh, FILE *fp, void *user_data)
 {
     assert(fh != NULL);
     assert(fp != NULL);
@@ -37,7 +37,7 @@ shp_file(shp_file_t *fh, FILE *fp, void *user_data)
 }
 
 void
-shp_error(shp_file_t *fh, const char *format, ...)
+shp_set_error(shp_file_t *fh, const char *format, ...)
 {
     va_list ap;
 
@@ -64,26 +64,27 @@ shp_read_header(shp_file_t *fh, shp_header_t *header)
     nr = fread(buf, 1, 100, fh->fp);
     fh->num_bytes += nr;
     if (ferror(fh->fp)) {
-        shp_error(fh, "Cannot read file header");
+        shp_set_error(fh, "Cannot read file header");
         goto cleanup;
     }
     if (nr != 100) {
-        shp_error(fh, "Expected file header of %zu bytes, got %zu",
-                  (size_t) 100, nr);
+        shp_set_error(fh, "Expected file header of %zu bytes, got %zu",
+                      (size_t) 100, nr);
         errno = EINVAL;
         goto cleanup;
     }
 
     file_code = shp_be32_to_int32(&buf[0]);
     if (file_code != 9994) {
-        shp_error(fh, "Expected file code 9994, got %ld", (long) file_code);
+        shp_set_error(fh, "Expected file code 9994, got %ld",
+                      (long) file_code);
         errno = EINVAL;
         goto cleanup;
     }
 
     file_length = shp_be32_to_int32(&buf[24]);
     if (file_length < 0) {
-        shp_error(fh, "File length %ld is negative", (long) file_length);
+        shp_set_error(fh, "File length %ld is negative", (long) file_length);
         errno = EINVAL;
         goto cleanup;
     }
@@ -191,7 +192,7 @@ read_record(shp_file_t *fh, shp_record_t **precord, size_t *size)
     nr = fread(header_buf, 1, 8, fh->fp);
     fh->num_bytes += nr;
     if (ferror(fh->fp)) {
-        shp_error(fh, "Cannot read record header");
+        shp_set_error(fh, "Cannot read record header");
         goto cleanup;
     }
     if (feof(fh->fp)) {
@@ -200,8 +201,8 @@ read_record(shp_file_t *fh, shp_record_t **precord, size_t *size)
         goto cleanup;
     }
     if (nr != 8) {
-        shp_error(fh, "Expected record header of %zu bytes, got %zu",
-                  (size_t) 8, nr);
+        shp_set_error(fh, "Expected record header of %zu bytes, got %zu",
+                      (size_t) 8, nr);
         errno = EINVAL;
         goto cleanup;
     }
@@ -209,7 +210,8 @@ read_record(shp_file_t *fh, shp_record_t **precord, size_t *size)
     record_number = shp_be32_to_int32(&header_buf[0]);
     content_length = shp_be32_to_int32(&header_buf[4]);
     if (content_length < 2) {
-        shp_error(fh, "Content length %ld is invalid", (long) content_length);
+        shp_set_error(fh, "Content length %ld is invalid",
+                      (long) content_length);
         errno = EINVAL;
         goto cleanup;
     }
@@ -221,7 +223,7 @@ read_record(shp_file_t *fh, shp_record_t **precord, size_t *size)
     if (record == NULL || *size < buf_size) {
         record = (shp_record_t *) realloc(record, buf_size);
         if (record == NULL) {
-            shp_error(fh, "Cannot allocate %zu bytes", buf_size);
+            shp_set_error(fh, "Cannot allocate %zu bytes", buf_size);
             goto cleanup;
         }
         *precord = record;
@@ -233,12 +235,12 @@ read_record(shp_file_t *fh, shp_record_t **precord, size_t *size)
     nr = fread(buf, 1, record_size, fh->fp);
     fh->num_bytes += nr;
     if (ferror(fh->fp)) {
-        shp_error(fh, "Cannot read record");
+        shp_set_error(fh, "Cannot read record");
         goto cleanup;
     }
     if (nr != record_size) {
-        shp_error(fh, "Expected record of %zu bytes, got %zu", record_size,
-                  nr);
+        shp_set_error(fh, "Expected record of %zu bytes, got %zu",
+                      record_size, nr);
         errno = EINVAL;
         goto cleanup;
     }
@@ -257,7 +259,8 @@ read_record(shp_file_t *fh, shp_record_t **precord, size_t *size)
         rc = get_polygon(buf, record);
         break;
     default:
-        shp_error(fh, "Shape type %d is unknown", (int) record->shape_type);
+        shp_set_error(fh, "Shape type %d is unknown",
+                      (int) record->shape_type);
         errno = EINVAL;
         break;
     }
@@ -302,7 +305,7 @@ shp_seek_record(shp_file_t *fh, size_t file_offset, shp_record_t **precord)
 
     if (file_offset > LONG_MAX ||
         fseek(fh->fp, (long) file_offset, SEEK_SET) != 0) {
-        shp_error(fh, "Cannot set file position to %zu\n", file_offset);
+        shp_set_error(fh, "Cannot set file position to %zu\n", file_offset);
         goto cleanup;
     }
 
@@ -356,7 +359,7 @@ shp_read(shp_file_t *fh, shp_header_callback_t handle_header,
     buf_size = SHP_MIN_BUF_SIZE;
     record = (shp_record_t *) malloc(buf_size);
     if (record == NULL) {
-        shp_error(fh, "Cannot allocate %zu bytes", buf_size);
+        shp_set_error(fh, "Cannot allocate %zu bytes", buf_size);
         goto cleanup;
     }
 

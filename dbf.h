@@ -425,7 +425,7 @@ typedef struct dbf_file_t {
  * @param user_data callback data or NULL.
  * @return the initialized file handle.
  */
-extern dbf_file_t *dbf_file(dbf_file_t *fh, FILE *fp, void *user_data);
+extern dbf_file_t *dbf_init_file(dbf_file_t *fh, FILE *fp, void *user_data);
 
 /**
  * Set an error message
@@ -436,7 +436,7 @@ extern dbf_file_t *dbf_file(dbf_file_t *fh, FILE *fp, void *user_data);
  * @param format a printf format string followed by a variable number of
  *               arguments.
  */
-extern void dbf_error(dbf_file_t *fh, const char *format, ...);
+extern void dbf_set_error(dbf_file_t *fh, const char *format, ...);
 
 /**
  * Handle the file header
@@ -495,7 +495,7 @@ typedef int (*dbf_record_callback_t)(dbf_file_t *fh,
  *   return 1;
  * }
  *
- * dbf_file(fh, fp, mydata)
+ * dbf_init_file(fh, fp, mydata)
  * rc = dbf_read(fh, handle_header, handle_record);
  * @endcode
  *

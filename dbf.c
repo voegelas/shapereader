@@ -19,7 +19,7 @@
 #include <string.h>
 
 dbf_file_t *
-dbf_file(dbf_file_t *fh, FILE *fp, void *user_data)
+dbf_init_file(dbf_file_t *fh, FILE *fp, void *user_data)
 {
     assert(fh != NULL);
     assert(fp != NULL);
@@ -34,7 +34,7 @@ dbf_file(dbf_file_t *fh, FILE *fp, void *user_data)
 }
 
 void
-dbf_error(dbf_file_t *fh, const char *format, ...)
+dbf_set_error(dbf_file_t *fh, const char *format, ...)
 {
     va_list ap;
 
@@ -628,12 +628,12 @@ read_header_dbase2(dbf_file_t *fh, dbf_version_t version,
     nr = fread(&buf[1], 1, header_size - 1, fh->fp);
     fh->num_bytes += nr;
     if (ferror(fh->fp)) {
-        dbf_error(fh, "Cannot read file header");
+        dbf_set_error(fh, "Cannot read file header");
         goto cleanup;
     }
     if (nr != header_size - 1) {
-        dbf_error(fh, "Expected file header of %zu bytes, got %zu",
-                  header_size, nr + 1);
+        dbf_set_error(fh, "Expected file header of %zu bytes, got %zu",
+                      header_size, nr + 1);
         errno = EINVAL;
         goto cleanup;
     }
@@ -646,7 +646,7 @@ read_header_dbase2(dbf_file_t *fh, dbf_version_t version,
     descriptors = &buf[8];
 
     if (record_size < 1) {
-        dbf_error(fh, "Record size %zu is invalid", record_size);
+        dbf_set_error(fh, "Record size %zu is invalid", record_size);
         errno = EINVAL;
         goto cleanup;
     }
@@ -661,7 +661,7 @@ read_header_dbase2(dbf_file_t *fh, dbf_version_t version,
     result_size = sizeof(*header) + num_fields * sizeof(dbf_field_t);
     header = (dbf_header_t *) calloc(1, result_size);
     if (header == NULL) {
-        dbf_error(fh, "Cannot allocate %zu bytes", result_size);
+        dbf_set_error(fh, "Cannot allocate %zu bytes", result_size);
         goto cleanup;
     }
 
@@ -691,8 +691,9 @@ read_header_dbase2(dbf_file_t *fh, dbf_version_t version,
     }
 
     if (offset != record_size) {
-        dbf_error(fh, "Sum %zu of field lengths differs from record size %zu",
-                  offset, record_size);
+        dbf_set_error(fh,
+                      "Sum %zu of field lengths differs from record size %zu",
+                      offset, record_size);
         free(header);
         header = NULL;
         goto cleanup;
@@ -731,12 +732,12 @@ read_header_dbase3(dbf_file_t *fh, dbf_version_t version,
     nr = fread(&buf[1], 1, 31, fh->fp);
     fh->num_bytes += nr;
     if (ferror(fh->fp)) {
-        dbf_error(fh, "Cannot read file header");
+        dbf_set_error(fh, "Cannot read file header");
         goto cleanup;
     }
     if (nr != 31) {
-        dbf_error(fh, "Expected file header of %zu bytes, got %zu",
-                  (size_t) 32, nr + 1);
+        dbf_set_error(fh, "Expected file header of %zu bytes, got %zu",
+                      (size_t) 32, nr + 1);
         errno = EINVAL;
         goto cleanup;
     }
@@ -749,39 +750,39 @@ read_header_dbase3(dbf_file_t *fh, dbf_version_t version,
     record_size = shp_le16_to_uint16(&buf[10]);
 
     if (header_size < 32) {
-        dbf_error(fh, "Header size %zu is invalid", header_size);
+        dbf_set_error(fh, "Header size %zu is invalid", header_size);
         errno = EINVAL;
         goto cleanup;
     }
 
     if (record_size < 1) {
-        dbf_error(fh, "Record size %zu is invalid", record_size);
+        dbf_set_error(fh, "Record size %zu is invalid", record_size);
         errno = EINVAL;
         goto cleanup;
     }
 
     descriptors_size = header_size - 32;
     if (descriptors_size == 0) {
-        dbf_error(fh, "No field descriptors");
+        dbf_set_error(fh, "No field descriptors");
         errno = EINVAL;
         goto cleanup;
     }
 
     descriptors = (char *) malloc(descriptors_size);
     if (descriptors == NULL) {
-        dbf_error(fh, "Cannot allocate %zu bytes", descriptors_size);
+        dbf_set_error(fh, "Cannot allocate %zu bytes", descriptors_size);
         goto cleanup;
     }
 
     nr = fread(descriptors, 1, descriptors_size, fh->fp);
     fh->num_bytes += nr;
     if (ferror(fh->fp)) {
-        dbf_error(fh, "Cannot read field descriptors");
+        dbf_set_error(fh, "Cannot read field descriptors");
         goto cleanup;
     }
     if (nr != descriptors_size) {
-        dbf_error(fh, "Expected field descriptors of %zu bytes, got %zu",
-                  descriptors_size, nr);
+        dbf_set_error(fh, "Expected field descriptors of %zu bytes, got %zu",
+                      descriptors_size, nr);
         errno = EINVAL;
         goto cleanup;
     }
@@ -796,7 +797,8 @@ read_header_dbase3(dbf_file_t *fh, dbf_version_t version,
     }
 
     if (num_fields > 2046) {
-        dbf_error(fh, "Expected at most %d fields, got %d", 2046, num_fields);
+        dbf_set_error(fh, "Expected at most %d fields, got %d", 2046,
+                      num_fields);
         errno = EINVAL;
         goto cleanup;
     }
@@ -804,7 +806,7 @@ read_header_dbase3(dbf_file_t *fh, dbf_version_t version,
     result_size = sizeof(*header) + num_fields * sizeof(dbf_field_t);
     header = (dbf_header_t *) calloc(1, result_size);
     if (header == NULL) {
-        dbf_error(fh, "Cannot allocate %zu bytes", result_size);
+        dbf_set_error(fh, "Cannot allocate %zu bytes", result_size);
         goto cleanup;
     }
 
@@ -837,8 +839,9 @@ read_header_dbase3(dbf_file_t *fh, dbf_version_t version,
     }
 
     if (offset != record_size) {
-        dbf_error(fh, "Sum %zu of field lengths differs from record size %zu",
-                  offset, record_size);
+        dbf_set_error(fh,
+                      "Sum %zu of field lengths differs from record size %zu",
+                      offset, record_size);
         free(header);
         header = NULL;
         goto cleanup;
@@ -877,11 +880,11 @@ dbf_read_header(dbf_file_t *fh, dbf_header_t **pheader)
     nr = fread(bytes, 1, 1, fh->fp);
     fh->num_bytes += nr;
     if (ferror(fh->fp)) {
-        dbf_error(fh, "Cannot read file version");
+        dbf_set_error(fh, "Cannot read file version");
         goto cleanup;
     }
     if (nr != 1) {
-        dbf_error(fh, "Expected 1 byte, got %zu", nr);
+        dbf_set_error(fh, "Expected 1 byte, got %zu", nr);
         errno = EINVAL;
         goto cleanup;
     }
@@ -895,7 +898,7 @@ dbf_read_header(dbf_file_t *fh, dbf_header_t **pheader)
         rc = read_header_dbase3(fh, version, pheader);
         break;
     default:
-        dbf_error(fh, "Database version %d is not supported", version);
+        dbf_set_error(fh, "Database version %d is not supported", version);
         errno = EINVAL;
         *pheader = NULL;
         goto cleanup;
@@ -925,7 +928,7 @@ dbf_read_record(dbf_file_t *fh, dbf_record_t **precord)
     result_size = sizeof(*record) + record_size;
     record = (dbf_record_t *) malloc(result_size);
     if (record == NULL) {
-        dbf_error(fh, "Cannot allocate %zu bytes", result_size);
+        dbf_set_error(fh, "Cannot allocate %zu bytes", result_size);
         goto cleanup;
     }
 
@@ -943,8 +946,8 @@ dbf_read_record(dbf_file_t *fh, dbf_record_t **precord)
         }
 
         if (nr != record_size) {
-            dbf_error(fh, "Expected record of %zu bytes, got %zu",
-                      record_size, nr);
+            dbf_set_error(fh, "Expected record of %zu bytes, got %zu",
+                          record_size, nr);
             free(record);
             record = NULL;
             goto cleanup;
@@ -952,7 +955,7 @@ dbf_read_record(dbf_file_t *fh, dbf_record_t **precord)
     }
 
     if (ferror(fh->fp)) {
-        dbf_error(fh, "Cannot read record");
+        dbf_set_error(fh, "Cannot read record");
         free(record);
         record = NULL;
         goto cleanup;
@@ -1005,7 +1008,7 @@ dbf_read(dbf_file_t *fh, dbf_header_callback_t handle_header,
     result_size = sizeof(*record) + record_size;
     record = (dbf_record_t *) malloc(result_size);
     if (record == NULL) {
-        dbf_error(fh, "Cannot allocate %zu bytes", result_size);
+        dbf_set_error(fh, "Cannot allocate %zu bytes", result_size);
         goto cleanup;
     }
 
@@ -1033,10 +1036,10 @@ dbf_read(dbf_file_t *fh, dbf_header_callback_t handle_header,
         }
 
         if (nr != record_size) {
-            dbf_error(fh,
-                      "Expected record of %zu bytes at index %zu and "
-                      "file position %zu, got %zu",
-                      record_size, record_num, file_offset, nr);
+            dbf_set_error(fh,
+                          "Expected record of %zu bytes at index %zu and "
+                          "file position %zu, got %zu",
+                          record_size, record_num, file_offset, nr);
             goto cleanup;
         }
 
@@ -1053,13 +1056,13 @@ dbf_read(dbf_file_t *fh, dbf_header_callback_t handle_header,
     }
 
     if (ferror(fh->fp)) {
-        dbf_error(fh, "Cannot read record");
+        dbf_set_error(fh, "Cannot read record");
         goto cleanup;
     }
 
     if (record_num < num_records) {
-        dbf_error(fh, "Expected %zu records, got %zu", num_records,
-                  record_num);
+        dbf_set_error(fh, "Expected %zu records, got %zu", num_records,
+                      record_num);
         errno = EINVAL;
         goto cleanup;
     }

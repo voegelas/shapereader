@@ -58,7 +58,7 @@ int read_dbf(const char *filename) {
 
   fp = fopen(filename, "rb");
   if (fp != NULL) {
-    dbf_file(&fh, fp, NULL);
+    dbf_init_file(&fh, fp, NULL);
     if ((rc = dbf_read_header(&fh, &header)) > 0) {
       while ((rc = dbf_read_record(&fh, &record)) > 0) {
         if (!dbf_record_is_deleted(record)) {
@@ -101,7 +101,7 @@ int read_shp(const char *filename) {
 
   fp = fopen(filename, "rb");
   if (fp != NULL) {
-    shp_file(&fh, fp, NULL);
+    shp_init_file(&fh, fp, NULL);
     if ((rc = shp_read_header(&fh, &header)) > 0) {
       while ((rc = shp_read_record(&fh, &record)) > 0) {
         print_shape(record);
