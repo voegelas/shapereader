@@ -52,18 +52,18 @@ shp_polygon_points(const shp_polygon_t *polygon, int32_t part_num,
 
 void
 shp_polygon_point(const shp_polygon_t *polygon, int32_t point_num,
-                  shp_point_t *ppoint)
+                  shp_point_t *point)
 {
     const char *buf;
 
     assert(polygon != NULL);
     assert(point_num >= 0);
     assert(point_num < polygon->num_points);
-    assert(ppoint != NULL);
+    assert(point != NULL);
 
     buf = polygon->_points + 16 * point_num;
-    ppoint->x = shp_le64_to_double(&buf[0]);
-    ppoint->y = shp_le64_to_double(&buf[8]);
+    point->x = shp_le64_to_double(&buf[0]);
+    point->y = shp_le64_to_double(&buf[8]);
 }
 
 int

@@ -46,7 +46,8 @@ typedef struct shp_polygon_t {
  * @param part_num a zero-based part number.
  * @param[out] start the range start.
  * @param[out] end the range end (exclusive).
- * @return the number of points in the range.
+ * @return the number of points in the part.  At least 4 if the polygon is
+ *         valid.
  *
  * @see shp_polygon_point
  */
@@ -78,19 +79,17 @@ extern int32_t shp_polygon_points(const shp_polygon_t *polygon,
  * @memberof shp_polygon_t
  * @param polygon a polygon.
  * @param point_num a zero-based point number.
- * @param[out] ppoint the address of a shp_point_t structure.
+ * @param[out] point the address of a shp_point_t structure.
  *
  * @see shp_polygon_points
  */
 extern void shp_polygon_point(const shp_polygon_t *polygon, int32_t point_num,
-                              shp_point_t *ppoint);
+                              shp_point_t *point);
 
 /**
  * Check whether a point is in a polygon
  *
- * Determines whether a point is inside or outside a polygon.  Uses the
- * algorithm described in the article "Optimal Reliable Point-in-Polygon Test
- * and Differential Coding Boolean Operations on Polygons" @cite sym10100477.
+ * Determines whether a point is inside or outside a polygon.
  *
  * @memberof shp_polygon_t
  * @param polygon a polygon.
@@ -100,6 +99,9 @@ extern void shp_polygon_point(const shp_polygon_t *polygon, int32_t point_num,
  * @retval -1 if the point is on the polygon's edges.
  *
  * @see shp_box_point_in_box
+ * @see "Optimal Reliable Point-in-Polygon Test and Differential Coding
+ *      Boolean Operations on Polygons" @cite sym10100477 for a description
+ *      of the point-in-polygon algorithm.
  */
 extern int shp_polygon_point_in_polygon(const shp_polygon_t *polygon,
                                         const shp_point_t *point);
