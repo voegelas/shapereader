@@ -47,10 +47,10 @@ typedef struct shp_multipoint_t {
  * }
  * @endcode
  *
- * @memberof shp_multipoint_point
- * @param multipoint a set of points.
+ * @memberof shp_multipoint_t
+ * @param multipoint a shp_multipoint_t structure.
  * @param point_num a zero-based point number.
- * @param[out] point the address of a shp_point_t structure.
+ * @param[out] point a shp_point_t structure.
  */
 extern void shp_multipoint_point(const shp_multipoint_t *multipoint,
                                  int32_t point_num, shp_point_t *point);
