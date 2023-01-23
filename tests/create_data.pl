@@ -205,10 +205,8 @@ sub pack_point {
         @_
     );
 
-    my @flattened_point = unpairs @{$h{point}};
-
     my $bytes = pack 'N2Ld<2', $h{record_number}, 10, $h{shape_type},
-        @flattened_point;
+        @{$h{point}}[0 .. 1];
 
     return $bytes;
 }
@@ -348,6 +346,10 @@ sub strptime {
     return Time::Piece->strptime($time, "%Y-%m-%d %H:%M:%S");
 }
 
+#
+# types.dbf
+#
+
 write_dbf(
     file   => catfile(qw(data types.dbf)),
     header => {
@@ -424,6 +426,63 @@ write_dbf(
     ]
 );
 
+#
+# point.shp
+#
+
+write_dbf(
+    file   => catfile(qw(data point.dbf)),
+    header => {
+        fields => [
+            {   name   => 'name',
+                type   => 'C',
+                length => 12,
+            },
+            {   name           => 'geoname_id',
+                type           => 'N',
+                length         => 12,
+                decimal_places => 0,
+            },
+        ],
+    },
+    records => [
+        [q{ }, 'Freiburg',  2925177],
+        [q{ }, 'Karlsruhe', 2892794],
+        [q{ }, 'Mannheim',  2873891],
+        [q{ }, 'Stuttgart', 2825297],
+    ]
+);
+
+write_shp_and_shx(
+    shp_file => catfile(qw(data point.shp)),
+    shx_file => catfile(qw(data point.shx)),
+    header   => {
+        shape_type => $SHPT_POINT,
+        x_min      => 7.8522,
+        y_min      => 47.9959,
+        x_max      => 9.1770,
+        y_max      => 49.4891,
+    },
+    shapes => [
+        {   shape_type => $SHPT_POINT,
+            point      => [7.8522, 47.9959],
+        },
+        {   shape_type => $SHPT_POINT,
+            point      => [8.4044, 49.0094],
+        },
+        {   shape_type => $SHPT_POINT,
+            point      => [8.4669, 49.4891],
+        },
+        {   shape_type => $SHPT_POINT,
+            point      => [9.1770, 48.7823],
+        },
+    ]
+);
+
+#
+# multipoint.shp
+#
+
 write_dbf(
     file   => catfile(qw(data multipoint.dbf)),
     header => {
@@ -466,6 +525,10 @@ write_shp_and_shx(
         },
     ]
 );
+
+#
+# polygon.shp
+#
 
 write_dbf(
     file   => catfile(qw(data polygon.dbf)),
