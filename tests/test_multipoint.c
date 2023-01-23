@@ -235,7 +235,7 @@ main(int argc, char *argv[])
 
     if (dbf_read_header(&dbf_fh, &dbf_header) > 0) {
         ok(test_num_records, "number of records");
-        if (shp_read_header(&shp_fh, &shp_header) &&
+        if (shp_read_header(&shp_fh, &shp_header) > 0 &&
             shx_read_header(&shx_fh, &shx_header) > 0) {
             ok(test_header_shape_type, "header shape type is multipoint");
             record_number = 0;
