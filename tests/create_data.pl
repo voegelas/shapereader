@@ -6,7 +6,7 @@ use utf8;
 
 use Encode                qw(encode);
 use File::Spec::Functions qw(catfile);
-use List::Util            qw(any reduce);
+use List::Util 1.42       qw(any reduce unpairs);
 use Time::Piece;
 
 my $SHPT_NULL        = 0;
@@ -205,8 +205,34 @@ sub pack_point {
         @_
     );
 
+    my @flattened_point = unpairs @{$h{point}};
+
     my $bytes = pack 'N2Ld<2', $h{record_number}, 10, $h{shape_type},
-        @{$h{point}}[0 .. 1];
+        @flattened_point;
+
+    return $bytes;
+}
+
+sub pack_multipoint {
+    my %h = (
+        record_number => 0,
+        shape_type    => $SHPT_MULTIPOINT,
+        box           => [0.0, 0.0, 0.0, 0.0],
+        points        => [],
+        @_
+    );
+
+    my @points       = @{$h{points}};
+    my $points_count = scalar @points;
+
+    my @flattened_points       = unpairs @points;
+    my $flattened_points_count = scalar @flattened_points;
+
+    my $content_length = (40 + 16 * $points_count) / 2;
+
+    my $bytes = pack "N2Ld<4Ld<${flattened_points_count}",
+        $h{record_number}, $content_length, $h{shape_type},
+        @{$h{box}}[0 .. 3], $points_count, @flattened_points;
 
     return $bytes;
 }
@@ -220,20 +246,25 @@ sub pack_polygon {
         @_
     );
 
-    my @parts = map { scalar @{$_} } @{$h{parts}};
-    unshift @parts, 0;
-    pop @parts;
+    my @parts       = @{$h{parts}};
+    my $parts_count = scalar @parts;
 
-    my @points = map { @{$_} } map { @{$_} } @{$h{parts}};
+    my @parts_index = map { scalar @{$_} } @parts;
+    unshift @parts_index, 0;
+    pop @parts_index;
 
-    my $parts_count  = scalar @parts;
+    my @points       = map { @{$_} } @parts;
     my $points_count = scalar @points;
 
-    my $content_length = (44 + 4 * $parts_count + 8 * $points_count) / 2;
+    my @flattened_points       = unpairs @points;
+    my $flattened_points_count = scalar @flattened_points;
 
-    my $bytes = pack "N2Ld<4L2L${parts_count}d<${points_count}",
+    my $content_length = (44 + 4 * $parts_count + 16 * $points_count) / 2;
+
+    my $bytes = pack "N2Ld<4L2L${parts_count}d<${flattened_points_count}",
         $h{record_number}, $content_length, $h{shape_type},
-        @{$h{box}}[0 .. 3], $parts_count, $points_count / 2, @parts, @points;
+        @{$h{box}}[0 .. 3], $parts_count, $points_count, @parts_index,
+        @flattened_points;
 
     return $bytes;
 }
@@ -243,7 +274,7 @@ my %pack_shp_record = (
     $SHPT_POINT       => \&pack_point,
     $SHPT_POLYLINE    => undef,
     $SHPT_POLYGON     => \&pack_polygon,
-    $SHPT_MULTIPOINT  => undef,
+    $SHPT_MULTIPOINT  => \&pack_multipoint,
     $SHPT_POINTZ      => undef,
     $SHPT_POLYLINEZ   => undef,
     $SHPT_POLYGONZ    => undef,
@@ -390,6 +421,49 @@ write_dbf(
             -2**31, undef, -2**31 / 10_000,
             -1.23,  undef,
         ],
+    ]
+);
+
+write_dbf(
+    file   => catfile(qw(data multipoint.dbf)),
+    header => {
+        ldid   => 0x57,
+        fields => [{
+            name   => 'AREA',
+            type   => 'C',
+            length => 16,
+        }],
+    },
+    records => [[q{ }, 'Bärensee'], [q{ }, 'Schönbuch']]
+);
+
+write_shp_and_shx(
+    shp_file => catfile(qw(data multipoint.shp)),
+    shx_file => catfile(qw(data multipoint.shx)),
+    header   => {
+        shape_type => $SHPT_MULTIPOINT,
+        x_min      => 8.9973,
+        y_min      => 48.5671,
+        x_max      => 9.0911,
+        y_max      => 48.7719,
+    },
+    shapes => [
+        {   shape_type => $SHPT_MULTIPOINT,
+            box        => [9.0909, 48.7642, 9.0911, 48.7719],
+            points     => [
+                [9.0909, 48.7642],    # Grillplatz am Wapitiweg
+                [9.0911, 48.7719],    # Pappelgartengrillhütte
+            ]
+        },
+        {   shape_type => $SHPT_MULTIPOINT,
+            box        => [8.9973, 48.5671, 9.0611, 48.6091],
+            points     => [
+                [8.9973, 48.5851],    # Feuerstelle Ziegelweiher
+                [9.0611, 48.5763],    # Grillstelle Brühlweiher
+                [9.0607, 48.5671],    # Zwergeles Feuerstelle
+                [9.0504, 48.6091],    # Feuerstelle Zweites Häusle
+            ]
+        },
     ]
 );
 

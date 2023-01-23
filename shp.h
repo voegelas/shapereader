@@ -16,6 +16,7 @@
 #ifndef _SHAPEREADER_SHP_H
 #define _SHAPEREADER_SHP_H
 
+#include "shp-multipoint.h"
 #include "shp-point.h"
 #include "shp-polygon.h"
 #include <stdint.h>
@@ -68,10 +69,12 @@ typedef struct shp_record_t {
     size_t record_size;    /**< Content length in bytes */
     shp_shpt_t shape_type; /**< Shape type */
     union {
-        shp_point_t point;     /**< Point if @a shape_type is
-                                    @c SHPT_POINT */
-        shp_polygon_t polygon; /**< Polygon if @a shape_type is
-                                    @c SHPT_POLYGON */
+        shp_point_t point;           /**< Point if @a shape_type is
+                                          @c SHPT_POINT */
+        shp_multipoint_t multipoint; /**< Set of points if @a shape_type is
+                                          @c SHPT_MULTIPOINT */
+        shp_polygon_t polygon;       /**< Polygon if @a shape_type is
+                                          @c SHPT_POLYGON */
     } shape;
 } shp_record_t;
 

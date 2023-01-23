@@ -3,7 +3,7 @@ EXTRA_DIST = create_data.pl
 
 LDADD = ../libshapereader.a
 
-check_PROGRAMS = test_convert test_dbf test_box test_polygon
+check_PROGRAMS = test_convert test_dbf test_box test_multipoint test_polygon
 check_HEADERS = tap.h
 AM_DEFAULT_SOURCE_EXT = .c
 

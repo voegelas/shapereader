@@ -141,6 +141,41 @@ cleanup:
 }
 
 static int
+get_multipoint(const char *buf, shp_record_t *record)
+{
+    int rc = -1;
+    shp_multipoint_t *multipoint = &record->shape.multipoint;
+    size_t record_size, points_size;
+
+    record_size = record->record_size;
+    if (record_size < 40) {
+        errno = EINVAL;
+        goto cleanup;
+    }
+
+    multipoint->box.x_min = shp_le64_to_double(&buf[4]);
+    multipoint->box.y_min = shp_le64_to_double(&buf[12]);
+    multipoint->box.x_max = shp_le64_to_double(&buf[20]);
+    multipoint->box.y_max = shp_le64_to_double(&buf[28]);
+    multipoint->num_points = shp_le32_to_int32(&buf[36]);
+
+    points_size = 16 * multipoint->num_points;
+
+    if (record_size != 40 + points_size) {
+        errno = EINVAL;
+        goto cleanup;
+    }
+
+    multipoint->_points = &buf[40];
+
+    rc = 1;
+
+cleanup:
+
+    return rc;
+}
+
+static int
 get_polygon(const char *buf, shp_record_t *record)
 {
     int rc = -1;
@@ -254,6 +289,9 @@ read_record(shp_file_t *fh, shp_record_t **precord, size_t *size)
         break;
     case SHPT_POINT:
         rc = get_point(buf, record);
+        break;
+    case SHPT_MULTIPOINT:
+        rc = get_multipoint(buf, record);
         break;
     case SHPT_POLYGON:
         rc = get_polygon(buf, record);
