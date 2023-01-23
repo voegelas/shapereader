@@ -10,25 +10,11 @@ int tests_planned = 0;
 int tests_run = 0;
 int tests_failed = 0;
 
-struct shape_index {
-    size_t file_offset;
-    size_t record_size;
-};
-
-struct shape_index *shape_index;
-
-shx_file_t index_fh;
-
 const shp_header_t *header;
 const shp_record_t *record;
 const shp_polygon_t *polygon;
 shp_file_t fh;
-
-const shx_header_t *index_header;
-size_t index_file_size;
-size_t main_file_size;
-size_t record_file_offset;
-int32_t record_number;
+size_t file_size;
 
 static size_t
 get_file_size(const char *filename)
@@ -41,82 +27,6 @@ get_file_size(const char *filename)
 }
 
 /*
- * Index file tests
- */
-
-static int
-test_index_file_size(void)
-{
-    return index_header->file_size == index_file_size;
-}
-
-static int
-test_index_file_read(void)
-{
-    return index_fh.num_bytes == index_file_size;
-}
-
-static int
-handle_shx_header(shx_file_t *fh, const shx_header_t *h)
-{
-    record_number = 0;
-    index_header = h;
-    ok(test_index_file_size, "index file sizes match");
-    return 1;
-}
-
-static int
-handle_shx_record(shx_file_t *fh, const shx_header_t *h,
-                  const shx_record_t *r)
-{
-    shape_index[record_number].file_offset = r->file_offset;
-    shape_index[record_number].record_size = r->record_size;
-    ++record_number;
-    return 1;
-}
-
-static int
-read_index_file(const char *filename)
-{
-    FILE *fp;
-
-    index_file_size = get_file_size(filename);
-    if (index_file_size < 108) {
-        fprintf(stderr, "# File \"%s\" is too small: %zu\n", filename,
-                index_file_size);
-        return 0;
-    }
-
-    shape_index = (struct shape_index *) calloc((index_file_size - 100) / 8,
-                                                sizeof(struct shape_index));
-    if (shape_index == NULL) {
-        fprintf(stderr, "# Cannot allocate index: %s\n", strerror(errno));
-        return 0;
-    }
-
-    fp = fopen(filename, "rb");
-    if (fp == NULL) {
-        fprintf(stderr, "# Cannot open file \"%s\": %s\n", filename,
-                strerror(errno));
-        return 0;
-    }
-
-    shx_init_file(&index_fh, fp, NULL);
-    if (shx_read(&index_fh, handle_shx_header, handle_shx_record) == -1) {
-        fprintf(stderr, "# Cannot read file \"%s\": %s\n", filename,
-                index_fh.error);
-    }
-
-    ok(test_index_file_read, "entire index file has been read");
-
-    return 1;
-}
-
-/*
- * Main file tests
- */
-
-/*
  * Header tests
  */
 
@@ -127,15 +37,15 @@ test_file_code(void)
 }
 
 static int
-test_main_file_size(void)
+test_file_length(void)
 {
-    return header->file_size == main_file_size;
+    return header->file_size == file_size;
 }
 
 static int
-test_main_file_read(void)
+test_entire_file_read(void)
 {
-    return fh.num_bytes == main_file_size;
+    return fh.num_bytes == file_size;
 }
 
 static int
@@ -317,30 +227,11 @@ test_is_oslo(void)
 }
 
 static int
-test_record_numbers_match(void)
-{
-    return record->record_number == record_number;
-}
-
-static int
-test_file_offsets_match(void)
-{
-    return record_file_offset == shape_index[record_number].file_offset;
-}
-
-static int
-test_record_sizes_match(void)
-{
-    return record->record_size == shape_index[record_number].record_size;
-}
-
-static int
 handle_shp_header(shp_file_t *fh, const shp_header_t *h)
 {
-    record_number = 0;
     header = h;
     ok(test_file_code, "file code is 9994");
-    ok(test_main_file_size, "main file sizes match");
+    ok(test_file_length, "file length matches file size");
     ok(test_version, "version is 1000");
     ok(test_shape_type, "shape type is polygon");
     ok(test_x_min, "x_min is set");
@@ -357,12 +248,8 @@ handle_shp_record(shp_file_t *fh, const shp_header_t *h,
     header = h;
     record = r;
     polygon = &r->shape.polygon;
-    record_file_offset = file_offset;
-    switch (record_number) {
+    switch (record->record_number) {
     case 0:
-        ok(test_record_numbers_match, "1st record number matches");
-        ok(test_file_offsets_match, "1st file offset matches");
-        ok(test_record_sizes_match, "1st content length matches");
         ok(test_is_polygon, "shape is polygon");
         ok(test_is_inside, "point is inside");
         ok(test_is_outside, "point is outside");
@@ -373,9 +260,6 @@ handle_shp_record(shp_file_t *fh, const shp_header_t *h,
         ok(test_is_outside_box, "point is outside bounding box");
         break;
     case 1:
-        ok(test_record_numbers_match, "2nd record number matches");
-        ok(test_file_offsets_match, "2nd file offset matches");
-        ok(test_record_sizes_match, "2nd content length matches");
         ok(test_has_two_parts, "polygon has two parts");
         ok(test_has_eight_points, "polygon has eight points");
         ok(test_is_inside_with_hole, "point is inside polygon with hole");
@@ -385,95 +269,29 @@ handle_shp_record(shp_file_t *fh, const shp_header_t *h,
         ok(test_is_on_outside_egde, "point is on outside edge");
         break;
     case 2:
-        ok(test_record_numbers_match, "3rd record number matches");
-        ok(test_file_offsets_match, "3rd file offset matches");
-        ok(test_record_sizes_match, "3rd content length matches");
         ok(test_is_los_angeles, "location is in America/Los_Angeles");
         break;
     case 3:
-        ok(test_record_numbers_match, "4th record number matches");
-        ok(test_file_offsets_match, "4th file offset matches");
-        ok(test_record_sizes_match, "4th content length matches");
         ok(test_is_africa_juba, "location is in Africa/Juba");
         break;
     case 4:
-        ok(test_record_numbers_match, "5th record number matches");
-        ok(test_file_offsets_match, "5th file offset matches");
-        ok(test_record_sizes_match, "5th content length matches");
         ok(test_is_africa_khartoum, "location is in Africa/Khartoum");
         break;
     case 5:
-        ok(test_record_numbers_match, "6th record number matches");
-        ok(test_file_offsets_match, "6th file offset matches");
-        ok(test_record_sizes_match, "6th content length matches");
         ok(test_is_oslo, "location is in Europe/Oslo");
         break;
     }
-    ++record_number;
     return 1;
-}
-
-static int
-read_main_file(const char *filename)
-{
-    FILE *fp;
-
-    main_file_size = get_file_size(filename);
-    if (main_file_size < 108) {
-        fprintf(stderr, "# File \"%s\" is too small: %zu\n", filename,
-                main_file_size);
-        return 0;
-    }
-
-    fp = fopen(filename, "rb");
-    if (fp == NULL) {
-        fprintf(stderr, "# Cannot open file \"%s\": %s\n", filename,
-                strerror(errno));
-        return 0;
-    }
-
-    shp_init_file(&fh, fp, NULL);
-    if (shp_read(&fh, handle_shp_header, handle_shp_record) == -1) {
-        fprintf(stderr, "# Cannot read file \"%s\": %s\n", filename,
-                fh.error);
-    }
-
-    ok(test_main_file_read, "entire main file has been read");
-
-    return 1;
-}
-
-void
-seek_test(void)
-{
-    shx_record_t ir;
-    shp_record_t *r = NULL;
-
-    record_number = 5;
-    if (shx_seek_record(&index_fh, record_number, &ir) > 0) {
-        if (shp_seek_record(&fh, ir.file_offset, &r) > 0) {
-            record = r;
-            polygon = &r->shape.polygon;
-            ok(test_is_oslo, "location is in Europe/Oslo");
-            free(r);
-        }
-        else {
-            fprintf(stderr, "# Cannot set file position in main file: %s\n",
-                    index_fh.error);
-        }
-    }
-    else {
-        fprintf(stderr, "# Cannot set file position in index file: %s\n",
-                index_fh.error);
-    }
 }
 
 int
 main(int argc, char *argv[])
 {
     const char *datadir = getenv("datadir");
+    const char *filename = "polygon.shp";
+    FILE *fp;
 
-    plan(49);
+    plan(28);
 
     if (datadir == NULL) {
         fprintf(stderr,
@@ -487,22 +305,24 @@ main(int argc, char *argv[])
         return 1;
     }
 
-    if (!read_index_file("polygon.shx")) {
-        free(shape_index);
+    file_size = get_file_size(filename);
+
+    fp = fopen(filename, "rb");
+    if (fp == NULL) {
+        fprintf(stderr, "# Cannot open file \"%s\": %s\n", filename,
+                strerror(errno));
         return 1;
     }
 
-    if (!read_main_file("polygon.shp")) {
-        free(shape_index);
-        return 1;
+    shp_init_file(&fh, fp, NULL);
+    if (shp_read(&fh, handle_shp_header, handle_shp_record) == -1) {
+        fprintf(stderr, "# Cannot read file \"%s\": %s\n", filename,
+                fh.error);
     }
 
-    seek_test();
+    ok(test_entire_file_read, "entire file has been read");
 
-    fclose(fh.fp);
-    fclose(index_fh.fp);
-
-    free(shape_index);
+    fclose(fp);
 
     done_testing();
 }
