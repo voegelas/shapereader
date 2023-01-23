@@ -29,11 +29,11 @@
  * information.
  */
 typedef struct shp_polygon_t {
-    shp_box_t box;       /**< The polygon's bounding box */
-    size_t num_parts;    /**< Number of parts in the polygon */
-    size_t num_points;   /**< Total number of points in the polygon */
-    const char *_parts;  /* Indices to the first points in the parts */
-    const char *_points; /* The points for all parts */
+    shp_box_t box;       /**< Bounding box */
+    size_t num_parts;    /**< Number of parts */
+    size_t num_points;   /**< Total number of points */
+    const char *_parts;  /* Index to first point in part */
+    const char *_points; /* Points for all parts */
 } shp_polygon_t;
 
 /**
@@ -46,8 +46,7 @@ typedef struct shp_polygon_t {
  * @param part_num a zero-based part number.
  * @param[out] start the range start.
  * @param[out] end the range end (exclusive).
- * @return the number of points in the part.  At least 4 if the polygon is
- *         valid.
+ * @return the number of points in the part.  At least 4 if the part is valid.
  *
  * @see shp_polygon_point
  */
@@ -79,7 +78,7 @@ extern size_t shp_polygon_points(const shp_polygon_t *polygon,
  * @memberof shp_polygon_t
  * @param polygon a polygon.
  * @param point_num a zero-based point number.
- * @param[out] point the address of a shp_point_t structure.
+ * @param[out] point a shp_point_t structure.
  *
  * @see shp_polygon_points
  */

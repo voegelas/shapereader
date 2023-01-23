@@ -67,9 +67,10 @@ int
 shp_polygon_point_in_polygon(const shp_polygon_t *polygon,
                              const shp_point_t *point)
 {
-    size_t parts_count, part_num, k, i, n;
-    double x, y, f, u1, v1, u2, v2;
+    size_t parts_count, part_num, i, n;
     shp_point_t p;
+    size_t k;
+    double x, y, f, u1, v1, u2, v2;
 
     assert(polygon != NULL);
     assert(point != NULL);
@@ -84,67 +85,64 @@ shp_polygon_point_in_polygon(const shp_polygon_t *polygon,
 
     parts_count = polygon->num_parts;
     for (part_num = 0; part_num < parts_count; ++part_num) {
-        if (shp_polygon_points(polygon, part_num, &i, &n) < 4) {
-            /* The shape file is corrupt. */
-            return 0;
-        }
-
-        shp_polygon_point(polygon, i, &p);
-        u1 = p.x - x;
-        v1 = p.y - y;
-
-        while (++i < n) {
+        if (shp_polygon_points(polygon, part_num, &i, &n) >= 4) {
             shp_polygon_point(polygon, i, &p);
-            u2 = p.x - x;
-            v2 = p.y - y;
+            u1 = p.x - x;
+            v1 = p.y - y;
 
-            if ((v1 < 0.0 && v2 < 0.0) || (v1 > 0.0 && v2 > 0.0)) {
+            while (++i < n) {
+                shp_polygon_point(polygon, i, &p);
+                u2 = p.x - x;
+                v2 = p.y - y;
+
+                if ((v1 < 0.0 && v2 < 0.0) || (v1 > 0.0 && v2 > 0.0)) {
+                    u1 = u2;
+                    v1 = v2;
+                    continue;
+                }
+
+                if (v2 > 0.0 && v1 <= 0.0) {
+                    f = u1 * v2 - u2 * v1;
+                    if (f > 0.0) {
+                        ++k;
+                    }
+                    else if (f == 0.0) {
+                        return -1;
+                    }
+                }
+                else if (v1 > 0.0 && v2 <= 0.0) {
+                    f = u1 * v2 - u2 * v1;
+                    if (f < 0.0) {
+                        ++k;
+                    }
+                    else if (f == 0.0) {
+                        return -1;
+                    }
+                }
+                else if (v2 == 0.0 && v1 < 0.0) {
+                    f = u1 * v2 - u2 * v1;
+                    if (f == 0.0) {
+                        return -1;
+                    }
+                }
+                else if (v1 == 0.0 && v2 < 0.0) {
+                    f = u1 * v2 - u2 * v1;
+                    if (f == 0.0) {
+                        return -1;
+                    }
+                }
+                else if (v1 == 0.0 && v2 == 0.0) {
+                    if (u2 <= 0.0 && u1 >= 0.0) {
+                        return -1;
+                    }
+                    else if (u1 <= 0 && u2 >= 0.0) {
+                        return -1;
+                    }
+                }
+
                 u1 = u2;
                 v1 = v2;
-                continue;
             }
-
-            if (v2 > 0.0 && v1 <= 0.0) {
-                f = u1 * v2 - u2 * v1;
-                if (f > 0.0) {
-                    ++k;
-                }
-                else if (f == 0.0) {
-                    return -1;
-                }
-            }
-            else if (v1 > 0.0 && v2 <= 0.0) {
-                f = u1 * v2 - u2 * v1;
-                if (f < 0.0) {
-                    ++k;
-                }
-                else if (f == 0.0) {
-                    return -1;
-                }
-            }
-            else if (v2 == 0.0 && v1 < 0.0) {
-                f = u1 * v2 - u2 * v1;
-                if (f == 0.0) {
-                    return -1;
-                }
-            }
-            else if (v1 == 0.0 && v2 < 0.0) {
-                f = u1 * v2 - u2 * v1;
-                if (f == 0.0) {
-                    return -1;
-                }
-            }
-            else if (v1 == 0.0 && v2 == 0.0) {
-                if (u2 <= 0.0 && u1 >= 0.0) {
-                    return -1;
-                }
-                else if (u1 <= 0 && u2 >= 0.0) {
-                    return -1;
-                }
-            }
-
-            u1 = u2;
-            v1 = v2;
         }
     }
 
