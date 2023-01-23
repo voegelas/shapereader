@@ -84,7 +84,7 @@ shp_read_header(shp_file_t *fh, shp_header_t *header)
 
     file_length = shp_be32_to_int32(&buf[24]);
     if (file_length < 0) {
-        shp_set_error(fh, "File length %ld is negative", (long) file_length);
+        shp_set_error(fh, "File length %ld is invalid", (long) file_length);
         errno = EINVAL;
         goto cleanup;
     }
@@ -120,12 +120,17 @@ cleanup:
 }
 
 static int
-get_point(const char *buf, shp_record_t *record)
+get_point(shp_file_t *fh, const char *buf, shp_record_t *record)
 {
     int rc = -1;
     shp_point_t *point = &record->shape.point;
+    size_t record_size, expected_size = 20;
 
-    if (record->record_size != 16) {
+    record_size = record->record_size;
+    if (record_size != expected_size) {
+        shp_set_error(
+            fh, "Expected record of %zu bytes, got %zu in record %ld",
+            expected_size, record_size, (long) record->record_number);
         errno = EINVAL;
         goto cleanup;
     }
@@ -141,14 +146,17 @@ cleanup:
 }
 
 static int
-get_multipoint(const char *buf, shp_record_t *record)
+get_multipoint(shp_file_t *fh, const char *buf, shp_record_t *record)
 {
     int rc = -1;
     shp_multipoint_t *multipoint = &record->shape.multipoint;
-    size_t record_size, points_size;
+    int32_t num_points;
+    size_t record_size, points_size, expected_size;
 
     record_size = record->record_size;
     if (record_size < 40) {
+        shp_set_error(fh, "Record size %zu is too small in record %ld",
+                      record_size, (long) record->record_number);
         errno = EINVAL;
         goto cleanup;
     }
@@ -159,9 +167,21 @@ get_multipoint(const char *buf, shp_record_t *record)
     multipoint->box.y_max = shp_le64_to_double(&buf[28]);
     multipoint->num_points = shp_le32_to_int32(&buf[36]);
 
-    points_size = 16 * multipoint->num_points;
+    num_points = multipoint->num_points;
+    if (num_points < 0) {
+        shp_set_error(fh, "Number of points %ld is invalid in record %ld",
+                      (long) num_points, (long) record->record_number);
+        errno = EINVAL;
+        goto cleanup;
+    }
 
-    if (record_size != 40 + points_size) {
+    points_size = 16 * (size_t) num_points;
+
+    expected_size = 40 + points_size;
+    if (record_size != expected_size) {
+        shp_set_error(
+            fh, "Expected record of %zu bytes, got %zu in record %ld",
+            expected_size, record_size, (long) record->record_number);
         errno = EINVAL;
         goto cleanup;
     }
@@ -176,14 +196,17 @@ cleanup:
 }
 
 static int
-get_polygon(const char *buf, shp_record_t *record)
+get_polygon(shp_file_t *fh, const char *buf, shp_record_t *record)
 {
     int rc = -1;
     shp_polygon_t *polygon = &record->shape.polygon;
-    size_t record_size, parts_size, points_size;
+    int32_t num_parts, num_points;
+    size_t record_size, parts_size, points_size, expected_size;
 
     record_size = record->record_size;
     if (record_size < 44) {
+        shp_set_error(fh, "Record size %zu is too small in record %ld",
+                      record_size, (long) record->record_number);
         errno = EINVAL;
         goto cleanup;
     }
@@ -195,10 +218,30 @@ get_polygon(const char *buf, shp_record_t *record)
     polygon->num_parts = shp_le32_to_int32(&buf[36]);
     polygon->num_points = shp_le32_to_int32(&buf[40]);
 
-    parts_size = 4 * polygon->num_parts;
-    points_size = 16 * polygon->num_points;
+    num_parts = polygon->num_parts;
+    if (num_parts < 0) {
+        shp_set_error(fh, "Number of parts %ld is invalid in record %ld",
+                      (long) num_parts, (long) record->record_number);
+        errno = EINVAL;
+        goto cleanup;
+    }
 
-    if (record_size != 44 + parts_size + points_size) {
+    num_points = polygon->num_points;
+    if (num_points < 0) {
+        shp_set_error(fh, "Number of points %ld is invalid in record %ld",
+                      (long) num_points, (long) record->record_number);
+        errno = EINVAL;
+        goto cleanup;
+    }
+
+    parts_size = 4 * (size_t) num_parts;
+    points_size = 16 * (size_t) num_points;
+
+    expected_size = 44 + parts_size + points_size;
+    if (record_size != expected_size) {
+        shp_set_error(
+            fh, "Expected record of %zu bytes, got %zu in record %ld",
+            expected_size, record_size, (long) record->record_number);
         errno = EINVAL;
         goto cleanup;
     }
@@ -218,8 +261,7 @@ read_record(shp_file_t *fh, shp_record_t **precord, size_t *size)
 {
     int rc = -1;
     char header_buf[8], *buf;
-    int32_t record_number;
-    int32_t content_length;
+    int32_t record_number, content_length;
     size_t record_size, buf_size;
     struct shp_record_t *record;
     size_t nr;
@@ -245,8 +287,8 @@ read_record(shp_file_t *fh, shp_record_t **precord, size_t *size)
     record_number = shp_be32_to_int32(&header_buf[0]);
     content_length = shp_be32_to_int32(&header_buf[4]);
     if (content_length < 2) {
-        shp_set_error(fh, "Content length %ld is invalid",
-                      (long) content_length);
+        shp_set_error(fh, "Content length %ld is invalid in record %ld",
+                      (long) content_length, (long) record_number);
         errno = EINVAL;
         goto cleanup;
     }
@@ -258,7 +300,8 @@ read_record(shp_file_t *fh, shp_record_t **precord, size_t *size)
     if (record == NULL || *size < buf_size) {
         record = (shp_record_t *) realloc(record, buf_size);
         if (record == NULL) {
-            shp_set_error(fh, "Cannot allocate %zu bytes", buf_size);
+            shp_set_error(fh, "Cannot allocate %zu bytes for record %ld",
+                          buf_size, (long) record_number);
             goto cleanup;
         }
         *precord = record;
@@ -270,12 +313,13 @@ read_record(shp_file_t *fh, shp_record_t **precord, size_t *size)
     nr = fread(buf, 1, record_size, fh->fp);
     fh->num_bytes += nr;
     if (ferror(fh->fp)) {
-        shp_set_error(fh, "Cannot read record");
+        shp_set_error(fh, "Cannot read record %ld", (long) record_number);
         goto cleanup;
     }
     if (nr != record_size) {
-        shp_set_error(fh, "Expected record of %zu bytes, got %zu",
-                      record_size, nr);
+        shp_set_error(fh,
+                      "Expected record of %zu bytes, got %zu in record %ld",
+                      record_size, nr, (long) record_number);
         errno = EINVAL;
         goto cleanup;
     }
@@ -288,17 +332,17 @@ read_record(shp_file_t *fh, shp_record_t **precord, size_t *size)
         rc = 1;
         break;
     case SHPT_POINT:
-        rc = get_point(buf, record);
+        rc = get_point(fh, buf, record);
         break;
     case SHPT_MULTIPOINT:
-        rc = get_multipoint(buf, record);
+        rc = get_multipoint(fh, buf, record);
         break;
     case SHPT_POLYGON:
-        rc = get_polygon(buf, record);
+        rc = get_polygon(fh, buf, record);
         break;
     default:
-        shp_set_error(fh, "Shape type %d is unknown",
-                      (int) record->shape_type);
+        shp_set_error(fh, "Shape type %d is unknown in record %ld",
+                      (int) record->shape_type, (long) record_number);
         errno = EINVAL;
         break;
     }
