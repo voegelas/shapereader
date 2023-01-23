@@ -18,7 +18,7 @@
 
 #include "shp-box.h"
 #include "shp-point.h"
-#include <stdint.h>
+#include <stddef.h>
 
 /**
  * Polygon
@@ -30,8 +30,8 @@
  */
 typedef struct shp_polygon_t {
     shp_box_t box;       /**< The polygon's bounding box */
-    int32_t num_parts;   /**< Number of parts in the polygon */
-    int32_t num_points;  /**< Total number of points in the polygon */
+    size_t num_parts;    /**< Number of parts in the polygon */
+    size_t num_points;   /**< Total number of points in the polygon */
     const char *_parts;  /* Indices to the first points in the parts */
     const char *_points; /* The points for all parts */
 } shp_polygon_t;
@@ -51,9 +51,9 @@ typedef struct shp_polygon_t {
  *
  * @see shp_polygon_point
  */
-extern int32_t shp_polygon_points(const shp_polygon_t *polygon,
-                                  int32_t part_num, int32_t *start,
-                                  int32_t *end);
+extern size_t shp_polygon_points(const shp_polygon_t *polygon,
+                                 size_t part_num, size_t *start,
+                                 size_t *end);
 
 /**
  * Get a point
@@ -64,7 +64,7 @@ extern int32_t shp_polygon_points(const shp_polygon_t *polygon,
  *
  * @code{.c}
  * // Iterate over all parts and points
- * int32_t part_num, i, n;
+ * size_t part_num, i, n;
  * shp_point_t point;
  *
  * for (part_num = 0; part_num < polygon->num_parts; ++part_num) {
@@ -83,7 +83,7 @@ extern int32_t shp_polygon_points(const shp_polygon_t *polygon,
  *
  * @see shp_polygon_points
  */
-extern void shp_polygon_point(const shp_polygon_t *polygon, int32_t point_num,
+extern void shp_polygon_point(const shp_polygon_t *polygon, size_t point_num,
                               shp_point_t *point);
 
 /**

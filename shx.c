@@ -13,6 +13,7 @@
 #include "convert.h"
 #include <assert.h>
 #include <errno.h>
+#include <limits.h>
 #include <stdarg.h>
 #include <stdio.h>
 
@@ -107,26 +108,25 @@ shx_read_record(shx_file_t *fh, shx_record_t *record)
 }
 
 int
-shx_seek_record(shx_file_t *fh, int32_t record_number, shx_record_t *record)
+shx_seek_record(shx_file_t *fh, size_t record_number, shx_record_t *record)
 {
     int rc = -1;
-    long n, file_offset;
+    long file_offset;
 
     assert(fh != NULL);
     assert(fh->fp != NULL);
     assert(record != NULL);
 
-    n = (long) record_number;
-    if (n < 0) {
-        shx_set_error(fh, "Record number %ld is negative\n", n);
+    if (record_number >= ((size_t) LONG_MAX + 1) / 8 - 100) {
+        shx_set_error(fh, "Record number %zu is too big\n", record_number);
         errno = EINVAL;
         goto cleanup;
     }
 
-    file_offset = 100 + 8 * n;
+    file_offset = (long) record_number * 8 + 100;
     if (fseek(fh->fp, file_offset, SEEK_SET) != 0) {
-        shx_set_error(fh, "Cannot set file position to record number %ld\n",
-                      n);
+        shx_set_error(fh, "Cannot set file position to record number %zu\n",
+                      record_number);
         goto cleanup;
     }
 

@@ -12,16 +12,14 @@
 #include "shp-multipoint.h"
 #include "convert.h"
 #include <assert.h>
-#include <stddef.h>
 
 void
-shp_multipoint_point(const shp_multipoint_t *multipoint, int32_t point_num,
+shp_multipoint_point(const shp_multipoint_t *multipoint, size_t point_num,
                      shp_point_t *point)
 {
     const char *buf;
 
     assert(multipoint != NULL);
-    assert(point_num >= 0);
     assert(point_num < multipoint->num_points);
     assert(point != NULL);
 

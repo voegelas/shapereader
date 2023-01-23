@@ -16,6 +16,7 @@
 #ifndef _SHAPEREADER_DBF_H
 #define _SHAPEREADER_DBF_H
 
+#include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <time.h>
@@ -173,7 +174,7 @@ extern int dbf_record_double(const dbf_record_t *record,
 /**
  * Get a 32-bit integer value
  *
- * Gets an integer from an integer or auto-increment field.
+ * Gets an integer from an auto-increment or integer field.
  *
  * @memberof dbf_record_t
  * @param record a record.

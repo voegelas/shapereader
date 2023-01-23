@@ -29,7 +29,7 @@ shx_record_t shx_record;
 shx_file_t shx_fh;
 
 size_t file_offset;
-int32_t record_number;
+size_t record_number;
 
 /*
  * Database file tests
@@ -105,10 +105,10 @@ test_record_shape_type(void)
 }
 
 static int
-compare_points(int32_t num_points, const shp_point_t points[])
+compare_points(size_t num_points, const shp_point_t points[])
 {
     int ok = 0;
-    int32_t i;
+    size_t i;
     shp_point_t point;
 
     if (multipoint->num_points == num_points) {

@@ -19,7 +19,7 @@
 #include "shp-multipoint.h"
 #include "shp-point.h"
 #include "shp-polygon.h"
-#include <stdint.h>
+#include <stddef.h>
 #include <stdio.h>
 
 /**
@@ -46,10 +46,10 @@ typedef enum shp_shpt_t {
  * File header
  */
 typedef struct shp_header_t {
-    int32_t file_code;     /**< Always 9994 */
-    int32_t unused[5];     /**< Unused fields */
+    long file_code;        /**< Always 9994 */
+    long unused[5];        /**< Unused fields */
     size_t file_size;      /**< Total file length in bytes */
-    int32_t version;       /**< Always 1000 */
+    long version;          /**< Always 1000 */
     shp_shpt_t shape_type; /**< Shape type */
     double x_min;          /**< Minimum X */
     double y_min;          /**< Minimum Y */
@@ -65,7 +65,7 @@ typedef struct shp_header_t {
  * Record
  */
 typedef struct shp_record_t {
-    int32_t record_number; /**< Record number */
+    size_t record_number;  /**< Record number */
     size_t record_size;    /**< Content length in bytes */
     shp_shpt_t shape_type; /**< Shape type */
     union {

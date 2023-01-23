@@ -12,18 +12,15 @@
 #include "shp-polygon.h"
 #include "convert.h"
 #include <assert.h>
-#include <stddef.h>
 
-int32_t
-shp_polygon_points(const shp_polygon_t *polygon, int32_t part_num,
-                   int32_t *start, int32_t *end)
+size_t
+shp_polygon_points(const shp_polygon_t *polygon, size_t part_num,
+                   size_t *start, size_t *end)
 {
-    int32_t num_points = 0;
-    int32_t i, j, m;
+    size_t num_points, i, j, m;
     const char *buf;
 
     assert(polygon != NULL);
-    assert(part_num >= 0);
     assert(part_num < polygon->num_parts);
     assert(start != NULL);
     assert(end != NULL);
@@ -43,6 +40,7 @@ shp_polygon_points(const shp_polygon_t *polygon, int32_t part_num,
     *end = j;
 
     /* Is the range valid? */
+    num_points = 0;
     if (i >= 0 && i < m && j >= 0 && j <= m && i < j) {
         num_points = j - i;
     }
@@ -51,13 +49,12 @@ shp_polygon_points(const shp_polygon_t *polygon, int32_t part_num,
 }
 
 void
-shp_polygon_point(const shp_polygon_t *polygon, int32_t point_num,
+shp_polygon_point(const shp_polygon_t *polygon, size_t point_num,
                   shp_point_t *point)
 {
     const char *buf;
 
     assert(polygon != NULL);
-    assert(point_num >= 0);
     assert(point_num < polygon->num_points);
     assert(point != NULL);
 
@@ -70,7 +67,7 @@ int
 shp_polygon_point_in_polygon(const shp_polygon_t *polygon,
                              const shp_point_t *point)
 {
-    int32_t k, i, n, parts_count, part_num;
+    size_t parts_count, part_num, k, i, n;
     double x, y, f, u1, v1, u2, v2;
     shp_point_t p;
 

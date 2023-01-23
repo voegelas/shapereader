@@ -17,7 +17,7 @@
 #define _SHAPEREADER_SHP_MULTIPOINT_H
 
 #include "shp-box.h"
-#include <stdint.h>
+#include <stddef.h>
 
 /**
  * Multi point
@@ -26,7 +26,7 @@
  */
 typedef struct shp_multipoint_t {
     shp_box_t box;       /**< Bounding box */
-    int32_t num_points;  /**< Number of points */
+    size_t num_points;   /**< Number of points */
     const char *_points; /* Points */
 } shp_multipoint_t;
 
@@ -39,7 +39,7 @@ typedef struct shp_multipoint_t {
  *
  * @code{.c}
  * // Iterate over all points
- * int32_t i;
+ * size_t i;
  * shp_point_t point;
  *
  * for (i = 0; i < multipoint->num_points; ++i) {
@@ -53,6 +53,6 @@ typedef struct shp_multipoint_t {
  * @param[out] point a shp_point_t structure.
  */
 extern void shp_multipoint_point(const shp_multipoint_t *multipoint,
-                                 int32_t point_num, shp_point_t *point);
+                                 size_t point_num, shp_point_t *point);
 
 #endif

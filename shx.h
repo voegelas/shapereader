@@ -17,7 +17,7 @@
 #define _SHAPEREADER_SHX_H
 
 #include "shp.h"
-#include <stdint.h>
+#include <stddef.h>
 #include <stdio.h>
 
 /**
@@ -191,7 +191,7 @@ extern int shx_read_record(shx_file_t *fh, shx_record_t *record);
  *
  * @see shp_seek_record
  */
-extern int shx_seek_record(shx_file_t *fh, int32_t record_number,
+extern int shx_seek_record(shx_file_t *fh, size_t record_number,
                            shx_record_t *record);
 
 #endif

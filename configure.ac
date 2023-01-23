@@ -62,7 +62,6 @@ AC_MSG_CHECKING([for vsnprintf])
 have_vsnprintf=no
 AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
 #include <stdarg.h>
-#include <stdint.h>
 #include <stdio.h>
 char buf[256];
 void p(char *format, ...) {
@@ -72,8 +71,8 @@ void p(char *format, ...) {
   va_end(ap);
 }
 ]],[[
-int32_t i = 23;
-p("%ld", (long) i);
+int i = 23;
+p("%d", i);
 ]])],
 [AC_DEFINE([HAVE_VSNPRINTF], [1], [Define to 1 if vsnprintf() exists.])]
 have_vsnprintf=yes

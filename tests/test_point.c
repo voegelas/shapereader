@@ -14,7 +14,7 @@ shp_record_t *shp_record;
 const shp_point_t *point;
 shp_file_t shp_fh;
 
-int32_t record_number;
+size_t record_number;
 
 /*
  * Main file tests
