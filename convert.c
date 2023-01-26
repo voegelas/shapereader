@@ -12,11 +12,13 @@
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #else
+#ifndef WORDS_BIGENDIAN
 #if defined __BYTE_ORDER__
 #if __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
 #define WORDS_BIGENDIAN 1
 #elif __BYTE_ORDER__ != __ORDER_LITTLE_ENDIAN__
 #error Unknown byte order
+#endif
 #endif
 #endif
 #endif
