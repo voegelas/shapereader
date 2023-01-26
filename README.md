@@ -7,15 +7,28 @@ The library supports the shp, shx and dbf formats.
 
 ## DEPENDENCIES
 
-Requires a C compiler that supports the C99 standard, autoconf, automake, make
-and pkg-config.
+Requires a C compiler that supports the C99 standard and either CMake or the
+GNU Autotools and pkg-config.
 
 ## INSTALLATION
 
-Run the following commands to install the library:
+Run the following commands to install the library.
+
+## CMake
+
+    mkdir build
+    cd build
+    cmake ..
+    make
+    make test
+    make install
+
+## GNU Autotools
 
     autoreconf -i
-    ./configure
+    mkdir build
+    cd build
+    ../configure
     make
     make check
     make install

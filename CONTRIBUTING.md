@@ -13,13 +13,24 @@ changes to your clone, and then submitting a pull request.
 Please use clang-format and the included .clang-format file to format your
 code.
 
-Do only use functions from the C standard library.  You can use POSIX functions
-in the tests.
+Use only functions from the C standard library.  You can use POSIX functions in
+the tests.
 
-The library is managed with autoconf, automake, make and pkg-config.  Once
-installed, here are some commands you might try:
+The library is managed with either CMake or the GNU Autotools and pkg-config.
+
+## CMake
+
+    mkdir build
+    cd build
+    cmake ..
+    make
+    make test
+
+## GNU Autotools
 
     autoreconf -i
-    ./configure
+    mkdir build
+    cd build
+    ../configure
     make
     make check VERBOSE=1
