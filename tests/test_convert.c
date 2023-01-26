@@ -23,26 +23,26 @@ test_le16_to_uint16(void)
 static int
 test_be32_to_int32(void)
 {
-    return shp_be32_to_int32("\x80\x00\x00\x00") == -2147483648;
+    return shp_be32_to_int32("\x80\x00\x00\x00") == INT32_MIN;
 }
 
 static int
 test_le32_to_int32(void)
 {
-    return shp_le32_to_int32("\x00\x00\x00\x80") == -2147483648;
+    return shp_le32_to_int32("\x00\x00\x00\x80") == INT32_MIN;
 }
 
 static int
 test_le32_to_uint32(void)
 {
-    return shp_le32_to_uint32("\x00\x00\x00\x80") == 2147483648;
+    return shp_le32_to_uint32("\x00\x00\x00\x80") == 2147483648UL;
 }
 
 static int
 test_le64_to_int64(void)
 {
     return shp_le64_to_int64("\x00\x00\x00\x00\xfe\xff\xff\xff") ==
-           -8589934592;
+           -8589934592LL;
 }
 
 static int
