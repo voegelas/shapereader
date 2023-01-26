@@ -19,6 +19,7 @@
 #include "shp-multipoint.h"
 #include "shp-point.h"
 #include "shp-polygon.h"
+#include "shp-polyline.h"
 #include <stddef.h>
 #include <stdio.h>
 
@@ -73,6 +74,8 @@ typedef struct shp_record_t {
                                           @c SHPT_POINT */
         shp_multipoint_t multipoint; /**< Set of points if @a shape_type is
                                           @c SHPT_MULTIPOINT */
+        shp_polyline_t polyline;     /**< Polyline if @a shape_type is
+                                          @c SHPT_POLYLINE */
         shp_polygon_t polygon;       /**< Polygon if @a shape_type is
                                           @c SHPT_POLYGON */
     } shape;

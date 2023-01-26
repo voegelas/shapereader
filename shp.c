@@ -258,6 +258,68 @@ cleanup:
 }
 
 static int
+get_polyline(shp_file_t *fh, const char *buf, shp_record_t *record)
+{
+    int rc = -1;
+    shp_polyline_t *polyline = &record->shape.polyline;
+    int32_t num_parts, num_points;
+    size_t record_size, parts_size, points_size, expected_size;
+
+    record_size = record->record_size;
+    if (record_size < 44) {
+        shp_set_error(fh, "Record size %zu is too small in record %zu",
+                      record_size, record->record_number);
+        errno = EINVAL;
+        goto cleanup;
+    }
+
+    polyline->box.x_min = shp_le64_to_double(&buf[4]);
+    polyline->box.y_min = shp_le64_to_double(&buf[12]);
+    polyline->box.x_max = shp_le64_to_double(&buf[20]);
+    polyline->box.y_max = shp_le64_to_double(&buf[28]);
+
+    num_parts = shp_le32_to_int32(&buf[36]);
+    if (num_parts < 0) {
+        shp_set_error(fh, "Number of parts %ld is invalid in record %zu",
+                      (long) num_parts, record->record_number);
+        errno = EINVAL;
+        goto cleanup;
+    }
+
+    num_points = shp_le32_to_int32(&buf[40]);
+    if (num_points < 0) {
+        shp_set_error(fh, "Number of points %ld is invalid in record %zu",
+                      (long) num_points, record->record_number);
+        errno = EINVAL;
+        goto cleanup;
+    }
+
+    polyline->num_parts = (size_t) num_parts;
+    polyline->num_points = (size_t) num_points;
+
+    parts_size = 4 * polyline->num_parts;
+    points_size = 16 * polyline->num_points;
+
+    expected_size = 44 + parts_size + points_size;
+    if (record_size != expected_size) {
+        shp_set_error(
+            fh, "Expected record of %zu bytes, got %zu in record %zu",
+            expected_size, record_size, record->record_number);
+        errno = EINVAL;
+        goto cleanup;
+    }
+
+    polyline->_parts = &buf[44];
+    polyline->_points = &buf[44 + parts_size];
+
+    rc = 1;
+
+cleanup:
+
+    return rc;
+}
+
+static int
 read_record(shp_file_t *fh, shp_record_t **precord, size_t *size)
 {
     int rc = -1;
@@ -339,6 +401,9 @@ read_record(shp_file_t *fh, shp_record_t **precord, size_t *size)
         break;
     case SHPT_MULTIPOINT:
         rc = get_multipoint(fh, buf, record);
+        break;
+    case SHPT_POLYLINE:
+        rc = get_polyline(fh, buf, record);
         break;
     case SHPT_POLYGON:
         rc = get_polygon(fh, buf, record);

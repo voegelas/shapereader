@@ -267,10 +267,22 @@ sub pack_polygon {
     return $bytes;
 }
 
+sub pack_polyline {
+    my %h = (
+        record_number => 0,
+        shape_type    => $SHPT_POLYLINE,
+        box           => [0.0, 0.0, 0.0, 0.0],
+        parts         => [],
+        @_
+    );
+
+    return pack_polygon(%h);
+}
+
 my %pack_shp_record = (
     $SHPT_NULL        => \&pack_null,
     $SHPT_POINT       => \&pack_point,
-    $SHPT_POLYLINE    => undef,
+    $SHPT_POLYLINE    => \&pack_polyline,
     $SHPT_POLYGON     => \&pack_polygon,
     $SHPT_MULTIPOINT  => \&pack_multipoint,
     $SHPT_POINTZ      => undef,
@@ -606,6 +618,45 @@ write_shp_and_shx(
             shape_type => $SHPT_POLYGON,
             box        => [10, 59, 11, 60],
             parts      => [[[10, 59], [10, 60], [11, 60], [11, 59], [10, 59]]]
+        },
+    ]
+);
+
+#
+# polyline.shp
+#
+
+write_dbf(
+    file   => catfile(qw(data polyline.dbf)),
+    header => {
+        fields => [{
+            name   => 'Shape',
+            type   => 'C',
+            length => 8,
+        }],
+    },
+    records => [[q{ }, 'Star']]
+);
+
+write_shp_and_shx(
+    shp_file => catfile(qw(data polyline.shp)),
+    shx_file => catfile(qw(data polyline.shx)),
+    header   => {
+        shape_type => $SHPT_POLYLINE,
+        x_min      => 1,
+        y_min      => 1,
+        x_max      => 3,
+        y_max      => 3,
+    },
+    shapes => [
+        {   shape_type => $SHPT_POLYLINE,
+            box        => [1, 1, 3, 3],
+            parts      => [
+                [[1, 1], [2, 2], [1, 2]],
+                [[1, 3], [2, 2], [2, 3]],
+                [[2, 1], [2, 2], [3, 1]],
+                [[3, 2], [2, 2], [3, 3]],
+            ]
         },
     ]
 );
