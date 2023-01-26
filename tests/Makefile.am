@@ -9,7 +9,7 @@ check_HEADERS = tap.h
 AM_DEFAULT_SOURCE_EXT = .c
 
 AM_TESTS_ENVIRONMENT = \
-datadir=$(srcdir)/data; export datadir;
+testdatadir=$(srcdir)/data; export testdatadir;
 
 TEST_LOG_DRIVER = env AM_TAP_AWK='$(AWK)' $(SHELL) \
                   $(top_srcdir)/build-aux/tap-driver.sh

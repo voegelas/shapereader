@@ -258,20 +258,20 @@ test_is_not_between(void)
 int
 main(int argc, char *argv[])
 {
-    const char *datadir = getenv("datadir");
+    const char *testdatadir = getenv("testdatadir");
     FILE *shp_fp;
 
     plan(34);
 
-    if (datadir == NULL) {
+    if (testdatadir == NULL) {
         fprintf(stderr,
-                "# The environment variable \"datadir\" is not set\n");
+                "# The environment variable \"testdatadir\" is not set\n");
         return 1;
     }
 
-    if (chdir(datadir) == -1) {
-        fprintf(stderr, "# Cannot change directory to \"%s\": %s\n", datadir,
-                strerror(errno));
+    if (chdir(testdatadir) == -1) {
+        fprintf(stderr, "# Cannot change directory to \"%s\": %s\n",
+                testdatadir, strerror(errno));
         return 1;
     }
 

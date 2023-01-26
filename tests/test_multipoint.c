@@ -189,22 +189,22 @@ test_shx(void)
 int
 main(int argc, char *argv[])
 {
-    const char *datadir = getenv("datadir");
+    const char *testdatadir = getenv("testdatadir");
     FILE *dbf_fp, *shp_fp, *shx_fp;
 
     plan(2 + NUM_RECORDS * (NUM_DBF_RECORD_TESTS +
                             (NUM_SHP_RECORD_TESTS * NUM_RECORDS) +
                             NUM_SHX_RECORD_TESTS));
 
-    if (datadir == NULL) {
+    if (testdatadir == NULL) {
         fprintf(stderr,
-                "# The environment variable \"datadir\" is not set\n");
+                "# The environment variable \"testdatadir\" is not set\n");
         return 1;
     }
 
-    if (chdir(datadir) == -1) {
-        fprintf(stderr, "# Cannot change directory to \"%s\": %s\n", datadir,
-                strerror(errno));
+    if (chdir(testdatadir) == -1) {
+        fprintf(stderr, "# Cannot change directory to \"%s\": %s\n",
+                testdatadir, strerror(errno));
         return 1;
     }
 

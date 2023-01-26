@@ -287,21 +287,21 @@ handle_shp_record(shp_file_t *fh, const shp_header_t *h,
 int
 main(int argc, char *argv[])
 {
-    const char *datadir = getenv("datadir");
+    const char *testdatadir = getenv("testdatadir");
     const char *filename = "polygon.shp";
     FILE *fp;
 
     plan(28);
 
-    if (datadir == NULL) {
+    if (testdatadir == NULL) {
         fprintf(stderr,
-                "# The environment variable \"datadir\" is not set\n");
+                "# The environment variable \"testdatadir\" is not set\n");
         return 1;
     }
 
-    if (chdir(datadir) == -1) {
-        fprintf(stderr, "# Cannot change directory to \"%s\": %s\n", datadir,
-                strerror(errno));
+    if (chdir(testdatadir) == -1) {
+        fprintf(stderr, "# Cannot change directory to \"%s\": %s\n",
+                testdatadir, strerror(errno));
         return 1;
     }
 
