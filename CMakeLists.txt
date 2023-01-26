@@ -5,6 +5,7 @@ project(shapereader
   VERSION 0.0.1
 )
 
+include(CTest)
 include(GNUInstallDirs)
 
 set(libshapereader_a_SOURCES
@@ -44,6 +45,8 @@ test_big_endian(WORDS_BIGENDIAN)
 if(WORDS_BIGENDIAN)
   add_definitions(-DWORDS_BIGENDIAN=1)
 endif()
+
+add_subdirectory(tests)
 
 install(TARGETS shapereader
   ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
