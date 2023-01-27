@@ -86,6 +86,7 @@ install(FILES ${CMAKE_CURRENT_BINARY_DIR}/shapereader.pc
   DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig
 )
 
+# Configure cpack
 if(NOT DEFINED CPACK_PACKAGE_CONTACT)
   if((DEFINED ENV{DEBFULLNAME}) AND (DEFINED ENV{DEBEMAIL}))
     set(CPACK_PACKAGE_CONTACT "$ENV{DEBFULLNAME} <$ENV{DEBEMAIL}>")
@@ -114,3 +115,15 @@ set(CPACK_SOURCE_IGNORE_FILES
 )
 set(CPACK_VERBATIM_VARIABLES YES)
 include(CPack)
+
+# Format the source code files with clang-format
+file(GLOB all_SOURCES
+  RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}
+  *.[ch]
+  tests/*.[ch]
+)
+add_custom_target(clang-format
+  COMMAND clang-format --verbose -style=file -i ${all_SOURCES}
+  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+  VERBATIM
+)

@@ -19,3 +19,7 @@ The library is managed with CMake.  Here are some commands you might try:
     cmake ..
     make
     make test
+
+If clang-format is installed, you can format the source code files:
+
+    make clang-format
