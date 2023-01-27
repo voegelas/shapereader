@@ -128,9 +128,9 @@ get_point(shp_file_t *fh, const char *buf, shp_record_t *record)
 
     record_size = record->record_size;
     if (record_size != expected_size) {
-        shp_set_error(
-            fh, "Expected record of %zu bytes, got %zu in record %zu",
-            expected_size, record_size, record->record_number);
+        shp_set_error(fh,
+                      "Expected record of %zu bytes, got %zu in record %zu",
+                      expected_size, record_size, record->record_number);
         errno = EINVAL;
         goto cleanup;
     }
@@ -179,9 +179,9 @@ get_multipoint(shp_file_t *fh, const char *buf, shp_record_t *record)
 
     expected_size = 40 + points_size;
     if (record_size != expected_size) {
-        shp_set_error(
-            fh, "Expected record of %zu bytes, got %zu in record %zu",
-            expected_size, record_size, record->record_number);
+        shp_set_error(fh,
+                      "Expected record of %zu bytes, got %zu in record %zu",
+                      expected_size, record_size, record->record_number);
         errno = EINVAL;
         goto cleanup;
     }
@@ -240,9 +240,9 @@ get_polygon(shp_file_t *fh, const char *buf, shp_record_t *record)
 
     expected_size = 44 + parts_size + points_size;
     if (record_size != expected_size) {
-        shp_set_error(
-            fh, "Expected record of %zu bytes, got %zu in record %zu",
-            expected_size, record_size, record->record_number);
+        shp_set_error(fh,
+                      "Expected record of %zu bytes, got %zu in record %zu",
+                      expected_size, record_size, record->record_number);
         errno = EINVAL;
         goto cleanup;
     }
@@ -302,9 +302,9 @@ get_polyline(shp_file_t *fh, const char *buf, shp_record_t *record)
 
     expected_size = 44 + parts_size + points_size;
     if (record_size != expected_size) {
-        shp_set_error(
-            fh, "Expected record of %zu bytes, got %zu in record %zu",
-            expected_size, record_size, record->record_number);
+        shp_set_error(fh,
+                      "Expected record of %zu bytes, got %zu in record %zu",
+                      expected_size, record_size, record->record_number);
         errno = EINVAL;
         goto cleanup;
     }

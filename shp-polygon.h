@@ -24,8 +24,8 @@
  * Polygon
  *
  * A polygon consists of one or more parts.  A part is a connected sequence of
- * four or more points that form a closed, non-self-intersecting loop.  See the
- * "ESRI Shapefile Technical Description" @cite ESRI_shape for more
+ * four or more points that form a closed, non-self-intersecting loop.  See
+ * the "ESRI Shapefile Technical Description" @cite ESRI_shape for more
  * information.
  */
 typedef struct shp_polygon_t {
@@ -51,8 +51,7 @@ typedef struct shp_polygon_t {
  * @see shp_polygon_point
  */
 extern size_t shp_polygon_points(const shp_polygon_t *polygon,
-                                 size_t part_num, size_t *start,
-                                 size_t *end);
+                                 size_t part_num, size_t *start, size_t *end);
 
 /**
  * Get a point
