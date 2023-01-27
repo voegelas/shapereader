@@ -3,7 +3,6 @@
 #include <errno.h>
 #include <stdio.h>
 #include <string.h>
-#include <unistd.h>
 
 int tests_planned = 0;
 int tests_run = 0;
@@ -12,7 +11,6 @@ int tests_failed = 0;
 shp_header_t shp_header;
 shp_record_t *shp_record;
 const shp_polyline_t *polyline;
-shp_file_t shp_fh;
 
 size_t record_number;
 
@@ -135,44 +133,33 @@ test_shp(void)
 int
 main(int argc, char *argv[])
 {
-    const char *testdatadir = getenv("testdatadir");
-    FILE *shp_fp;
+    const char *filename = "polyline.shp";
+    FILE *fp;
+    shp_file_t fh;
 
     plan(12);
 
-    if (testdatadir == NULL) {
-        fprintf(stderr,
-                "# The environment variable \"testdatadir\" is not set\n");
-        return 1;
-    }
-
-    if (chdir(testdatadir) == -1) {
-        fprintf(stderr, "# Cannot change directory to \"%s\": %s\n",
-                testdatadir, strerror(errno));
-        return 1;
-    }
-
-    shp_fp = fopen("polyline.shp", "rb");
-    if (shp_fp == NULL) {
-        fprintf(stderr, "# Cannot open file \"%s\": %s\n", "polyline.shp",
+    fp = fopen(filename, "rb");
+    if (fp == NULL) {
+        fprintf(stderr, "# Cannot open file \"%s\": %s\n", filename,
                 strerror(errno));
         return 1;
     }
 
-    shp_init_file(&shp_fh, shp_fp, NULL);
+    shp_init_file(&fh, fp, NULL);
 
-    if (shp_read_header(&shp_fh, &shp_header) > 0) {
+    if (shp_read_header(&fh, &shp_header) > 0) {
         ok(test_header_shape_type, "header shape type is polyline");
         record_number = 0;
-        while (shp_read_record(&shp_fh, &shp_record) > 0) {
+        while (shp_read_record(&fh, &shp_record) > 0) {
             test_shp();
             free(shp_record);
             ++record_number;
         }
-        fprintf(stderr, "# %s\n", shp_fh.error);
+        fprintf(stderr, "# %s\n", fh.error);
     }
 
-    fclose(shp_fp);
+    fclose(fp);
 
     done_testing();
 }

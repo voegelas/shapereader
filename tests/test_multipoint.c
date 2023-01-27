@@ -3,7 +3,6 @@
 #include <errno.h>
 #include <stdio.h>
 #include <string.h>
-#include <unistd.h>
 
 #define NUM_RECORDS 2
 
@@ -17,16 +16,13 @@ int tests_failed = 0;
 
 dbf_header_t *dbf_header;
 dbf_record_t *dbf_record;
-dbf_file_t dbf_fh;
 
 shp_header_t shp_header;
 shp_record_t *shp_record;
 const shp_multipoint_t *multipoint;
-shp_file_t shp_fh;
 
 shx_header_t shx_header;
 shx_record_t shx_record;
-shx_file_t shx_fh;
 
 size_t file_offset;
 size_t record_number;
@@ -189,42 +185,35 @@ test_shx(void)
 int
 main(int argc, char *argv[])
 {
-    const char *testdatadir = getenv("testdatadir");
+    const char *dbf_filename = "multipoint.dbf";
+    const char *shp_filename = "multipoint.shp";
+    const char *shx_filename = "multipoint.shx";
     FILE *dbf_fp, *shp_fp, *shx_fp;
+    dbf_file_t dbf_fh;
+    shp_file_t shp_fh;
+    shx_file_t shx_fh;
 
     plan(2 + NUM_RECORDS * (NUM_DBF_RECORD_TESTS +
                             (NUM_SHP_RECORD_TESTS * NUM_RECORDS) +
                             NUM_SHX_RECORD_TESTS));
 
-    if (testdatadir == NULL) {
-        fprintf(stderr,
-                "# The environment variable \"testdatadir\" is not set\n");
-        return 1;
-    }
-
-    if (chdir(testdatadir) == -1) {
-        fprintf(stderr, "# Cannot change directory to \"%s\": %s\n",
-                testdatadir, strerror(errno));
-        return 1;
-    }
-
-    dbf_fp = fopen("multipoint.dbf", "rb");
+    dbf_fp = fopen(dbf_filename, "rb");
     if (dbf_fp == NULL) {
-        fprintf(stderr, "# Cannot open file \"%s\": %s\n", "multipoint.dbf",
+        fprintf(stderr, "# Cannot open file \"%s\": %s\n", dbf_filename,
                 strerror(errno));
         return 1;
     }
 
-    shp_fp = fopen("multipoint.shp", "rb");
+    shp_fp = fopen(shp_filename, "rb");
     if (shp_fp == NULL) {
-        fprintf(stderr, "# Cannot open file \"%s\": %s\n", "multipoint.shp",
+        fprintf(stderr, "# Cannot open file \"%s\": %s\n", shp_filename,
                 strerror(errno));
         return 1;
     }
 
-    shx_fp = fopen("multipoint.shx", "rb");
+    shx_fp = fopen(shx_filename, "rb");
     if (shx_fp == NULL) {
-        fprintf(stderr, "# Cannot open file \"%s\": %s\n", "multipoint.shx",
+        fprintf(stderr, "# Cannot open file \"%s\": %s\n", shx_filename,
                 strerror(errno));
         return 1;
     }

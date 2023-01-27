@@ -3,8 +3,6 @@
 #include <errno.h>
 #include <stdio.h>
 #include <string.h>
-#include <sys/stat.h>
-#include <unistd.h>
 
 int tests_planned = 0;
 int tests_run = 0;
@@ -13,18 +11,9 @@ int tests_failed = 0;
 const shp_header_t *header;
 const shp_record_t *record;
 const shp_polygon_t *polygon;
-shp_file_t fh;
-size_t file_size;
 
-static size_t
-get_file_size(const char *filename)
-{
-    struct stat statbuf;
-    if (stat(filename, &statbuf) == 0) {
-        return (size_t) statbuf.st_size;
-    }
-    return 0;
-}
+size_t num_bytes;
+size_t file_size;
 
 /*
  * Header tests
@@ -45,7 +34,7 @@ test_file_length(void)
 static int
 test_entire_file_read(void)
 {
-    return fh.num_bytes == file_size;
+    return num_bytes == file_size;
 }
 
 static int
@@ -287,25 +276,11 @@ handle_shp_record(shp_file_t *fh, const shp_header_t *h,
 int
 main(int argc, char *argv[])
 {
-    const char *testdatadir = getenv("testdatadir");
     const char *filename = "polygon.shp";
     FILE *fp;
+    shp_file_t fh;
 
     plan(28);
-
-    if (testdatadir == NULL) {
-        fprintf(stderr,
-                "# The environment variable \"testdatadir\" is not set\n");
-        return 1;
-    }
-
-    if (chdir(testdatadir) == -1) {
-        fprintf(stderr, "# Cannot change directory to \"%s\": %s\n",
-                testdatadir, strerror(errno));
-        return 1;
-    }
-
-    file_size = get_file_size(filename);
 
     fp = fopen(filename, "rb");
     if (fp == NULL) {
@@ -314,12 +289,17 @@ main(int argc, char *argv[])
         return 1;
     }
 
+    fseek(fp, 0, SEEK_END);
+    file_size = ftell(fp);
+    fseek(fp, 0, SEEK_SET);
+
     shp_init_file(&fh, fp, NULL);
     if (shp_read(&fh, handle_shp_header, handle_shp_record) == -1) {
         fprintf(stderr, "# Cannot read file \"%s\": %s\n", filename,
                 fh.error);
     }
 
+    num_bytes = fh.num_bytes;
     ok(test_entire_file_read, "entire file has been read");
 
     fclose(fp);

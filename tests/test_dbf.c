@@ -3,7 +3,6 @@
 #include <errno.h>
 #include <stdio.h>
 #include <string.h>
-#include <unistd.h>
 
 #define FESTIVAL 0
 #define FROM 1
@@ -32,8 +31,7 @@ int tests_failed = 0;
 const dbf_header_t *header;
 const dbf_record_t *record;
 
-dbf_file_t fh;
-size_t record_number = 0;
+size_t record_number;
 
 /*
  * Header tests
@@ -404,6 +402,7 @@ static int
 handle_dbf_header(dbf_file_t *fh, const dbf_header_t *h)
 {
     header = h;
+    record_number = 0;
     ok(test_database_version, "database version matches");
     ok(test_num_records, "number of records is greater than zero");
     ok(test_header_size, "header_size matches");
@@ -469,23 +468,11 @@ handle_dbf_record(dbf_file_t *fh, const dbf_header_t *h,
 int
 main(int argc, char *argv[])
 {
-    const char *testdatadir = getenv("testdatadir");
     const char *filename = "types.dbf";
     FILE *fp;
+    dbf_file_t fh;
 
     plan(42);
-
-    if (testdatadir == NULL) {
-        fprintf(stderr,
-                "# The environment variable \"testdatadir\" is not set\n");
-        return 1;
-    }
-
-    if (chdir(testdatadir) == -1) {
-        fprintf(stderr, "# Cannot change directory to \"%s\": %s\n",
-                testdatadir, strerror(errno));
-        return 1;
-    }
 
     fp = fopen(filename, "rb");
     if (fp == NULL) {
@@ -495,6 +482,7 @@ main(int argc, char *argv[])
     }
 
     dbf_init_file(&fh, fp, NULL);
+
     if (dbf_read(&fh, handle_dbf_header, handle_dbf_record) == -1) {
         fprintf(stderr, "# Cannot read file \"%s\": %s\n", filename,
                 fh.error);

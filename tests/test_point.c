@@ -3,7 +3,6 @@
 #include <errno.h>
 #include <stdio.h>
 #include <string.h>
-#include <unistd.h>
 
 #define EPSILON 1e-9
 
@@ -14,7 +13,6 @@ int tests_failed = 0;
 shp_header_t shp_header;
 shp_record_t *shp_record;
 const shp_point_t *point;
-shp_file_t shp_fh;
 
 size_t record_number;
 
@@ -258,44 +256,33 @@ test_is_not_between(void)
 int
 main(int argc, char *argv[])
 {
-    const char *testdatadir = getenv("testdatadir");
-    FILE *shp_fp;
+    const char *filename = "point.shp";
+    FILE *fp;
+    shp_file_t fh;
 
     plan(34);
 
-    if (testdatadir == NULL) {
-        fprintf(stderr,
-                "# The environment variable \"testdatadir\" is not set\n");
-        return 1;
-    }
-
-    if (chdir(testdatadir) == -1) {
-        fprintf(stderr, "# Cannot change directory to \"%s\": %s\n",
-                testdatadir, strerror(errno));
-        return 1;
-    }
-
-    shp_fp = fopen("point.shp", "rb");
-    if (shp_fp == NULL) {
-        fprintf(stderr, "# Cannot open file \"%s\": %s\n", "point.shp",
+    fp = fopen(filename, "rb");
+    if (fp == NULL) {
+        fprintf(stderr, "# Cannot open file \"%s\": %s\n", filename,
                 strerror(errno));
         return 1;
     }
 
-    shp_init_file(&shp_fh, shp_fp, NULL);
+    shp_init_file(&fh, fp, NULL);
 
-    if (shp_read_header(&shp_fh, &shp_header) > 0) {
+    if (shp_read_header(&fh, &shp_header) > 0) {
         ok(test_header_shape_type, "header shape type is point");
         record_number = 0;
-        while (shp_read_record(&shp_fh, &shp_record) > 0) {
+        while (shp_read_record(&fh, &shp_record) > 0) {
             test_shp();
             free(shp_record);
             ++record_number;
         }
-        fprintf(stderr, "# %s\n", shp_fh.error);
+        fprintf(stderr, "# %s\n", fh.error);
     }
 
-    fclose(shp_fp);
+    fclose(fp);
 
     ok(test_decimals, "collinear decimals with epsilon");
     ok(test_decimals_no_epsilon, "inexact decimals without epsilon");

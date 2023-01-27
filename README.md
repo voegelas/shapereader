@@ -7,30 +7,17 @@ The library supports the shp, shx and dbf formats.
 
 ## DEPENDENCIES
 
-Requires a C compiler that supports the C99 standard and either CMake or the
-GNU Autotools and pkg-config.
+Requires a C compiler that supports the C99 standard and CMake.
 
 ## INSTALLATION
 
-Run the following commands to install the library.
-
-## CMake
+Run the following commands to install the library:
 
     mkdir build
     cd build
     cmake ..
     make
     make test
-    make install
-
-## GNU Autotools
-
-    autoreconf -i
-    mkdir build
-    cd build
-    ../configure
-    make
-    make check
     make install
 
 See Makefile.PL for information on how to add the library to a Perl XS module.

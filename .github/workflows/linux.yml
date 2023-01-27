@@ -16,7 +16,8 @@ jobs:
       - uses: actions/checkout@v3
       - name: Run tests
         run: |
-          autoreconf -i
-          env CFLAGS="-std=c99 -pedantic-errors -Wall -Werror" ./configure
+          mkdir build
+          cd build
+          env CFLAGS="-std=c99 -pedantic-errors -Wall -Werror" cmake ..
           make
-          make check VERBOSE=1
+          make test

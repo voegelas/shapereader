@@ -1,12 +1,26 @@
 cmake_minimum_required(VERSION 3.4)
 
-project(shapereader
-  LANGUAGES C
-  VERSION 0.0.1
+set(CPACK_PACKAGE_VERSION_MAJOR 0)
+set(CPACK_PACKAGE_VERSION_MINOR 0)
+set(CPACK_PACKAGE_VERSION_PATCH 1)
+
+string(CONCAT version
+  "${CPACK_PACKAGE_VERSION_MAJOR}"
+  "."
+  "${CPACK_PACKAGE_VERSION_MINOR}"
+  "."
+  "${CPACK_PACKAGE_VERSION_PATCH}"
 )
 
-include(CTest)
-include(GNUInstallDirs)
+project(shapereader
+  LANGUAGES C
+  VERSION ${version}
+)
+
+string(CONCAT description
+  "A C library for reading ESRI shapefiles. The shapefile format is a geospatial\n"
+  "vector data format for geographic information system software."
+)
 
 set(libshapereader_a_SOURCES
   convert.c
@@ -46,7 +60,10 @@ if(WORDS_BIGENDIAN)
   add_definitions(-DWORDS_BIGENDIAN=1)
 endif()
 
+include(CTest)
 add_subdirectory(tests)
+
+include(GNUInstallDirs)
 
 install(TARGETS shapereader
   ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
@@ -58,7 +75,7 @@ set(prefix ${CMAKE_INSTALL_PREFIX})
 set(exec_prefix \${prefix})
 set(libdir \${exec_prefix}/${CMAKE_INSTALL_LIBDIR})
 set(includedir \${prefix}/${CMAKE_INSTALL_INCLUDEDIR})
-set(PACKAGE_VERSION ${shapereader_VERSION})
+set(PACKAGE_VERSION ${version})
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/shapereader.pc.in
   ${CMAKE_CURRENT_BINARY_DIR}/shapereader.pc
@@ -68,3 +85,32 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/shapereader.pc.in
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/shapereader.pc
   DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig
 )
+
+if(NOT DEFINED CPACK_PACKAGE_CONTACT)
+  if((DEFINED ENV{DEBFULLNAME}) AND (DEFINED ENV{DEBEMAIL}))
+    set(CPACK_PACKAGE_CONTACT "$ENV{DEBFULLNAME} <$ENV{DEBEMAIL}>")
+  endif()
+endif()
+
+set(CPACK_PACKAGE_DESCRIPTION_FILE "${CMAKE_CURRENT_BINARY_DIR}/Description.txt")
+file(WRITE ${CPACK_PACKAGE_DESCRIPTION_FILE} ${description})
+
+set(CPACK_PACKAGE_NAME "libshapereader-devel")
+set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}-${version}")
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Library for reading ESRI shapefiles")
+set(CPACK_DEBIAN_PACKAGE_NAME "libshapereader-dev")
+set(CPACK_DEBIAN_PACKAGE_RELEASE 1)
+set(CPACK_DEBIAN_PACKAGE_DEPENDS "libc6-dev | libc-dev")
+set(CPACK_DEBIAN_PACKAGE_SUGGESTS "pkg-config")
+set(CPACK_DEBIAN_FILE_NAME DEB-DEFAULT)
+set(CPACK_RPM_PACKAGE_LICENSE "ISC")
+set(CPACK_GENERATOR "ZIP")
+set(CPACK_SOURCE_GENERATOR "ZIP")
+set(CPACK_SOURCE_IGNORE_FILES
+  \\.git/
+  build/
+  ".*~$"
+  "\\.swp$"
+)
+set(CPACK_VERBATIM_VARIABLES YES)
+include(CPack)
