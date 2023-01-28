@@ -38,33 +38,56 @@ test_bbox(void)
 }
 
 static int
-test_has_four_parts(void)
+test_has_two_parts(void)
 {
-    return polyline->num_parts == 4;
+    return polyline->num_parts == 2;
 }
 
 static int
-test_has_twelve_points(void)
+test_has_four_points(void)
 {
-    return polyline->num_points == 12;
+    return polyline->num_points == 4;
 }
 
 static int
-test_points_on_line(void)
+test_has_six_points(void)
 {
-    int x, y;
-    shp_point_t p;
+    return polyline->num_points == 6;
+}
 
-    for (x = 1; x <= 3; ++x) {
-        for (y = 1; y <= 3; ++y) {
-            p.x = x;
-            p.y = y;
-            if (shp_polyline_point_on_polyline(polyline, &p, 0) == 0) {
-                return 0;
-            }
+static int
+test_points_on_diagonal_cross(void)
+{
+    int i;
+    shp_point_t p[5] = {{1, 1}, {1, 3}, {2, 2}, {3, 1}, {3, 3}};
+
+    for (i = 0; i < 5; ++i) {
+        if (shp_polyline_point_on_polyline(polyline, &p[i], 0) == 0) {
+            return 0;
         }
     }
     return 1;
+}
+
+static int
+test_points_on_greek_cross(void)
+{
+    int i;
+    shp_point_t p[5] = {{1, 2}, {2, 1}, {2, 2}, {2, 3}, {3, 2}};
+
+    for (i = 0; i < 5; ++i) {
+        if (shp_polyline_point_on_polyline(polyline, &p[i], 0) == 0) {
+            return 0;
+        }
+    }
+    return 1;
+}
+
+static int
+test_point_on_line(void)
+{
+    shp_point_t p = {1.3, 1.3};
+    return shp_polyline_point_on_polyline(polyline, &p, 0) != 0;
 }
 
 static int
@@ -78,7 +101,7 @@ static int
 test_point_on_line_with_epsilon(void)
 {
     shp_point_t p = {1.2999, 1.3};
-    return shp_polyline_point_on_polyline(polyline, &p, 1e-4) != 0;
+    return shp_polyline_point_on_polyline(polyline, &p, 9.77e-04) != 0;
 }
 
 static int
@@ -117,11 +140,17 @@ test_shp(void)
     switch (record_number) {
     case 0:
         ok(test_bbox, "bounding box matches");
-        ok(test_has_four_parts, "star has four parts");
-        ok(test_has_twelve_points, "star has twelve points");
-        ok(test_points_on_line, "points on line");
+        ok(test_has_two_parts, "diagonal cross has two parts");
+        ok(test_has_four_points, "diagonal cross has four points");
+        ok(test_points_on_diagonal_cross, "points on diagonal cross");
+        ok(test_point_on_line, "point on line");
         ok(test_point_not_on_line, "point not on line");
         ok(test_point_on_line_with_epsilon, "point on line with epsilon");
+        break;
+    case 1:
+        ok(test_has_two_parts, "greek cross has two parts");
+        ok(test_has_six_points, "greek cross has six points");
+        ok(test_points_on_greek_cross, "points on greek cross");
         ok(test_point_left_of_polyline, "point left of polyline");
         ok(test_point_right_of_polyline, "point right of polyline");
         ok(test_point_below_polyline, "point below polyline");
@@ -137,7 +166,7 @@ main(int argc, char *argv[])
     FILE *fp;
     shp_file_t fh;
 
-    plan(12);
+    plan(17);
 
     fp = fopen(filename, "rb");
     if (fp == NULL) {

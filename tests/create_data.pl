@@ -630,12 +630,12 @@ write_dbf(
     file   => catfile(qw(data polyline.dbf)),
     header => {
         fields => [{
-            name   => 'Shape',
-            type   => 'C',
-            length => 8,
+            name   => 'id',
+            type   => 'N',
+            length => 10,
         }],
     },
-    records => [[q{ }, 'Star']]
+    records => [[q{ }, 1], [q{ }, 2]]
 );
 
 write_shp_and_shx(
@@ -651,12 +651,11 @@ write_shp_and_shx(
     shapes => [
         {   shape_type => $SHPT_POLYLINE,
             box        => [1, 1, 3, 3],
-            parts      => [
-                [[1, 1], [2, 2], [1, 2]],
-                [[1, 3], [2, 2], [2, 3]],
-                [[2, 1], [2, 2], [3, 1]],
-                [[3, 2], [2, 2], [3, 3]],
-            ]
+            parts      => [[[1, 1], [3, 3]], [[1, 3], [3, 1]]]
+        },
+        {   shape_type => $SHPT_POLYLINE,
+            box        => [1, 1, 3, 3],
+            parts      => [[[1, 2], [2, 2], [2, 3]], [[2, 1], [2, 2], [3, 2]]]
         },
     ]
 );
