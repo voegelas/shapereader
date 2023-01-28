@@ -54,7 +54,7 @@ shp_read_header(shp_file_t *fh, shp_header_t *header)
 {
     int rc = -1;
     char buf[100];
-    int32_t file_code, file_length;
+    long file_code;
     size_t nr;
 
     assert(fh != NULL);
@@ -76,15 +76,7 @@ shp_read_header(shp_file_t *fh, shp_header_t *header)
 
     file_code = shp_be32_to_int32(&buf[0]);
     if (file_code != 9994) {
-        shp_set_error(fh, "Expected file code 9994, got %ld",
-                      (long) file_code);
-        errno = EINVAL;
-        goto cleanup;
-    }
-
-    file_length = shp_be32_to_int32(&buf[24]);
-    if (file_length < 0) {
-        shp_set_error(fh, "File length %ld is invalid", (long) file_length);
+        shp_set_error(fh, "Expected file code 9994, got %ld", file_code);
         errno = EINVAL;
         goto cleanup;
     }
@@ -95,7 +87,7 @@ shp_read_header(shp_file_t *fh, shp_header_t *header)
     header->unused[2] = shp_be32_to_int32(&buf[12]);
     header->unused[3] = shp_be32_to_int32(&buf[16]);
     header->unused[4] = shp_be32_to_int32(&buf[20]);
-    header->file_size = 2 * (size_t) file_length;
+    header->file_size = 2 * (size_t) shp_be32_to_uint32(&buf[24]);
     header->version = shp_le32_to_int32(&buf[28]);
     header->shape_type = (shp_shpt_t) shp_le32_to_int32(&buf[32]);
     header->x_min = shp_le64_to_double(&buf[36]);
@@ -150,7 +142,6 @@ get_multipoint(shp_file_t *fh, const char *buf, shp_record_t *record)
 {
     int rc = -1;
     shp_multipoint_t *multipoint = &record->shape.multipoint;
-    int32_t num_points;
     size_t record_size, points_size, expected_size;
 
     record_size = record->record_size;
@@ -165,16 +156,8 @@ get_multipoint(shp_file_t *fh, const char *buf, shp_record_t *record)
     multipoint->box.y_min = shp_le64_to_double(&buf[12]);
     multipoint->box.x_max = shp_le64_to_double(&buf[20]);
     multipoint->box.y_max = shp_le64_to_double(&buf[28]);
+    multipoint->num_points = shp_le32_to_uint32(&buf[36]);
 
-    num_points = shp_le32_to_int32(&buf[36]);
-    if (num_points < 0) {
-        shp_set_error(fh, "Number of points %ld is invalid in record %zu",
-                      (long) num_points, record->record_number);
-        errno = EINVAL;
-        goto cleanup;
-    }
-
-    multipoint->num_points = (size_t) num_points;
     points_size = 16 * multipoint->num_points;
 
     expected_size = 40 + points_size;
@@ -200,7 +183,6 @@ get_polygon(shp_file_t *fh, const char *buf, shp_record_t *record)
 {
     int rc = -1;
     shp_polygon_t *polygon = &record->shape.polygon;
-    int32_t num_parts, num_points;
     size_t record_size, parts_size, points_size, expected_size;
 
     record_size = record->record_size;
@@ -215,25 +197,8 @@ get_polygon(shp_file_t *fh, const char *buf, shp_record_t *record)
     polygon->box.y_min = shp_le64_to_double(&buf[12]);
     polygon->box.x_max = shp_le64_to_double(&buf[20]);
     polygon->box.y_max = shp_le64_to_double(&buf[28]);
-
-    num_parts = shp_le32_to_int32(&buf[36]);
-    if (num_parts < 0) {
-        shp_set_error(fh, "Number of parts %ld is invalid in record %zu",
-                      (long) num_parts, record->record_number);
-        errno = EINVAL;
-        goto cleanup;
-    }
-
-    num_points = shp_le32_to_int32(&buf[40]);
-    if (num_points < 0) {
-        shp_set_error(fh, "Number of points %ld is invalid in record %zu",
-                      (long) num_points, record->record_number);
-        errno = EINVAL;
-        goto cleanup;
-    }
-
-    polygon->num_parts = (size_t) num_parts;
-    polygon->num_points = (size_t) num_points;
+    polygon->num_parts = shp_le32_to_uint32(&buf[36]);
+    polygon->num_points = shp_le32_to_uint32(&buf[40]);
 
     parts_size = 4 * polygon->num_parts;
     points_size = 16 * polygon->num_points;
@@ -262,7 +227,6 @@ get_polyline(shp_file_t *fh, const char *buf, shp_record_t *record)
 {
     int rc = -1;
     shp_polyline_t *polyline = &record->shape.polyline;
-    int32_t num_parts, num_points;
     size_t record_size, parts_size, points_size, expected_size;
 
     record_size = record->record_size;
@@ -277,25 +241,8 @@ get_polyline(shp_file_t *fh, const char *buf, shp_record_t *record)
     polyline->box.y_min = shp_le64_to_double(&buf[12]);
     polyline->box.x_max = shp_le64_to_double(&buf[20]);
     polyline->box.y_max = shp_le64_to_double(&buf[28]);
-
-    num_parts = shp_le32_to_int32(&buf[36]);
-    if (num_parts < 0) {
-        shp_set_error(fh, "Number of parts %ld is invalid in record %zu",
-                      (long) num_parts, record->record_number);
-        errno = EINVAL;
-        goto cleanup;
-    }
-
-    num_points = shp_le32_to_int32(&buf[40]);
-    if (num_points < 0) {
-        shp_set_error(fh, "Number of points %ld is invalid in record %zu",
-                      (long) num_points, record->record_number);
-        errno = EINVAL;
-        goto cleanup;
-    }
-
-    polyline->num_parts = (size_t) num_parts;
-    polyline->num_points = (size_t) num_points;
+    polyline->num_parts = shp_le32_to_uint32(&buf[36]);
+    polyline->num_points = shp_le32_to_uint32(&buf[40]);
 
     parts_size = 4 * polyline->num_parts;
     points_size = 16 * polyline->num_points;
@@ -324,8 +271,7 @@ read_record(shp_file_t *fh, shp_record_t **precord, size_t *size)
 {
     int rc = -1;
     char header_buf[8], *buf;
-    size_t record_number;
-    int32_t content_length;
+    size_t record_number, content_length;
     size_t record_size, buf_size;
     struct shp_record_t *record;
     size_t nr;
@@ -348,17 +294,17 @@ read_record(shp_file_t *fh, shp_record_t **precord, size_t *size)
         goto cleanup;
     }
 
-    record_number = (size_t) shp_be32_to_int32(&header_buf[0]);
+    record_number = shp_be32_to_uint32(&header_buf[0]);
 
-    content_length = shp_be32_to_int32(&header_buf[4]);
+    content_length = shp_be32_to_uint32(&header_buf[4]);
     if (content_length < 2) {
-        shp_set_error(fh, "Content length %ld is invalid in record %zu",
-                      (long) content_length, record_number);
+        shp_set_error(fh, "Content length %zu is invalid in record %zu",
+                      content_length, record_number);
         errno = EINVAL;
         goto cleanup;
     }
 
-    record_size = 2 * (size_t) content_length;
+    record_size = 2 * content_length;
 
     record = *precord;
     buf_size = sizeof(*record) + record_size;
