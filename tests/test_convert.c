@@ -33,6 +33,12 @@ test_le32_to_int32(void)
 }
 
 static int
+test_be32_to_uint32(void)
+{
+    return shp_be32_to_uint32("\x80\x00\x00\x00") == 2147483648UL;
+}
+
+static int
 test_le32_to_uint32(void)
 {
     return shp_le32_to_uint32("\x00\x00\x00\x80") == 2147483648UL;
@@ -190,10 +196,11 @@ test_yyyymmdd_15821015(void)
 int
 main(int argc, char *argv[])
 {
-    plan(20);
+    plan(21);
     ok(test_le16_to_uint16, "test shp_le16_to_uint16");
     ok(test_be32_to_int32, "test shp_be32_to_int32");
     ok(test_le32_to_int32, "test shp_le32_to_int32");
+    ok(test_be32_to_uint32, "test shp_be32_to_uint32");
     ok(test_le32_to_uint32, "test shp_le32_to_uint32");
     ok(test_le64_to_int64, "test shp_le64_to_int64");
     ok(test_le64_to_double, "test shp_le64_to_double");

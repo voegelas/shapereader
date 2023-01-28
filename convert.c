@@ -85,6 +85,24 @@ shp_le32_to_int32(const char *bytes)
 }
 
 uint32_t
+shp_be32_to_uint32(const char *bytes)
+{
+    uint32_t n;
+
+    assert(bytes != NULL);
+
+#ifdef WORDS_BIGENDIAN
+    memcpy(&n, bytes, sizeof(n)); /* NOLINT */
+#else
+    ((char *) &n)[0] = bytes[3];
+    ((char *) &n)[1] = bytes[2];
+    ((char *) &n)[2] = bytes[1];
+    ((char *) &n)[3] = bytes[0];
+#endif
+    return n;
+}
+
+uint32_t
 shp_le32_to_uint32(const char *bytes)
 {
     uint32_t n;

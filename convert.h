@@ -51,6 +51,16 @@ extern int32_t shp_be32_to_int32(const char *bytes);
 extern int32_t shp_le32_to_int32(const char *bytes);
 
 /**
+ * Convert bytes in big-endian order to uint32_t
+ *
+ * Converts four bytes in big-endian order to a uint32_t value.
+ *
+ * @param bytes a buffer with four bytes.
+ * @return a uint32_t value.
+ */
+extern uint32_t shp_be32_to_uint32(const char *bytes);
+
+/**
  * Convert bytes in little-endian order to uint32_t
  *
  * Converts four bytes in little-endian order to a uint32_t value.
