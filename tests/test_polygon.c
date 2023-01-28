@@ -12,6 +12,8 @@ const shp_header_t *header;
 const shp_record_t *record;
 const shp_polygon_t *polygon;
 
+size_t record_number;
+
 size_t num_bytes;
 size_t file_size;
 
@@ -219,6 +221,7 @@ static int
 handle_shp_header(shp_file_t *fh, const shp_header_t *h)
 {
     header = h;
+    record_number = 0;
     ok(test_file_code, "file code is 9994");
     ok(test_file_length, "file length matches file size");
     ok(test_version, "version is 1000");
@@ -237,7 +240,7 @@ handle_shp_record(shp_file_t *fh, const shp_header_t *h,
     header = h;
     record = r;
     polygon = &r->shape.polygon;
-    switch (record->record_number) {
+    switch (record_number) {
     case 0:
         ok(test_is_polygon, "shape is polygon");
         ok(test_is_inside, "point is inside");
@@ -270,6 +273,7 @@ handle_shp_record(shp_file_t *fh, const shp_header_t *h,
         ok(test_is_oslo, "location is in Europe/Oslo");
         break;
     }
+    ++record_number;
     return 1;
 }
 
