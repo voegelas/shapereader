@@ -92,7 +92,8 @@ extern void shp_polyline_point(const shp_polyline_t *polyline,
  * @memberof shp_polyline_t
  * @param polyline a polyline.
  * @param point a point.
- * @param epsilon error factor, e.g. 1e-9.
+ * @param epsilon an error factor, see @cite machine_epsilon for more
+ *                information.
  * @retval 1 if the point is on the polyline.
  * @retval 0 if the point is not on the polyline.
  */

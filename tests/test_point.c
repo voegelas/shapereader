@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#define EPSILON 1e-9
+#define EPSILON 2.22e-16
 
 int tests_planned = 0;
 int tests_run = 0;
