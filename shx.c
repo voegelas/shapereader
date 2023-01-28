@@ -13,7 +13,6 @@
 #include "convert.h"
 #include <assert.h>
 #include <errno.h>
-#include <limits.h>
 #include <stdarg.h>
 #include <stdio.h>
 
@@ -116,7 +115,8 @@ shx_seek_record(shx_file_t *fh, size_t record_number, shx_record_t *record)
     assert(fh->fp != NULL);
     assert(record != NULL);
 
-    if (record_number >= ((size_t) LONG_MAX + 1) / 8 - 100) {
+    /* The largest possible record number is (8GB - 100) / 12. */
+    if (record_number > 715827874UL) {
         shx_set_error(fh, "Record number %zu is too big\n", record_number);
         errno = EINVAL;
         goto cleanup;

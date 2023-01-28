@@ -399,7 +399,10 @@ shp_seek_record(shp_file_t *fh, size_t file_offset, shp_record_t **precord)
     assert(fh->fp != NULL);
     assert(precord != NULL);
 
-    if (file_offset > (size_t) LONG_MAX ||
+    /* The largest possible file offset is 8GB minus 12 bytes for a null
+     * shape.  The offset may be further limited by LONG_MAX on 32-bit
+     * systems. */
+    if (file_offset > LONG_MAX ||
         fseek(fh->fp, (long) file_offset, SEEK_SET) != 0) {
         shp_set_error(fh, "Cannot set file position to %zu\n", file_offset);
         goto cleanup;
