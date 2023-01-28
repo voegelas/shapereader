@@ -437,7 +437,12 @@ extern dbf_file_t *dbf_init_file(dbf_file_t *fh, FILE *fp, void *user_data);
  * @param format a printf format string followed by a variable number of
  *               arguments.
  */
+#ifdef __GNUC__
+extern void dbf_set_error(dbf_file_t *fh, const char *format, ...)
+    __attribute__((format(printf, 2, 3)));
+#else
 extern void dbf_set_error(dbf_file_t *fh, const char *format, ...);
+#endif
 
 /**
  * Handle the file header

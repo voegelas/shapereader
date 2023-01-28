@@ -112,7 +112,12 @@ extern shp_file_t *shp_init_file(shp_file_t *fh, FILE *fp, void *user_data);
  * @param format a printf format string followed by a variable number of
  *               arguments.
  */
+#ifdef __GNUC__
+extern void shp_set_error(shp_file_t *fh, const char *format, ...)
+    __attribute__((format(printf, 2, 3)));
+#else
 extern void shp_set_error(shp_file_t *fh, const char *format, ...);
+#endif
 
 /**
  * Handle the file header

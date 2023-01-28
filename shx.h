@@ -59,7 +59,12 @@ extern shx_file_t *shx_init_file(shx_file_t *fh, FILE *fp, void *user_data);
  * @param format a printf format string followed by a variable number of
  *               arguments.
  */
+#ifdef __GNUC__
+extern void shx_set_error(shx_file_t *fh, const char *format, ...)
+    __attribute__((format(printf, 2, 3)));
+#else
 extern void shx_set_error(shx_file_t *fh, const char *format, ...);
+#endif
 
 /**
  * Handle the file header
