@@ -40,7 +40,7 @@ typedef enum dbf_version_t {
     DBFV_VISUAL_OBJECTS_MEMO = 0x87,     /**< Visual Objects with memo file */
     DBFV_DBASE4_MEMO = 0x8b,             /**< dBase IV with memo file */
     DBFV_DBASE7 = 0x8c,                  /**< dBase 7 */
-    DBFV_FOXPRO_MEMO = 0xf5,             /**< FoxPro with memo file */
+    DBFV_FOXPRO_MEMO = 0xf5              /**< FoxPro with memo file */
 } dbf_version_t;
 
 /**
@@ -66,7 +66,7 @@ typedef enum dbf_type_t {
     DBFT_PICTURE = 'P',          /**< Picture (integer stored as a string) */
     DBFT_TIMESTAMP = '@',        /**< Timestamp (8 bytes) */
     DBFT_VARBINARY = 'Q',        /**< Varbinary */
-    DBFT_VARCHAR = 'V',          /**< Varchar */
+    DBFT_VARCHAR = 'V'           /**< Varchar */
 } dbf_type_t;
 
 /**
