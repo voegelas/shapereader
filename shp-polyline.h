@@ -84,21 +84,4 @@ extern size_t shp_polyline_points(const shp_polyline_t *polyline,
 extern void shp_polyline_point(const shp_polyline_t *polyline,
                                size_t point_num, shp_point_t *point);
 
-/**
- * Check whether a point is on a polyline
- *
- * Determines whether a point is on a polyline.
- *
- * @memberof shp_polyline_t
- * @param polyline a polyline.
- * @param point a point.
- * @param epsilon an error factor, see @cite machine_epsilon for more
- *                information.
- * @retval 1 if the point is on the polyline.
- * @retval 0 if the point is not on the polyline.
- */
-extern int shp_polyline_point_on_polyline(const shp_polyline_t *polyline,
-                                          const shp_point_t *point,
-                                          double epsilon);
-
 #endif

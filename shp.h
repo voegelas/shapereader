@@ -72,9 +72,9 @@ typedef struct shp_record_t {
     union {
         shp_point_t point;           /**< Point if @a shape_type is
                                           @c SHPT_POINT */
-        shp_multipoint_t multipoint; /**< Set of points if @a shape_type is
+        shp_multipoint_t multipoint; /**< Set of Points if @a shape_type is
                                           @c SHPT_MULTIPOINT */
-        shp_polyline_t polyline;     /**< Polyline if @a shape_type is
+        shp_polyline_t polyline;     /**< PolyLine if @a shape_type is
                                           @c SHPT_POLYLINE */
         shp_polygon_t polygon;       /**< Polygon if @a shape_type is
                                           @c SHPT_POLYGON */

@@ -62,34 +62,3 @@ shp_polyline_point(const shp_polyline_t *polyline, size_t point_num,
     point->x = shp_le64_to_double(&buf[0]);
     point->y = shp_le64_to_double(&buf[8]);
 }
-
-int
-shp_polyline_point_on_polyline(const shp_polyline_t *polyline,
-                               const shp_point_t *point, double epsilon)
-{
-    size_t parts_count, part_num, i, n;
-    shp_point_t a, b;
-
-    assert(polyline != NULL);
-    assert(point != NULL);
-
-    if (shp_box_point_in_box(&polyline->box, point) == 0) {
-        return 0;
-    }
-
-    parts_count = polyline->num_parts;
-    for (part_num = 0; part_num < parts_count; ++part_num) {
-        if (shp_polyline_points(polyline, part_num, &i, &n) >= 2) {
-            shp_polyline_point(polyline, i, &a);
-            while (++i < n) {
-                shp_polyline_point(polyline, i, &b);
-                if (shp_point_is_between(point, &a, &b, epsilon) != 0) {
-                    return 1;
-                }
-                a = b;
-            }
-        }
-    }
-
-    return 0;
-}

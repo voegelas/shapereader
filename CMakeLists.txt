@@ -27,7 +27,6 @@ set(libshapereader_a_SOURCES
   dbf.c
   shp-box.c
   shp-multipoint.c
-  shp-point.c
   shp-polygon.c
   shp-polyline.c
   shp.c
