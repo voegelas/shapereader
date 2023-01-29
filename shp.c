@@ -138,6 +138,33 @@ cleanup:
 }
 
 static int
+get_pointm(shp_file_t *fh, const char *buf, shp_record_t *record)
+{
+    int rc = -1;
+    shp_pointm_t *point = &record->shape.pointm;
+    size_t record_size, expected_size = 28;
+
+    record_size = record->record_size;
+    if (record_size != expected_size) {
+        shp_set_error(fh,
+                      "Expected record of %zu bytes, got %zu in record %zu",
+                      expected_size, record_size, record->record_number);
+        errno = EINVAL;
+        goto cleanup;
+    }
+
+    point->x = shp_le64_to_double(&buf[4]);
+    point->y = shp_le64_to_double(&buf[12]);
+    point->m = shp_le64_to_double(&buf[20]);
+
+    rc = 1;
+
+cleanup:
+
+    return rc;
+}
+
+static int
 get_multipoint(shp_file_t *fh, const char *buf, shp_record_t *record)
 {
     int rc = -1;
@@ -353,6 +380,9 @@ read_record(shp_file_t *fh, shp_record_t **precord, size_t *size)
         break;
     case SHPT_POLYGON:
         rc = get_polygon(fh, buf, record);
+        break;
+    case SHPT_POINTM:
+        rc = get_pointm(fh, buf, record);
         break;
     default:
         shp_set_error(fh, "Shape type %d is unknown in record %zu",

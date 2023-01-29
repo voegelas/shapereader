@@ -3,6 +3,7 @@ set(tests
   dbf
   box
   point
+  pointm
   multipoint
   polyline
   polygon

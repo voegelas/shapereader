@@ -211,6 +211,20 @@ sub pack_point {
     return $bytes;
 }
 
+sub pack_pointm {
+    my %h = (
+        record_number => 0,
+        shape_type    => $SHPT_POINTM,
+        point         => [0.0, 0.0, 0.0],
+        @_
+    );
+
+    my $bytes = pack 'N2Ld<3', $h{record_number}, 14, $h{shape_type},
+        @{$h{point}}[0 .. 2];
+
+    return $bytes;
+}
+
 sub pack_multipoint {
     my %h = (
         record_number => 0,
@@ -289,7 +303,7 @@ my %pack_shp_record = (
     $SHPT_POLYLINEZ   => undef,
     $SHPT_POLYGONZ    => undef,
     $SHPT_MULTIPOINTZ => undef,
-    $SHPT_POINTM      => undef,
+    $SHPT_POINTM      => \&pack_pointm,
     $SHPT_POLYLINEM   => undef,
     $SHPT_POLYGONM    => undef,
     $SHPT_MULTIPOINTM => undef,
@@ -487,6 +501,63 @@ write_shp_and_shx(
         },
         {   shape_type => $SHPT_POINT,
             point      => [9.1770, 48.7823],
+        },
+    ]
+);
+
+#
+# pointm.shp
+#
+
+write_dbf(
+    file   => catfile(qw(data pointm.dbf)),
+    header => {
+        fields => [
+            {   name           => 'id',
+                type           => 'N',
+                length         => 10,
+                decimal_places => 0,
+            },
+            {   name   => 'name',
+                type   => 'C',
+                length => 12,
+            },
+            {   name   => 'date',
+                type   => 'D',
+                length => 8,
+            },
+        ],
+    },
+    records => [
+        [q{ }, 1, 'Buenos Aires', strptime('2020-02-29 12:00:00')],
+        [q{ }, 2, 'Los Angeles',  strptime('2013-07-18 12:00:00')],
+        [q{ }, 3, 'Oslo',         strptime('2010-12-31 12:00:00')],
+        [q{ }, 4, 'Sidney',       strptime('2016-06-03 12:00:00')],
+    ]
+);
+
+write_shp_and_shx(
+    shp_file => catfile(qw(data pointm.shp)),
+    shx_file => catfile(qw(data pointm.shx)),
+    header   => {
+        shape_type => $SHPT_POINTM,
+        x_min      => -118.2437,
+        y_min      => -34.6132,
+        x_max      => 151.2073,
+        y_max      => 59.9127,
+    },
+    shapes => [
+        {   shape_type => $SHPT_POINTM,
+            point      => [-58.3772, -34.6132, 29],
+        },
+        {   shape_type => $SHPT_POINTM,
+            point      => [-118.2437, 34.0522, 26],
+        },
+        {   shape_type => $SHPT_POINTM,
+            point      => [10.7461, 59.9127, -13],
+        },
+        {   shape_type => $SHPT_POINTM,
+            point      => [151.2073, -33.8679, 17],
         },
     ]
 );
