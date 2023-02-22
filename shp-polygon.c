@@ -135,7 +135,7 @@ shp_polygon_point_in_polygon(const shp_polygon_t *polygon,
                     if (u2 <= 0.0 && u1 >= 0.0) {
                         return -1;
                     }
-                    else if (u1 <= 0 && u2 >= 0.0) {
+                    else if (u1 <= 0.0 && u2 >= 0.0) {
                         return -1;
                     }
                 }
