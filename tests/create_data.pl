@@ -249,6 +249,33 @@ sub pack_multipoint {
     return $bytes;
 }
 
+sub pack_multipointm {
+    my %h = (
+        record_number => 0,
+        shape_type    => $SHPT_MULTIPOINTM,
+        box           => [0.0, 0.0, 0.0, 0.0],
+        measure_range => [0.0, 0.0],
+        points        => [],
+        @_
+    );
+
+    my @points       = map { [$_->[0], $_->[1]] } @{$h{points}};
+    my @measures     = map { $_->[2] } @{$h{points}};
+    my $points_count = scalar @points;
+
+    my @flattened_points       = unpairs @points;
+    my $flattened_points_count = scalar @flattened_points;
+
+    my $content_length = (56 + 24 * $points_count) / 2;
+
+    my $bytes = pack "N2Ld<4Ld<${flattened_points_count}d<2d<$points_count",
+        $h{record_number}, $content_length, $h{shape_type},
+        @{$h{box}}[0 .. 3], $points_count, @flattened_points,
+        @{$h{measure_range}}[0 .. 1], @measures;
+
+    return $bytes;
+}
+
 sub pack_polygon {
     my %h = (
         record_number => 0,
@@ -306,7 +333,7 @@ my %pack_shp_record = (
     $SHPT_POINTM      => \&pack_pointm,
     $SHPT_POLYLINEM   => undef,
     $SHPT_POLYGONM    => undef,
-    $SHPT_MULTIPOINTM => undef,
+    $SHPT_MULTIPOINTM => \&pack_multipointm,
     $SHPT_MULTIPATCH  => undef,
 );
 
@@ -604,6 +631,59 @@ write_shp_and_shx(
                 [9.0611, 48.5763],    # Grillstelle Brühlweiher
                 [9.0607, 48.5671],    # Zwergeles Feuerstelle
                 [9.0504, 48.6091],    # Feuerstelle Zweites Häusle
+            ]
+        },
+    ]
+);
+
+#
+# multipointm.shp
+#
+
+write_dbf(
+    file   => catfile(qw(data multipointm.dbf)),
+    header => {
+        year   => 2023,
+        month  => 2,
+        day    => 23,
+        fields => [{
+            name   => 'AREA',
+            type   => 'C',
+            length => 16,
+        }],
+    },
+    records => [[q{ }, 'Africa'], [q{ }, 'Europe']]
+);
+
+write_shp_and_shx(
+    shp_file => catfile(qw(data multipointm.shp)),
+    shx_file => catfile(qw(data multipointm.shx)),
+    header   => {
+        shape_type => $SHPT_MULTIPOINTM,
+        x_min      => -21.8277,
+        y_min      => -33.9189,
+        x_max      => 37.6184,
+        y_max      => 64.1283,
+        m_min      => -5,
+        m_max      => 31,
+    },
+    shapes => [
+        {   shape_type    => $SHPT_MULTIPOINTM,
+            box           => [-0.2059, -33.9189, 31.2333, 30.0333],
+            measure_range => [20, 31],
+            points        => [
+                [-0.2059, 5.6148,   31],    # Accra
+                [31.2333, 30.0333,  20],    # Cairo
+                [18.4233, -33.9189, 23],    # Cape Town
+            ]
+        },
+        {   shape_type    => $SHPT_MULTIPOINTM,
+            box           => [-21.8277, 38.7369, 37.6184, 64.1283],
+            measure_range => [-5, 15],
+            points        => [
+                [-9.1427,  38.7369, 15],    # Lisbon
+                [37.6184,  55.7512, -5],    # Moscow
+                [-21.8277, 64.1283, 1],     # Reykjavík
             ]
         },
     ]

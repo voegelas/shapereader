@@ -5,6 +5,7 @@ set(tests
   point
   pointm
   multipoint
+  multipointm
   polyline
   polygon
 )

@@ -206,6 +206,53 @@ cleanup:
 }
 
 static int
+get_multipointm(shp_file_t *fh, const char *buf, shp_record_t *record)
+{
+    int rc = -1;
+    shp_multipointm_t *multipointm = &record->shape.multipointm;
+    size_t record_size, points_size, measures_size, expected_size;
+
+    record_size = record->record_size;
+    if (record_size < 56) {
+        shp_set_error(fh, "Record size %zu is too small in record %zu",
+                      record_size, record->record_number);
+        errno = EINVAL;
+        goto cleanup;
+    }
+
+    multipointm->box.x_min = shp_le64_to_double(&buf[4]);
+    multipointm->box.y_min = shp_le64_to_double(&buf[12]);
+    multipointm->box.x_max = shp_le64_to_double(&buf[20]);
+    multipointm->box.y_max = shp_le64_to_double(&buf[28]);
+    multipointm->num_points = shp_le32_to_uint32(&buf[36]);
+
+    points_size = 16 * multipointm->num_points;
+    measures_size = 8 * multipointm->num_points;
+
+    expected_size = 56 + points_size + measures_size;
+    if (record_size != expected_size) {
+        shp_set_error(fh,
+                      "Expected record of %zu bytes, got %zu in record %zu",
+                      expected_size, record_size, record->record_number);
+        errno = EINVAL;
+        goto cleanup;
+    }
+
+    multipointm->_points = &buf[40];
+    multipointm->measure_range.min =
+        shp_le64_to_double(&buf[40 + points_size]);
+    multipointm->measure_range.max =
+        shp_le64_to_double(&buf[48 + points_size]);
+    multipointm->_measures = &buf[56 + points_size];
+
+    rc = 1;
+
+cleanup:
+
+    return rc;
+}
+
+static int
 get_polygon(shp_file_t *fh, const char *buf, shp_record_t *record)
 {
     int rc = -1;
@@ -374,6 +421,9 @@ read_record(shp_file_t *fh, shp_record_t **precord, size_t *size)
         break;
     case SHPT_MULTIPOINT:
         rc = get_multipoint(fh, buf, record);
+        break;
+    case SHPT_MULTIPOINTM:
+        rc = get_multipointm(fh, buf, record);
         break;
     case SHPT_POLYLINE:
         rc = get_polyline(fh, buf, record);
