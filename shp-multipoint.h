@@ -17,12 +17,13 @@
 #define _SHAPEREADER_SHP_MULTIPOINT_H
 
 #include "shp-box.h"
+#include "shp-point.h"
 #include <stddef.h>
 
 /**
- * Multi point
+ * MultiPoint
  *
- * A multi point is a set of points.
+ * A MultiPoint is a set of points.
  */
 typedef struct shp_multipoint_t {
     shp_box_t box;       /**< Bounding box */
