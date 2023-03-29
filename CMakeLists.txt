@@ -29,7 +29,9 @@ set(libshapereader_a_SOURCES
   shp-multipoint.c
   shp-multipointm.c
   shp-polygon.c
+  shp-polygonm.c
   shp-polyline.c
+  shp-polylinem.c
   shp.c
   shx.c
 )
@@ -42,7 +44,10 @@ set(pkginclude_HEADERS
   shp-point.h
   shp-pointm.h
   shp-polygon.h
+  shp-polygonm.h
   shp-polyline.h
+  shp-polylinem.h
+  shp-range.h
   shp.h
   shx.h
   shapereader.h

@@ -276,10 +276,10 @@ sub pack_multipointm {
     return $bytes;
 }
 
-sub pack_polygon {
+sub pack_polyline {
     my %h = (
         record_number => 0,
-        shape_type    => $SHPT_POLYGON,
+        shape_type    => $SHPT_POLYLINE,
         box           => [0.0, 0.0, 0.0, 0.0],
         parts         => [],
         @_
@@ -308,16 +308,65 @@ sub pack_polygon {
     return $bytes;
 }
 
-sub pack_polyline {
+sub pack_polylinem {
     my %h = (
         record_number => 0,
-        shape_type    => $SHPT_POLYLINE,
+        shape_type    => $SHPT_POLYLINEM,
+        box           => [0.0, 0.0, 0.0, 0.0],
+        measure_range => [0.0, 0.0],
+        parts         => [],
+        @_
+    );
+
+    my @parts       = @{$h{parts}};
+    my $parts_count = scalar @parts;
+
+    my @parts_index = map { scalar @{$_} - 1 } @parts;
+    unshift @parts_index, 0;
+    pop @parts_index;
+
+    my @points       = map { [$_->[0], $_->[1]] } map { @{$_} } @parts;
+    my @measures     = map { $_->[2] } map            { @{$_} } @parts;
+    my $points_count = scalar @points;
+
+    my @flattened_points       = unpairs @points;
+    my $flattened_points_count = scalar @flattened_points;
+
+    my $content_length = (60 + 4 * $parts_count + 24 * $points_count) / 2;
+
+    my $bytes
+        = pack
+        "N2Ld<4L2L${parts_count}d<${flattened_points_count}d<2d<$points_count",
+        $h{record_number}, $content_length, $h{shape_type},
+        @{$h{box}}[0 .. 3], $parts_count, $points_count, @parts_index,
+        @flattened_points, @{$h{measure_range}}[0 .. 1], @measures;
+
+    return $bytes;
+}
+
+sub pack_polygon {
+    my %h = (
+        record_number => 0,
+        shape_type    => $SHPT_POLYGON,
         box           => [0.0, 0.0, 0.0, 0.0],
         parts         => [],
         @_
     );
 
-    return pack_polygon(%h);
+    return pack_polyline(%h);
+}
+
+sub pack_polygonm {
+    my %h = (
+        record_number => 0,
+        shape_type    => $SHPT_POLYGONM,
+        box           => [0.0, 0.0, 0.0, 0.0],
+        measure_range => [0.0, 0.0],
+        parts         => [],
+        @_
+    );
+
+    return pack_polylinem(%h);
 }
 
 my %pack_shp_record = (
@@ -331,8 +380,8 @@ my %pack_shp_record = (
     $SHPT_POLYGONZ    => undef,
     $SHPT_MULTIPOINTZ => undef,
     $SHPT_POINTM      => \&pack_pointm,
-    $SHPT_POLYLINEM   => undef,
-    $SHPT_POLYGONM    => undef,
+    $SHPT_POLYLINEM   => \&pack_polylinem,
+    $SHPT_POLYGONM    => \&pack_polygonm,
     $SHPT_MULTIPOINTM => \&pack_multipointm,
     $SHPT_MULTIPATCH  => undef,
 );
@@ -690,6 +739,84 @@ write_shp_and_shx(
 );
 
 #
+# polyline.shp
+#
+
+write_dbf(
+    file   => catfile(qw(data polyline.dbf)),
+    header => {
+        fields => [{
+            name   => 'id',
+            type   => 'N',
+            length => 10,
+        }],
+    },
+    records => [[q{ }, 1], [q{ }, 2]]
+);
+
+write_shp_and_shx(
+    shp_file => catfile(qw(data polyline.shp)),
+    shx_file => catfile(qw(data polyline.shx)),
+    header   => {
+        shape_type => $SHPT_POLYLINE,
+        x_min      => 1,
+        y_min      => 1,
+        x_max      => 3,
+        y_max      => 3,
+    },
+    shapes => [
+        {   shape_type => $SHPT_POLYLINE,
+            box        => [1, 1, 3, 3],
+            parts      => [[[1, 1], [3, 3]], [[1, 3], [3, 1]]]
+        },
+        {   shape_type => $SHPT_POLYLINE,
+            box        => [1, 1, 3, 3],
+            parts      => [[[1, 2], [2, 2], [2, 3]], [[2, 1], [2, 2], [3, 2]]]
+        },
+    ]
+);
+
+#
+# polylinem.shp
+#
+
+write_dbf(
+    file   => catfile(qw(data polylinem.dbf)),
+    header => {
+        fields => [{
+            name   => 'id',
+            type   => 'N',
+            length => 10,
+        }],
+    },
+    records => [[q{ }, 1]]
+);
+
+write_shp_and_shx(
+    shp_file => catfile(qw(data polylinem.shp)),
+    shx_file => catfile(qw(data polylinem.shx)),
+    header   => {
+        shape_type => $SHPT_POLYLINEM,
+        x_min      => 1,
+        y_min      => 1,
+        x_max      => 4,
+        y_max      => 2,
+        m_min      => 1,
+        m_max      => 6,
+    },
+    shapes => [
+        {   shape_type    => $SHPT_POLYLINEM,
+            box           => [1, 1, 4, 2],
+            measure_range => [1, 6],
+            parts         => [[
+                [1, 1, 1], [2, 1, 2], [2, 2, 3], [3, 2, 4],
+                [3, 1, 5], [4, 1, 6]
+            ]]
+        },
+    ]
+);
+
+#
 # polygon.shp
 #
 
@@ -774,11 +901,11 @@ write_shp_and_shx(
 );
 
 #
-# polyline.shp
+# polygonm.shp
 #
 
 write_dbf(
-    file   => catfile(qw(data polyline.dbf)),
+    file   => catfile(qw(data polygonm.dbf)),
     header => {
         fields => [{
             name   => 'id',
@@ -786,27 +913,29 @@ write_dbf(
             length => 10,
         }],
     },
-    records => [[q{ }, 1], [q{ }, 2]]
+    records => [[q{ }, 1]]
 );
 
 write_shp_and_shx(
-    shp_file => catfile(qw(data polyline.shp)),
-    shx_file => catfile(qw(data polyline.shx)),
+    shp_file => catfile(qw(data polygonm.shp)),
+    shx_file => catfile(qw(data polygonm.shx)),
     header   => {
-        shape_type => $SHPT_POLYLINE,
+        shape_type => $SHPT_POLYGONM,
         x_min      => 1,
         y_min      => 1,
-        x_max      => 3,
-        y_max      => 3,
+        x_max      => 2,
+        y_max      => 2,
+        m_min      => 1,
+        m_max      => 5,
     },
     shapes => [
-        {   shape_type => $SHPT_POLYLINE,
-            box        => [1, 1, 3, 3],
-            parts      => [[[1, 1], [3, 3]], [[1, 3], [3, 1]]]
-        },
-        {   shape_type => $SHPT_POLYLINE,
-            box        => [1, 1, 3, 3],
-            parts      => [[[1, 2], [2, 2], [2, 3]], [[2, 1], [2, 2], [3, 2]]]
+        {   shape_type    => $SHPT_POLYGONM,
+            box           => [1, 1, 2, 2],
+            measure_range => [1, 5],
+            parts         => [[
+                [1, 1, 1], [1, 2, 2], [2, 2, 3], [2, 1, 4], [1, 1, 5]
+            ]]
         },
     ]
 );
+

@@ -211,6 +211,7 @@ get_multipointm(shp_file_t *fh, const char *buf, shp_record_t *record)
     int rc = -1;
     shp_multipointm_t *multipointm = &record->shape.multipointm;
     size_t record_size, points_size, measures_size, expected_size;
+    const char *bufm;
 
     record_size = record->record_size;
     if (record_size < 56) {
@@ -239,11 +240,104 @@ get_multipointm(shp_file_t *fh, const char *buf, shp_record_t *record)
     }
 
     multipointm->_points = &buf[40];
-    multipointm->measure_range.min =
-        shp_le64_to_double(&buf[40 + points_size]);
-    multipointm->measure_range.max =
-        shp_le64_to_double(&buf[48 + points_size]);
-    multipointm->_measures = &buf[56 + points_size];
+    bufm = multipointm->_points + points_size;
+    multipointm->measure_range.min = shp_le64_to_double(&bufm[0]);
+    multipointm->measure_range.max = shp_le64_to_double(&bufm[8]);
+    multipointm->_measures = &bufm[16];
+
+    rc = 1;
+
+cleanup:
+
+    return rc;
+}
+
+static int
+get_polyline(shp_file_t *fh, const char *buf, shp_record_t *record)
+{
+    int rc = -1;
+    shp_polyline_t *polyline = &record->shape.polyline;
+    size_t record_size, parts_size, points_size, expected_size;
+
+    record_size = record->record_size;
+    if (record_size < 44) {
+        shp_set_error(fh, "Record size %zu is too small in record %zu",
+                      record_size, record->record_number);
+        errno = EINVAL;
+        goto cleanup;
+    }
+
+    polyline->box.x_min = shp_le64_to_double(&buf[4]);
+    polyline->box.y_min = shp_le64_to_double(&buf[12]);
+    polyline->box.x_max = shp_le64_to_double(&buf[20]);
+    polyline->box.y_max = shp_le64_to_double(&buf[28]);
+    polyline->num_parts = shp_le32_to_uint32(&buf[36]);
+    polyline->num_points = shp_le32_to_uint32(&buf[40]);
+
+    parts_size = 4 * polyline->num_parts;
+    points_size = 16 * polyline->num_points;
+
+    expected_size = 44 + parts_size + points_size;
+    if (record_size != expected_size) {
+        shp_set_error(fh,
+                      "Expected record of %zu bytes, got %zu in record %zu",
+                      expected_size, record_size, record->record_number);
+        errno = EINVAL;
+        goto cleanup;
+    }
+
+    polyline->_parts = &buf[44];
+    polyline->_points = &buf[44 + parts_size];
+
+    rc = 1;
+
+cleanup:
+
+    return rc;
+}
+
+static int
+get_polylinem(shp_file_t *fh, const char *buf, shp_record_t *record)
+{
+    int rc = -1;
+    shp_polylinem_t *polylinem = &record->shape.polylinem;
+    size_t record_size, parts_size, points_size, measures_size, expected_size;
+    const char *bufm;
+
+    record_size = record->record_size;
+    if (record_size < 60) {
+        shp_set_error(fh, "Record size %zu is too small in record %zu",
+                      record_size, record->record_number);
+        errno = EINVAL;
+        goto cleanup;
+    }
+
+    polylinem->box.x_min = shp_le64_to_double(&buf[4]);
+    polylinem->box.y_min = shp_le64_to_double(&buf[12]);
+    polylinem->box.x_max = shp_le64_to_double(&buf[20]);
+    polylinem->box.y_max = shp_le64_to_double(&buf[28]);
+    polylinem->num_parts = shp_le32_to_uint32(&buf[36]);
+    polylinem->num_points = shp_le32_to_uint32(&buf[40]);
+
+    parts_size = 4 * polylinem->num_parts;
+    points_size = 16 * polylinem->num_points;
+    measures_size = 8 * polylinem->num_points;
+
+    expected_size = 60 + parts_size + points_size + measures_size;
+    if (record_size != expected_size) {
+        shp_set_error(fh,
+                      "Expected record of %zu bytes, got %zu in record %zu",
+                      expected_size, record_size, record->record_number);
+        errno = EINVAL;
+        goto cleanup;
+    }
+
+    polylinem->_parts = &buf[44];
+    polylinem->_points = polylinem->_parts + parts_size;
+    bufm = polylinem->_points + points_size;
+    polylinem->measure_range.min = shp_le64_to_double(&bufm[0]);
+    polylinem->measure_range.max = shp_le64_to_double(&bufm[8]);
+    polylinem->_measures = &bufm[16];
 
     rc = 1;
 
@@ -297,31 +391,33 @@ cleanup:
 }
 
 static int
-get_polyline(shp_file_t *fh, const char *buf, shp_record_t *record)
+get_polygonm(shp_file_t *fh, const char *buf, shp_record_t *record)
 {
     int rc = -1;
-    shp_polyline_t *polyline = &record->shape.polyline;
-    size_t record_size, parts_size, points_size, expected_size;
+    shp_polygonm_t *polygonm = &record->shape.polygonm;
+    size_t record_size, parts_size, points_size, measures_size, expected_size;
+    const char *bufm;
 
     record_size = record->record_size;
-    if (record_size < 44) {
+    if (record_size < 60) {
         shp_set_error(fh, "Record size %zu is too small in record %zu",
                       record_size, record->record_number);
         errno = EINVAL;
         goto cleanup;
     }
 
-    polyline->box.x_min = shp_le64_to_double(&buf[4]);
-    polyline->box.y_min = shp_le64_to_double(&buf[12]);
-    polyline->box.x_max = shp_le64_to_double(&buf[20]);
-    polyline->box.y_max = shp_le64_to_double(&buf[28]);
-    polyline->num_parts = shp_le32_to_uint32(&buf[36]);
-    polyline->num_points = shp_le32_to_uint32(&buf[40]);
+    polygonm->box.x_min = shp_le64_to_double(&buf[4]);
+    polygonm->box.y_min = shp_le64_to_double(&buf[12]);
+    polygonm->box.x_max = shp_le64_to_double(&buf[20]);
+    polygonm->box.y_max = shp_le64_to_double(&buf[28]);
+    polygonm->num_parts = shp_le32_to_uint32(&buf[36]);
+    polygonm->num_points = shp_le32_to_uint32(&buf[40]);
 
-    parts_size = 4 * polyline->num_parts;
-    points_size = 16 * polyline->num_points;
+    parts_size = 4 * polygonm->num_parts;
+    points_size = 16 * polygonm->num_points;
+    measures_size = 8 * polygonm->num_points;
 
-    expected_size = 44 + parts_size + points_size;
+    expected_size = 60 + parts_size + points_size + measures_size;
     if (record_size != expected_size) {
         shp_set_error(fh,
                       "Expected record of %zu bytes, got %zu in record %zu",
@@ -330,8 +426,12 @@ get_polyline(shp_file_t *fh, const char *buf, shp_record_t *record)
         goto cleanup;
     }
 
-    polyline->_parts = &buf[44];
-    polyline->_points = &buf[44 + parts_size];
+    polygonm->_parts = &buf[44];
+    polygonm->_points = polygonm->_parts + parts_size;
+    bufm = polygonm->_points + points_size;
+    polygonm->measure_range.min = shp_le64_to_double(&bufm[0]);
+    polygonm->measure_range.max = shp_le64_to_double(&bufm[8]);
+    polygonm->_measures = &bufm[16];
 
     rc = 1;
 
@@ -419,6 +519,9 @@ read_record(shp_file_t *fh, shp_record_t **precord, size_t *size)
     case SHPT_POINT:
         rc = get_point(fh, buf, record);
         break;
+    case SHPT_POINTM:
+        rc = get_pointm(fh, buf, record);
+        break;
     case SHPT_MULTIPOINT:
         rc = get_multipoint(fh, buf, record);
         break;
@@ -428,11 +531,14 @@ read_record(shp_file_t *fh, shp_record_t **precord, size_t *size)
     case SHPT_POLYLINE:
         rc = get_polyline(fh, buf, record);
         break;
+    case SHPT_POLYLINEM:
+        rc = get_polylinem(fh, buf, record);
+        break;
     case SHPT_POLYGON:
         rc = get_polygon(fh, buf, record);
         break;
-    case SHPT_POINTM:
-        rc = get_pointm(fh, buf, record);
+    case SHPT_POLYGONM:
+        rc = get_polygonm(fh, buf, record);
         break;
     default:
         shp_set_error(fh, "Shape type %d is unknown in record %zu",

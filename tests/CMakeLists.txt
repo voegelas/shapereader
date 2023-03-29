@@ -7,7 +7,9 @@ set(tests
   multipoint
   multipointm
   polyline
+  polylinem
   polygon
+  polygonm
 )
 
 foreach(name ${tests})

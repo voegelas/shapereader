@@ -21,7 +21,7 @@
 #include <stddef.h>
 
 /**
- * Polyline
+ * PolyLine
  *
  * A polyline consists of one or more parts.  A part is a connected sequence
  * of of two or more points.  See the "ESRI Shapefile Technical Description"
