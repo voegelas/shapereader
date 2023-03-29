@@ -25,6 +25,7 @@ my $SHPT_MULTIPOINTM = 28;
 my $SHPT_MULTIPATCH  = 31;
 
 my %ENCODING_FOR = (
+    0x00 => 'UTF-8',
     0x13 => 'cp932',
     0x4d => 'cp936',
     0x4e => 'cp949',
@@ -86,6 +87,18 @@ sub get_datetime {
     my $usec = 86400000 * ($jd - $day);
 
     return ($day, $usec);
+}
+
+sub write_cpg {
+    my (%args) = @_;
+
+    my $file     = $args{file};
+    my $encoding = $args{encoding};
+
+    open my $fh, '>:raw', $file or die "Can't open $file: $!";
+    print {$fh} $encoding;
+    close $fh;
+    return;
 }
 
 sub write_dbf {
@@ -221,6 +234,20 @@ sub pack_pointm {
 
     my $bytes = pack 'N2Ld<3', $h{record_number}, 14, $h{shape_type},
         @{$h{point}}[0 .. 2];
+
+    return $bytes;
+}
+
+sub pack_pointz {
+    my %h = (
+        record_number => 0,
+        shape_type    => $SHPT_POINTZ,
+        point         => [0.0, 0.0, 0.0, 0.0],
+        @_
+    );
+
+    my $bytes = pack 'N2Ld<4', $h{record_number}, 18, $h{shape_type},
+        @{$h{point}}[0 .. 3];
 
     return $bytes;
 }
@@ -375,7 +402,7 @@ my %pack_shp_record = (
     $SHPT_POLYLINE    => \&pack_polyline,
     $SHPT_POLYGON     => \&pack_polygon,
     $SHPT_MULTIPOINT  => \&pack_multipoint,
-    $SHPT_POINTZ      => undef,
+    $SHPT_POINTZ      => \&pack_pointz,
     $SHPT_POLYLINEZ   => undef,
     $SHPT_POLYGONZ    => undef,
     $SHPT_MULTIPOINTZ => undef,
@@ -634,6 +661,65 @@ write_shp_and_shx(
         },
         {   shape_type => $SHPT_POINTM,
             point      => [151.2073, -33.8679, 17],
+        },
+    ]
+);
+
+#
+# pointz.shp
+#
+
+write_cpg(
+    file     => catfile(qw(data pointz.cpg)),
+    encoding => 'UTF-8',
+);
+
+write_dbf(
+    file   => catfile(qw(data pointz.dbf)),
+    header => {
+        ldid   => 0x00,
+        fields => [
+            {   name           => 'id',
+                type           => 'N',
+                length         => 10,
+                decimal_places => 0,
+            },
+            {   name   => 'name',
+                type   => 'C',
+                length => 16,
+            },
+        ],
+    },
+    records => [
+        [q{ }, 1, 'Großglockner'],
+        [q{ }, 2, 'Mont Blanc'],
+        [q{ }, 3, 'Zugspitze'],
+    ]
+);
+
+write_shp_and_shx(
+    shp_file => catfile(qw(data pointz.shp)),
+    shx_file => catfile(qw(data pointz.shx)),
+    header   => {
+        shape_type => $SHPT_POINTZ,
+        x_min      => 6.864325,
+        y_min      => 45.832544,
+        x_max      => 12.6939,
+        y_max      => 47.42122,
+        z_min      => 2962.06,
+        z_max      => 4807.81,
+        m_min      => 25.8,
+        m_max      => 2812,
+    },
+    shapes => [
+        {   shape_type => $SHPT_POINTZ,
+            point      => [12.6939, 47.074531, 3798, 175],
+        },
+        {   shape_type => $SHPT_POINTZ,
+            point      => [6.864325, 45.832544, 4807.81, 2812],
+        },
+        {   shape_type => $SHPT_POINTZ,
+            point      => [10.9863, 47.42122, 2962.06, 25.8],
         },
     ]
 );
@@ -932,9 +1018,7 @@ write_shp_and_shx(
         {   shape_type    => $SHPT_POLYGONM,
             box           => [1, 1, 2, 2],
             measure_range => [1, 5],
-            parts         => [[
-                [1, 1, 1], [1, 2, 2], [2, 2, 3], [2, 1, 4], [1, 1, 5]
-            ]]
+            parts => [[[1, 1, 1], [1, 2, 2], [2, 2, 3], [2, 1, 4], [1, 1, 5]]]
         },
     ]
 );

@@ -4,6 +4,7 @@ set(tests
   box
   point
   pointm
+  pointz
   multipoint
   multipointm
   polyline

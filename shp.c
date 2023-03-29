@@ -165,6 +165,34 @@ cleanup:
 }
 
 static int
+get_pointz(shp_file_t *fh, const char *buf, shp_record_t *record)
+{
+    int rc = -1;
+    shp_pointz_t *point = &record->shape.pointz;
+    size_t record_size, expected_size = 36;
+
+    record_size = record->record_size;
+    if (record_size != expected_size) {
+        shp_set_error(fh,
+                      "Expected record of %zu bytes, got %zu in record %zu",
+                      expected_size, record_size, record->record_number);
+        errno = EINVAL;
+        goto cleanup;
+    }
+
+    point->x = shp_le64_to_double(&buf[4]);
+    point->y = shp_le64_to_double(&buf[12]);
+    point->z = shp_le64_to_double(&buf[20]);
+    point->m = shp_le64_to_double(&buf[28]);
+
+    rc = 1;
+
+cleanup:
+
+    return rc;
+}
+
+static int
 get_multipoint(shp_file_t *fh, const char *buf, shp_record_t *record)
 {
     int rc = -1;
@@ -521,6 +549,9 @@ read_record(shp_file_t *fh, shp_record_t **precord, size_t *size)
         break;
     case SHPT_POINTM:
         rc = get_pointm(fh, buf, record);
+        break;
+    case SHPT_POINTZ:
+        rc = get_pointz(fh, buf, record);
         break;
     case SHPT_MULTIPOINT:
         rc = get_multipoint(fh, buf, record);

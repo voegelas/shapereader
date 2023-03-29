@@ -43,6 +43,7 @@ set(pkginclude_HEADERS
   shp-multipointm.h
   shp-point.h
   shp-pointm.h
+  shp-pointz.h
   shp-polygon.h
   shp-polygonm.h
   shp-polyline.h
