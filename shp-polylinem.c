@@ -61,6 +61,6 @@ shp_polylinem_pointm(const shp_polylinem_t *polylinem, size_t point_num,
     buf = polylinem->_points + 16 * point_num;
     pointm->x = shp_le64_to_double(&buf[0]);
     pointm->y = shp_le64_to_double(&buf[8]);
-    buf = polylinem->_measures + 8 * point_num;
+    buf = polylinem->_m_array + 8 * point_num;
     pointm->m = shp_le64_to_double(&buf[0]);
 }

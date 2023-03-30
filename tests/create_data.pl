@@ -281,13 +281,13 @@ sub pack_multipointm {
         record_number => 0,
         shape_type    => $SHPT_MULTIPOINTM,
         box           => [0.0, 0.0, 0.0, 0.0],
-        measure_range => [0.0, 0.0],
+        m_range       => [0.0, 0.0],
         points        => [],
         @_
     );
 
     my @points       = map { [$_->[0], $_->[1]] } @{$h{points}};
-    my @measures     = map { $_->[2] } @{$h{points}};
+    my @m_array      = map { $_->[2] } @{$h{points}};
     my $points_count = scalar @points;
 
     my @flattened_points       = unpairs @points;
@@ -298,7 +298,7 @@ sub pack_multipointm {
     my $bytes = pack "N2Ld<4Ld<${flattened_points_count}d<2d<$points_count",
         $h{record_number}, $content_length, $h{shape_type},
         @{$h{box}}[0 .. 3], $points_count, @flattened_points,
-        @{$h{measure_range}}[0 .. 1], @measures;
+        @{$h{m_range}}[0 .. 1], @m_array;
 
     return $bytes;
 }
@@ -340,7 +340,7 @@ sub pack_polylinem {
         record_number => 0,
         shape_type    => $SHPT_POLYLINEM,
         box           => [0.0, 0.0, 0.0, 0.0],
-        measure_range => [0.0, 0.0],
+        m_range       => [0.0, 0.0],
         parts         => [],
         @_
     );
@@ -353,7 +353,7 @@ sub pack_polylinem {
     pop @parts_index;
 
     my @points       = map { [$_->[0], $_->[1]] } map { @{$_} } @parts;
-    my @measures     = map { $_->[2] } map            { @{$_} } @parts;
+    my @m_array      = map { $_->[2] } map            { @{$_} } @parts;
     my $points_count = scalar @points;
 
     my @flattened_points       = unpairs @points;
@@ -366,7 +366,7 @@ sub pack_polylinem {
         "N2Ld<4L2L${parts_count}d<${flattened_points_count}d<2d<$points_count",
         $h{record_number}, $content_length, $h{shape_type},
         @{$h{box}}[0 .. 3], $parts_count, $points_count, @parts_index,
-        @flattened_points, @{$h{measure_range}}[0 .. 1], @measures;
+        @flattened_points, @{$h{m_range}}[0 .. 1], @m_array;
 
     return $bytes;
 }
@@ -388,7 +388,7 @@ sub pack_polygonm {
         record_number => 0,
         shape_type    => $SHPT_POLYGONM,
         box           => [0.0, 0.0, 0.0, 0.0],
-        measure_range => [0.0, 0.0],
+        m_range       => [0.0, 0.0],
         parts         => [],
         @_
     );
@@ -803,19 +803,19 @@ write_shp_and_shx(
         m_max      => 31,
     },
     shapes => [
-        {   shape_type    => $SHPT_MULTIPOINTM,
-            box           => [-0.2059, -33.9189, 31.2333, 30.0333],
-            measure_range => [20, 31],
-            points        => [
+        {   shape_type => $SHPT_MULTIPOINTM,
+            box        => [-0.2059, -33.9189, 31.2333, 30.0333],
+            m_range    => [20, 31],
+            points     => [
                 [-0.2059, 5.6148,   31],    # Accra
                 [31.2333, 30.0333,  20],    # Cairo
                 [18.4233, -33.9189, 23],    # Cape Town
             ]
         },
-        {   shape_type    => $SHPT_MULTIPOINTM,
-            box           => [-21.8277, 38.7369, 37.6184, 64.1283],
-            measure_range => [-5, 15],
-            points        => [
+        {   shape_type => $SHPT_MULTIPOINTM,
+            box        => [-21.8277, 38.7369, 37.6184, 64.1283],
+            m_range    => [-5, 15],
+            points     => [
                 [-9.1427,  38.7369, 15],    # Lisbon
                 [37.6184,  55.7512, -5],    # Moscow
                 [-21.8277, 64.1283, 1],     # Reykjavík
@@ -891,10 +891,10 @@ write_shp_and_shx(
         m_max      => 6,
     },
     shapes => [
-        {   shape_type    => $SHPT_POLYLINEM,
-            box           => [1, 1, 4, 2],
-            measure_range => [1, 6],
-            parts         => [[
+        {   shape_type => $SHPT_POLYLINEM,
+            box        => [1, 1, 4, 2],
+            m_range    => [1, 6],
+            parts      => [[
                 [1, 1, 1], [2, 1, 2], [2, 2, 3], [3, 2, 4],
                 [3, 1, 5], [4, 1, 6]
             ]]
@@ -1015,9 +1015,9 @@ write_shp_and_shx(
         m_max      => 5,
     },
     shapes => [
-        {   shape_type    => $SHPT_POLYGONM,
-            box           => [1, 1, 2, 2],
-            measure_range => [1, 5],
+        {   shape_type => $SHPT_POLYGONM,
+            box        => [1, 1, 2, 2],
+            m_range    => [1, 5],
             parts => [[[1, 1, 1], [1, 2, 2], [2, 2, 3], [2, 1, 4], [1, 1, 5]]]
         },
     ]

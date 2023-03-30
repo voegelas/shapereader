@@ -30,11 +30,11 @@
  * with a point.
  */
 typedef struct shp_multipointm_t {
-    shp_box_t box;             /**< Bounding box */
-    size_t num_points;         /**< Number of points */
-    const char *_points;       /* Points */
-    shp_range_t measure_range; /**< Bounding measure range */
-    const char *_measures;     /* Measures */
+    shp_box_t box;        /**< Bounding box */
+    size_t num_points;    /**< Number of points */
+    const char *_points;  /* Points */
+    shp_range_t m_range;  /**< Bounding measure range */
+    const char *_m_array; /* Measures */
 } shp_multipointm_t;
 
 /**

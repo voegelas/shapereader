@@ -238,7 +238,7 @@ get_multipointm(shp_file_t *fh, const char *buf, shp_record_t *record)
 {
     int rc = -1;
     shp_multipointm_t *multipointm = &record->shape.multipointm;
-    size_t record_size, points_size, measures_size, expected_size;
+    size_t record_size, points_size, m_size, expected_size;
     const char *bufm;
 
     record_size = record->record_size;
@@ -256,9 +256,9 @@ get_multipointm(shp_file_t *fh, const char *buf, shp_record_t *record)
     multipointm->num_points = shp_le32_to_uint32(&buf[36]);
 
     points_size = 16 * multipointm->num_points;
-    measures_size = 8 * multipointm->num_points;
+    m_size = 8 * multipointm->num_points;
 
-    expected_size = 56 + points_size + measures_size;
+    expected_size = 56 + points_size + m_size;
     if (record_size != expected_size) {
         shp_set_error(fh,
                       "Expected record of %zu bytes, got %zu in record %zu",
@@ -269,9 +269,9 @@ get_multipointm(shp_file_t *fh, const char *buf, shp_record_t *record)
 
     multipointm->_points = &buf[40];
     bufm = multipointm->_points + points_size;
-    multipointm->measure_range.min = shp_le64_to_double(&bufm[0]);
-    multipointm->measure_range.max = shp_le64_to_double(&bufm[8]);
-    multipointm->_measures = &bufm[16];
+    multipointm->m_range.min = shp_le64_to_double(&bufm[0]);
+    multipointm->m_range.max = shp_le64_to_double(&bufm[8]);
+    multipointm->_m_array = &bufm[16];
 
     rc = 1;
 
@@ -329,7 +329,7 @@ get_polylinem(shp_file_t *fh, const char *buf, shp_record_t *record)
 {
     int rc = -1;
     shp_polylinem_t *polylinem = &record->shape.polylinem;
-    size_t record_size, parts_size, points_size, measures_size, expected_size;
+    size_t record_size, parts_size, points_size, m_size, expected_size;
     const char *bufm;
 
     record_size = record->record_size;
@@ -349,9 +349,9 @@ get_polylinem(shp_file_t *fh, const char *buf, shp_record_t *record)
 
     parts_size = 4 * polylinem->num_parts;
     points_size = 16 * polylinem->num_points;
-    measures_size = 8 * polylinem->num_points;
+    m_size = 8 * polylinem->num_points;
 
-    expected_size = 60 + parts_size + points_size + measures_size;
+    expected_size = 60 + parts_size + points_size + m_size;
     if (record_size != expected_size) {
         shp_set_error(fh,
                       "Expected record of %zu bytes, got %zu in record %zu",
@@ -363,9 +363,9 @@ get_polylinem(shp_file_t *fh, const char *buf, shp_record_t *record)
     polylinem->_parts = &buf[44];
     polylinem->_points = polylinem->_parts + parts_size;
     bufm = polylinem->_points + points_size;
-    polylinem->measure_range.min = shp_le64_to_double(&bufm[0]);
-    polylinem->measure_range.max = shp_le64_to_double(&bufm[8]);
-    polylinem->_measures = &bufm[16];
+    polylinem->m_range.min = shp_le64_to_double(&bufm[0]);
+    polylinem->m_range.max = shp_le64_to_double(&bufm[8]);
+    polylinem->_m_array = &bufm[16];
 
     rc = 1;
 
@@ -423,7 +423,7 @@ get_polygonm(shp_file_t *fh, const char *buf, shp_record_t *record)
 {
     int rc = -1;
     shp_polygonm_t *polygonm = &record->shape.polygonm;
-    size_t record_size, parts_size, points_size, measures_size, expected_size;
+    size_t record_size, parts_size, points_size, m_size, expected_size;
     const char *bufm;
 
     record_size = record->record_size;
@@ -443,9 +443,9 @@ get_polygonm(shp_file_t *fh, const char *buf, shp_record_t *record)
 
     parts_size = 4 * polygonm->num_parts;
     points_size = 16 * polygonm->num_points;
-    measures_size = 8 * polygonm->num_points;
+    m_size = 8 * polygonm->num_points;
 
-    expected_size = 60 + parts_size + points_size + measures_size;
+    expected_size = 60 + parts_size + points_size + m_size;
     if (record_size != expected_size) {
         shp_set_error(fh,
                       "Expected record of %zu bytes, got %zu in record %zu",
@@ -457,9 +457,9 @@ get_polygonm(shp_file_t *fh, const char *buf, shp_record_t *record)
     polygonm->_parts = &buf[44];
     polygonm->_points = polygonm->_parts + parts_size;
     bufm = polygonm->_points + points_size;
-    polygonm->measure_range.min = shp_le64_to_double(&bufm[0]);
-    polygonm->measure_range.max = shp_le64_to_double(&bufm[8]);
-    polygonm->_measures = &bufm[16];
+    polygonm->m_range.min = shp_le64_to_double(&bufm[0]);
+    polygonm->m_range.max = shp_le64_to_double(&bufm[8]);
+    polygonm->_m_array = &bufm[16];
 
     rc = 1;
 

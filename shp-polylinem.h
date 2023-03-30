@@ -29,13 +29,13 @@
  * example a temperature.
  */
 typedef struct shp_polylinem_t {
-    shp_box_t box;             /**< Bounding box */
-    size_t num_parts;          /**< Number of parts */
-    size_t num_points;         /**< Total number of points */
-    const char *_parts;        /* Index to first point in part */
-    const char *_points;       /* Points for all parts */
-    shp_range_t measure_range; /**< Bounding measure range */
-    const char *_measures;     /* Measures */
+    shp_box_t box;        /**< Bounding box */
+    size_t num_parts;     /**< Number of parts */
+    size_t num_points;    /**< Total number of points */
+    const char *_parts;   /* Index to first point in part */
+    const char *_points;  /* Points for all parts */
+    shp_range_t m_range;  /**< Bounding measure range */
+    const char *_m_array; /* Measures */
 } shp_polylinem_t;
 
 /**
