@@ -23,7 +23,6 @@ string(CONCAT description
 )
 
 set(libshapereader_a_SOURCES
-  convert.c
   dbf.c
   shp-box.c
   shp-multipoint.c

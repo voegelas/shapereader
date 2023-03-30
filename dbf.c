@@ -100,6 +100,178 @@ get_right_justified_string(const dbf_record_t *record,
     *len = n;
 }
 
+static int
+is_leap_year(int year)
+{
+    return year % 4 == 0 && (year % 100 != 0 || year % 400 == 0);
+}
+
+static int
+days_in_month(int month, int year)
+{
+    int i;
+    const int days_in_month[2][12] = {
+        {31, 28, 31, 30, 31, 30, 30, 31, 30, 31, 30, 31},
+        {31, 29, 31, 30, 31, 30, 30, 31, 30, 31, 30, 31},
+    };
+
+    assert(month >= 1);
+    assert(month <= 12);
+
+    i = is_leap_year(year) ? 1 : 0;
+    return days_in_month[i][month - 1];
+}
+
+static int
+day_of_week(int day, int month, int year)
+{
+    static const int t[12] = {0, 3, 2, 5, 0, 3, 5, 1, 4, 6, 2, 4};
+
+    assert(month >= 1);
+    assert(month <= 12);
+
+    if (month < 3) {
+        year -= 1;
+    }
+    return (year + year / 4 - year / 100 + year / 400 + t[month - 1] + day) %
+           7;
+}
+
+static int
+day_of_year(int day, int month, int year)
+{
+    int i;
+    const int days_for_month[2][12] = {
+        {0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334},
+        {0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335},
+    };
+
+    assert(month >= 1);
+    assert(month <= 12);
+
+    i = is_leap_year(year) ? 1 : 0;
+    return days_for_month[i][month - 1] + day;
+}
+
+void
+dbf_jd_to_tm(int32_t jd, int32_t jt, struct tm *tm)
+{
+    int sec, min, hour, day, month, year;
+    int64_t a, b, c, d, e, alpha;
+    double s, m, h;
+    const double month_days_without_jan_feb = (365 - 31 - 28) / 10.0;
+
+    assert(tm != NULL);
+
+    a = jd;
+    if (jd >= 2299161) {
+        alpha = (int64_t) ((jd - 1867216.25) / 36524.25);
+        a = a + 1 + alpha - (alpha >> 2);
+    }
+    b = a + 1524;
+    c = (int64_t) ((b - 122.1) / 365.25);
+    d = (int64_t) (c * 365.25);
+    e = (int64_t) ((b - d) / month_days_without_jan_feb);
+    day = (int) (b - d - (int64_t) (e * month_days_without_jan_feb));
+    if (e > 13) {
+        month = (int) (e - 13);
+    }
+    else {
+        month = (int) (e - 1);
+    }
+    if (month == 2 && day > 28) {
+        day = 29;
+    }
+    if (month == 2 && day == 29 && e == 3) {
+        year = (int) (c - 4716);
+    }
+    else if (month > 2) {
+        year = (int) (c - 4716);
+    }
+    else {
+        year = (int) (c - 4715);
+    }
+
+    s = jt / 1000.0;
+    m = s / 60.0;
+    h = m / 60.0;
+    hour = (int) h;
+    min = (int) ((h - hour) * 60.0);
+    sec = (int) ((m - min) * 60.0 - hour * 3600.0);
+
+    memset(tm, 0, sizeof(*tm)); /* NOLINT */
+    tm->tm_sec = sec;
+    tm->tm_min = min;
+    tm->tm_hour = hour;
+    tm->tm_mday = day;
+    tm->tm_mon = month - 1;
+    tm->tm_year = year - 1900;
+    tm->tm_wday = (int) ((jd + 1) % 7);
+    tm->tm_yday = day_of_year(day, month, year) - 1;
+    tm->tm_isdst = -1;
+}
+
+int
+dbf_yyyymmdd_to_tm(const char *ymd, size_t n, struct tm *tm)
+{
+    int ok = 0;
+    int day = 0, month = 0, year = 0, wday = 0, yday = 0;
+    size_t a, i, k, z;
+    int c;
+
+    assert(ymd != NULL);
+    assert(tm != NULL);
+
+    k = 0;
+    z = 1;
+    i = n;
+    while (i > 0 && (c = ymd[i - 1]) >= '0' && c <= '9') {
+        a = c - '0';
+        switch (k) {
+        case 0:
+            day = a;
+            break;
+        case 1:
+            day += 10 * a;
+            break;
+        case 2:
+            month = a;
+            break;
+        case 3:
+            month += 10 * a;
+            break;
+        default:
+            year += z * a;
+            z *= 10;
+            break;
+        }
+        ++k;
+        --i;
+    }
+
+    if (i == 0 && k >= 8) {
+        if (month >= 1 && month <= 12) {
+            if (day >= 1 && day <= days_in_month(month, year)) {
+                wday = day_of_week(day, month, year);
+                yday = day_of_year(day, month, year);
+                ok = 1;
+            }
+        }
+    }
+
+    memset(tm, 0, sizeof(*tm)); /* NOLINT */
+    if (ok) {
+        tm->tm_mday = day;
+        tm->tm_mon = month - 1;
+        tm->tm_year = year - 1900;
+        tm->tm_wday = wday;
+        tm->tm_yday = yday - 1;
+    }
+    tm->tm_isdst = -1;
+
+    return ok;
+}
+
 void
 dbf_record_bytes(const dbf_record_t *record, const dbf_field_t *field,
                  const char **pbytes, size_t *len)
@@ -124,7 +296,7 @@ dbf_record_date(const dbf_record_t *record, const dbf_field_t *field,
     assert(tm != NULL);
 
     get_bytes_readonly(record, field, &s, &n);
-    return shp_yyyymmdd_to_tm(s, n, tm);
+    return dbf_yyyymmdd_to_tm(s, n, tm);
 }
 
 int
@@ -146,7 +318,7 @@ dbf_record_datetime(const dbf_record_t *record, const dbf_field_t *field,
         jt = shp_le32_to_int32(&bytes[4]);
         ok = 1;
     }
-    shp_jd_to_tm(jdn, jt, tm);
+    dbf_jd_to_tm(jdn, jt, tm);
     return ok;
 }
 

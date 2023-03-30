@@ -12,13 +12,25 @@
 #ifndef _SHAPEREADER_CONVERT_H
 #define _SHAPEREADER_CONVERT_H
 
-/**
- * @file
- */
-
+#include <assert.h>
 #include <stddef.h>
 #include <stdint.h>
-#include <time.h>
+#include <string.h>
+
+#ifndef WORDS_BIGENDIAN
+#if defined __BYTE_ORDER__
+#if __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
+#define WORDS_BIGENDIAN 1
+#elif __BYTE_ORDER__ != __ORDER_LITTLE_ENDIAN__
+#error Unknown byte order
+#endif
+#endif
+#endif
+
+/*
+ * Remember that some architectures require data to be aligned on 16-, 32- or
+ * 64-bit boundaries.
+ */
 
 /**
  * Convert bytes in litte-endian order to uint16_t
@@ -28,7 +40,21 @@
  * @param bytes a buffer with two bytes.
  * @return a uint16_t value.
  */
-extern uint16_t shp_le16_to_uint16(const char *bytes);
+static inline uint16_t
+shp_le16_to_uint16(const char *bytes)
+{
+    uint16_t n;
+
+    assert(bytes != NULL);
+
+#ifdef WORDS_BIGENDIAN
+    ((char *) &n)[0] = bytes[1];
+    ((char *) &n)[1] = bytes[0];
+#else
+    memcpy(&n, bytes, sizeof(n)); /* NOLINT */
+#endif
+    return n;
+}
 
 /**
  * Convert bytes in big-endian order to int32_t
@@ -38,7 +64,23 @@ extern uint16_t shp_le16_to_uint16(const char *bytes);
  * @param bytes a buffer with four bytes.
  * @return an int32_t value.
  */
-extern int32_t shp_be32_to_int32(const char *bytes);
+static inline int32_t
+shp_be32_to_int32(const char *bytes)
+{
+    int32_t n;
+
+    assert(bytes != NULL);
+
+#ifdef WORDS_BIGENDIAN
+    memcpy(&n, bytes, sizeof(n)); /* NOLINT */
+#else
+    ((char *) &n)[0] = bytes[3];
+    ((char *) &n)[1] = bytes[2];
+    ((char *) &n)[2] = bytes[1];
+    ((char *) &n)[3] = bytes[0];
+#endif
+    return n;
+}
 
 /**
  * Convert bytes in little-endian order to int32_t
@@ -48,7 +90,23 @@ extern int32_t shp_be32_to_int32(const char *bytes);
  * @param bytes a buffer with four bytes.
  * @return an int32_t value.
  */
-extern int32_t shp_le32_to_int32(const char *bytes);
+static inline int32_t
+shp_le32_to_int32(const char *bytes)
+{
+    int32_t n;
+
+    assert(bytes != NULL);
+
+#ifdef WORDS_BIGENDIAN
+    ((char *) &n)[0] = bytes[3];
+    ((char *) &n)[1] = bytes[2];
+    ((char *) &n)[2] = bytes[1];
+    ((char *) &n)[3] = bytes[0];
+#else
+    memcpy(&n, bytes, sizeof(n)); /* NOLINT */
+#endif
+    return n;
+}
 
 /**
  * Convert bytes in big-endian order to uint32_t
@@ -58,7 +116,23 @@ extern int32_t shp_le32_to_int32(const char *bytes);
  * @param bytes a buffer with four bytes.
  * @return a uint32_t value.
  */
-extern uint32_t shp_be32_to_uint32(const char *bytes);
+static inline uint32_t
+shp_be32_to_uint32(const char *bytes)
+{
+    uint32_t n;
+
+    assert(bytes != NULL);
+
+#ifdef WORDS_BIGENDIAN
+    memcpy(&n, bytes, sizeof(n)); /* NOLINT */
+#else
+    ((char *) &n)[0] = bytes[3];
+    ((char *) &n)[1] = bytes[2];
+    ((char *) &n)[2] = bytes[1];
+    ((char *) &n)[3] = bytes[0];
+#endif
+    return n;
+}
 
 /**
  * Convert bytes in little-endian order to uint32_t
@@ -68,7 +142,23 @@ extern uint32_t shp_be32_to_uint32(const char *bytes);
  * @param bytes a buffer with four bytes.
  * @return a uint32_t value.
  */
-extern uint32_t shp_le32_to_uint32(const char *bytes);
+static inline uint32_t
+shp_le32_to_uint32(const char *bytes)
+{
+    uint32_t n;
+
+    assert(bytes != NULL);
+
+#ifdef WORDS_BIGENDIAN
+    ((char *) &n)[0] = bytes[3];
+    ((char *) &n)[1] = bytes[2];
+    ((char *) &n)[2] = bytes[1];
+    ((char *) &n)[3] = bytes[0];
+#else
+    memcpy(&n, bytes, sizeof(n)); /* NOLINT */
+#endif
+    return n;
+}
 
 /**
  * Convert bytes in little-endian order to int64_t
@@ -78,7 +168,27 @@ extern uint32_t shp_le32_to_uint32(const char *bytes);
  * @param bytes a buffer with eight bytes.
  * @return an int64_t value.
  */
-extern int64_t shp_le64_to_int64(const char *bytes);
+static inline int64_t
+shp_le64_to_int64(const char *bytes)
+{
+    int64_t n;
+
+    assert(bytes != NULL);
+
+#ifdef WORDS_BIGENDIAN
+    ((char *) &n)[0] = bytes[7];
+    ((char *) &n)[1] = bytes[6];
+    ((char *) &n)[2] = bytes[5];
+    ((char *) &n)[3] = bytes[4];
+    ((char *) &n)[4] = bytes[3];
+    ((char *) &n)[5] = bytes[2];
+    ((char *) &n)[6] = bytes[1];
+    ((char *) &n)[7] = bytes[0];
+#else
+    memcpy(&n, bytes, sizeof(n)); /* NOLINT */
+#endif
+    return n;
+}
 
 /**
  * Convert bytes in little-endian order to double
@@ -88,40 +198,26 @@ extern int64_t shp_le64_to_int64(const char *bytes);
  * @param bytes a buffer with eight bytes.
  * @return a double value.
  */
-extern double shp_le64_to_double(const char *bytes);
+static inline double
+shp_le64_to_double(const char *bytes)
+{
+    double n;
 
-/**
- * Convert a Julian date into a tm structure
- *
- * Calculates the calendar date from a Julian date and the time since
- * midnight.
- *
- * The tm_isdst member of the tm structure is always set to -1.
- *
- * @param jd days since 1 January -4712.
- * @param jt milliseconds since midnight.
- * @param[out] tm the converted date.
- *
- * @see "Astronomical Algorithms" @cite Astronomical_Algorithms, p. 63 for a
- *      description of the algorithm.
- */
-extern void shp_jd_to_tm(int32_t jd, int32_t jt, struct tm *tm);
+    assert(bytes != NULL);
 
-/**
- * Converts a date string in the format "YYYYMMDD" into a tm structure
- *
- * Fills a tm structure with the day, month and year from a date string.
- *
- * The tm_wday member is only valid after 15 October 1582 in the Gregorian
- * calendar.
- *
- * The tm_isdst member is always set to -1.
- *
- * @param ymd a date string in the format "YYYYMMDD".
- * @param n the string length
- * @param[out] tm the converted date.
- * @return true on success, otherwise false.
- */
-extern int shp_yyyymmdd_to_tm(const char *ymd, size_t n, struct tm *tm);
+#ifdef WORDS_BIGENDIAN
+    ((char *) &n)[0] = bytes[7];
+    ((char *) &n)[1] = bytes[6];
+    ((char *) &n)[2] = bytes[5];
+    ((char *) &n)[3] = bytes[4];
+    ((char *) &n)[4] = bytes[3];
+    ((char *) &n)[5] = bytes[2];
+    ((char *) &n)[6] = bytes[1];
+    ((char *) &n)[7] = bytes[0];
+#else
+    memcpy(&n, bytes, sizeof(n)); /* NOLINT */
+#endif
+    return *((double *) &n);
+}
 
 #endif
