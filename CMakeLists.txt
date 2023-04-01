@@ -27,6 +27,7 @@ set(libshapereader_a_SOURCES
   shp-box.c
   shp-multipoint.c
   shp-multipointm.c
+  shp-multipointz.c
   shp-polygon.c
   shp-polygonm.c
   shp-polyline.c
@@ -40,6 +41,7 @@ set(pkginclude_HEADERS
   shp-box.h
   shp-multipoint.h
   shp-multipointm.h
+  shp-multipointz.h
   shp-point.h
   shp-pointm.h
   shp-pointz.h

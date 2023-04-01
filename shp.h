@@ -18,6 +18,7 @@
 
 #include "shp-multipoint.h"
 #include "shp-multipointm.h"
+#include "shp-multipointz.h"
 #include "shp-point.h"
 #include "shp-pointm.h"
 #include "shp-pointz.h"
@@ -85,6 +86,8 @@ typedef struct shp_record_t {
                                             @c SHPT_MULTIPOINT */
         shp_multipointm_t multipointm; /**< Set of PointMs if @a shape_type is
                                             @c SHPT_MULTIPOINTM */
+        shp_multipointz_t multipointz; /**< Set of PointZs if @a shape_type is
+                                            @c SHPT_MULTIPOINTZ */
         shp_polyline_t polyline;       /**< PolyLine if @a shape_type is
                                             @c SHPT_POLYLINE */
         shp_polylinem_t polylinem;     /**< PolyLineM if @a shape_type is

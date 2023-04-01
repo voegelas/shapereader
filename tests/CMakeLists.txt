@@ -7,6 +7,7 @@ set(tests
   pointz
   multipoint
   multipointm
+  multipointz
   polyline
   polylinem
   polygon

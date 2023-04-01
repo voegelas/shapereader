@@ -269,7 +269,7 @@ sub pack_multipoint {
 
     my $content_length = (40 + 16 * $points_count) / 2;
 
-    my $bytes = pack "N2Ld<4Ld<${flattened_points_count}",
+    my $bytes = pack "N2Ld<4L" . "d<${flattened_points_count}",
         $h{record_number}, $content_length, $h{shape_type},
         @{$h{box}}[0 .. 3], $points_count, @flattened_points;
 
@@ -295,9 +295,46 @@ sub pack_multipointm {
 
     my $content_length = (56 + 24 * $points_count) / 2;
 
-    my $bytes = pack "N2Ld<4Ld<${flattened_points_count}d<2d<$points_count",
+    my $bytes
+        = pack "N2Ld<4L"
+        . "d<${flattened_points_count}"
+        . "d<2d<${points_count}",
         $h{record_number}, $content_length, $h{shape_type},
         @{$h{box}}[0 .. 3], $points_count, @flattened_points,
+        @{$h{m_range}}[0 .. 1], @m_array;
+
+    return $bytes;
+}
+
+sub pack_multipointz {
+    my %h = (
+        record_number => 0,
+        shape_type    => $SHPT_MULTIPOINTZ,
+        box           => [0.0, 0.0, 0.0, 0.0],
+        z_range       => [0.0, 0.0],
+        m_range       => [0.0, 0.0],
+        points        => [],
+        @_
+    );
+
+    my @points       = map { [$_->[0], $_->[1]] } @{$h{points}};
+    my @z_array      = map { $_->[2] } @{$h{points}};
+    my @m_array      = map { $_->[3] } @{$h{points}};
+    my $points_count = scalar @points;
+
+    my @flattened_points       = unpairs @points;
+    my $flattened_points_count = scalar @flattened_points;
+
+    my $content_length = (72 + 32 * $points_count) / 2;
+
+    my $bytes
+        = pack "N2Ld<4L"
+        . "d<${flattened_points_count}"
+        . "d<2d<${points_count}"
+        . "d<2d<${points_count}",
+        $h{record_number}, $content_length, $h{shape_type},
+        @{$h{box}}[0 .. 3],     $points_count, @flattened_points,
+        @{$h{z_range}}[0 .. 1], @z_array,
         @{$h{m_range}}[0 .. 1], @m_array;
 
     return $bytes;
@@ -327,7 +364,8 @@ sub pack_polyline {
 
     my $content_length = (44 + 4 * $parts_count + 16 * $points_count) / 2;
 
-    my $bytes = pack "N2Ld<4L2L${parts_count}d<${flattened_points_count}",
+    my $bytes
+        = pack "N2Ld<4L2L${parts_count}" . "d<${flattened_points_count}",
         $h{record_number}, $content_length, $h{shape_type},
         @{$h{box}}[0 .. 3], $parts_count, $points_count, @parts_index,
         @flattened_points;
@@ -362,8 +400,9 @@ sub pack_polylinem {
     my $content_length = (60 + 4 * $parts_count + 24 * $points_count) / 2;
 
     my $bytes
-        = pack
-        "N2Ld<4L2L${parts_count}d<${flattened_points_count}d<2d<$points_count",
+        = pack "N2Ld<4L2L${parts_count}"
+        . "d<${flattened_points_count}"
+        . "d<2d<${points_count}",
         $h{record_number}, $content_length, $h{shape_type},
         @{$h{box}}[0 .. 3], $parts_count, $points_count, @parts_index,
         @flattened_points, @{$h{m_range}}[0 .. 1], @m_array;
@@ -405,7 +444,7 @@ my %pack_shp_record = (
     $SHPT_POINTZ      => \&pack_pointz,
     $SHPT_POLYLINEZ   => undef,
     $SHPT_POLYGONZ    => undef,
-    $SHPT_MULTIPOINTZ => undef,
+    $SHPT_MULTIPOINTZ => \&pack_multipointz,
     $SHPT_POINTM      => \&pack_pointm,
     $SHPT_POLYLINEM   => \&pack_polylinem,
     $SHPT_POLYGONM    => \&pack_polygonm,
@@ -819,6 +858,63 @@ write_shp_and_shx(
                 [-9.1427,  38.7369, 15],    # Lisbon
                 [37.6184,  55.7512, -5],    # Moscow
                 [-21.8277, 64.1283, 1],     # Reykjavík
+            ]
+        },
+    ]
+);
+
+#
+# multipointz.shp
+#
+
+write_dbf(
+    file   => catfile(qw(data multipointz.dbf)),
+    header => {
+        year   => 2023,
+        month  => 4,
+        day    => 1,
+        fields => [{
+            name   => 'AREA',
+            type   => 'C',
+            length => 16,
+        }],
+    },
+    records => [[q{ }, 'North America'], [q{ }, 'South America']]
+);
+
+write_shp_and_shx(
+    shp_file => catfile(qw(data multipointz.shp)),
+    shx_file => catfile(qw(data multipointz.shx)),
+    header   => {
+        shape_type => $SHPT_MULTIPOINTZ,
+        x_min      => -151.007708,
+        y_min      => -32.653333,
+        x_max      => -68.54176,
+        y_max      => 63.068515,
+        z_min      => 4392,
+        z_max      => 6961,
+        m_min      => 96.67,
+        m_max      => 16536,
+    },
+    shapes => [
+        {   shape_type => $SHPT_MULTIPOINTZ,
+            box        => [-151.007708, 19.027778, -98.623056, 63.068515],
+            z_range    => [4392,        6190],
+            m_range    => [142,         7450],
+            points     => [
+                [-151.007708, 63.068515, 6190, 7450],    # Denali
+                [-121.760556, 46.853056, 4392, 1177],    # Mount Rainier
+                [-98.623056,  19.027778, 5452, 142],     # Popocatépetl
+            ]
+        },
+        {   shape_type => $SHPT_MULTIPOINTZ,
+            box        => [-78.437131, -32.653333, -68.54176, -0.684067],
+            z_range    => [5897,       6961],
+            m_range    => [96.67,      16536],
+            points     => [
+                [-70.011667, -32.653333, 6961, 16536],    # Aconcagua
+                [-78.437131, -0.684067,  5897, 96.67],    # Cotopaxi
+                [-68.54176,  -27.10928,  6893, 630],      # Ojos del Salado
             ]
         },
     ]
