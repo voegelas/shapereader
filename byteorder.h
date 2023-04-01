@@ -9,8 +9,8 @@
 
 /* SPDX-License-Identifier: ISC OR Artistic-1.0-Perl OR GPL-1.0-or-later */
 
-#ifndef _SHAPEREADER_CONVERT_H
-#define _SHAPEREADER_CONVERT_H
+#ifndef _SHAPEREADER_BYTEORDER_H
+#define _SHAPEREADER_BYTEORDER_H
 
 #include <stddef.h>
 #include <stdint.h>

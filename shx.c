@@ -10,7 +10,7 @@
 /* SPDX-License-Identifier: ISC OR Artistic-1.0-Perl OR GPL-1.0-or-later */
 
 #include "shx.h"
-#include "convert.h"
+#include "byteorder.h"
 #include <assert.h>
 #include <errno.h>
 #include <stdarg.h>

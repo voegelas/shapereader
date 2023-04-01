@@ -10,7 +10,7 @@
 /* SPDX-License-Identifier: ISC OR Artistic-1.0-Perl OR GPL-1.0-or-later */
 
 #include "shp-polyline.h"
-#include "convert.h"
+#include "byteorder.h"
 #include <assert.h>
 
 size_t

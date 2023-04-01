@@ -1,5 +1,5 @@
 set(tests
-  convert
+  byteorder
   dbf
   box
   point
