@@ -12,7 +12,6 @@
 #ifndef _SHAPEREADER_CONVERT_H
 #define _SHAPEREADER_CONVERT_H
 
-#include <assert.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <string.h>
@@ -45,8 +44,6 @@ shp_le16_to_uint16(const char *bytes)
 {
     uint16_t n;
 
-    assert(bytes != NULL);
-
 #ifdef WORDS_BIGENDIAN
     ((char *) &n)[0] = bytes[1];
     ((char *) &n)[1] = bytes[0];
@@ -68,8 +65,6 @@ static inline int32_t
 shp_be32_to_int32(const char *bytes)
 {
     int32_t n;
-
-    assert(bytes != NULL);
 
 #ifdef WORDS_BIGENDIAN
     memcpy(&n, bytes, sizeof(n)); /* NOLINT */
@@ -95,8 +90,6 @@ shp_le32_to_int32(const char *bytes)
 {
     int32_t n;
 
-    assert(bytes != NULL);
-
 #ifdef WORDS_BIGENDIAN
     ((char *) &n)[0] = bytes[3];
     ((char *) &n)[1] = bytes[2];
@@ -120,8 +113,6 @@ static inline uint32_t
 shp_be32_to_uint32(const char *bytes)
 {
     uint32_t n;
-
-    assert(bytes != NULL);
 
 #ifdef WORDS_BIGENDIAN
     memcpy(&n, bytes, sizeof(n)); /* NOLINT */
@@ -147,8 +138,6 @@ shp_le32_to_uint32(const char *bytes)
 {
     uint32_t n;
 
-    assert(bytes != NULL);
-
 #ifdef WORDS_BIGENDIAN
     ((char *) &n)[0] = bytes[3];
     ((char *) &n)[1] = bytes[2];
@@ -172,8 +161,6 @@ static inline int64_t
 shp_le64_to_int64(const char *bytes)
 {
     int64_t n;
-
-    assert(bytes != NULL);
 
 #ifdef WORDS_BIGENDIAN
     ((char *) &n)[0] = bytes[7];
@@ -202,8 +189,6 @@ static inline double
 shp_le64_to_double(const char *bytes)
 {
     double n;
-
-    assert(bytes != NULL);
 
 #ifdef WORDS_BIGENDIAN
     ((char *) &n)[0] = bytes[7];
