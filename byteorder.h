@@ -202,7 +202,7 @@ shp_le64_to_double(const char *bytes)
 #else
     memcpy(&n, bytes, sizeof(n)); /* NOLINT */
 #endif
-    return *((double *) &n);
+    return n;
 }
 
 #endif
