@@ -428,6 +428,63 @@ cleanup:
 }
 
 static int
+get_polylinez(shp_file_t *fh, const char *buf, shp_record_t *record)
+{
+    int rc = -1;
+    shp_polylinez_t *polylinez = &record->shape.polylinez;
+    size_t record_size, parts_size, points_size, z_size, m_size,
+        expected_size;
+
+    record_size = record->record_size;
+    if (record_size < 76) {
+        shp_set_error(fh, "Record size %zu is too small in record %zu",
+                      record_size, record->record_number);
+        errno = EINVAL;
+        goto cleanup;
+    }
+
+    polylinez->box.x_min = shp_le64_to_double(&buf[4]);
+    polylinez->box.y_min = shp_le64_to_double(&buf[12]);
+    polylinez->box.x_max = shp_le64_to_double(&buf[20]);
+    polylinez->box.y_max = shp_le64_to_double(&buf[28]);
+    polylinez->num_parts = shp_le32_to_uint32(&buf[36]);
+    polylinez->num_points = shp_le32_to_uint32(&buf[40]);
+
+    parts_size = 4 * polylinez->num_parts;
+    points_size = 16 * polylinez->num_points;
+    z_size = 8 * polylinez->num_points;
+    m_size = z_size;
+
+    expected_size = 76 + parts_size + points_size + z_size + m_size;
+    if (record_size != expected_size) {
+        shp_set_error(fh,
+                      "Expected record of %zu bytes, got %zu in record %zu",
+                      expected_size, record_size, record->record_number);
+        errno = EINVAL;
+        goto cleanup;
+    }
+
+    polylinez->_parts = &buf[44];
+    polylinez->_points = polylinez->_parts + parts_size;
+
+    buf = polylinez->_points + points_size;
+    polylinez->z_range.min = shp_le64_to_double(&buf[0]);
+    polylinez->z_range.max = shp_le64_to_double(&buf[8]);
+    polylinez->_z_array = &buf[16];
+
+    buf = polylinez->_z_array + z_size;
+    polylinez->m_range.min = shp_le64_to_double(&buf[0]);
+    polylinez->m_range.max = shp_le64_to_double(&buf[8]);
+    polylinez->_m_array = &buf[16];
+
+    rc = 1;
+
+cleanup:
+
+    return rc;
+}
+
+static int
 get_polygon(shp_file_t *fh, const char *buf, shp_record_t *record)
 {
     int rc = -1;
@@ -513,6 +570,63 @@ get_polygonm(shp_file_t *fh, const char *buf, shp_record_t *record)
     polygonm->m_range.min = shp_le64_to_double(&buf[0]);
     polygonm->m_range.max = shp_le64_to_double(&buf[8]);
     polygonm->_m_array = &buf[16];
+
+    rc = 1;
+
+cleanup:
+
+    return rc;
+}
+
+static int
+get_polygonz(shp_file_t *fh, const char *buf, shp_record_t *record)
+{
+    int rc = -1;
+    shp_polygonz_t *polygonz = &record->shape.polygonz;
+    size_t record_size, parts_size, points_size, z_size, m_size,
+        expected_size;
+
+    record_size = record->record_size;
+    if (record_size < 76) {
+        shp_set_error(fh, "Record size %zu is too small in record %zu",
+                      record_size, record->record_number);
+        errno = EINVAL;
+        goto cleanup;
+    }
+
+    polygonz->box.x_min = shp_le64_to_double(&buf[4]);
+    polygonz->box.y_min = shp_le64_to_double(&buf[12]);
+    polygonz->box.x_max = shp_le64_to_double(&buf[20]);
+    polygonz->box.y_max = shp_le64_to_double(&buf[28]);
+    polygonz->num_parts = shp_le32_to_uint32(&buf[36]);
+    polygonz->num_points = shp_le32_to_uint32(&buf[40]);
+
+    parts_size = 4 * polygonz->num_parts;
+    points_size = 16 * polygonz->num_points;
+    z_size = 8 * polygonz->num_points;
+    m_size = z_size;
+
+    expected_size = 76 + parts_size + points_size + z_size + m_size;
+    if (record_size != expected_size) {
+        shp_set_error(fh,
+                      "Expected record of %zu bytes, got %zu in record %zu",
+                      expected_size, record_size, record->record_number);
+        errno = EINVAL;
+        goto cleanup;
+    }
+
+    polygonz->_parts = &buf[44];
+    polygonz->_points = polygonz->_parts + parts_size;
+
+    buf = polygonz->_points + points_size;
+    polygonz->z_range.min = shp_le64_to_double(&buf[0]);
+    polygonz->z_range.max = shp_le64_to_double(&buf[8]);
+    polygonz->_z_array = &buf[16];
+
+    buf = polygonz->_z_array + z_size;
+    polygonz->m_range.min = shp_le64_to_double(&buf[0]);
+    polygonz->m_range.max = shp_le64_to_double(&buf[8]);
+    polygonz->_m_array = &buf[16];
 
     rc = 1;
 
@@ -621,11 +735,17 @@ read_record(shp_file_t *fh, shp_record_t **precord, size_t *size)
     case SHPT_POLYLINEM:
         rc = get_polylinem(fh, buf, record);
         break;
+    case SHPT_POLYLINEZ:
+        rc = get_polylinez(fh, buf, record);
+        break;
     case SHPT_POLYGON:
         rc = get_polygon(fh, buf, record);
         break;
     case SHPT_POLYGONM:
         rc = get_polygonm(fh, buf, record);
+        break;
+    case SHPT_POLYGONZ:
+        rc = get_polygonz(fh, buf, record);
         break;
     default:
         shp_set_error(fh, "Shape type %d is unknown in record %zu",

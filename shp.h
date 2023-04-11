@@ -24,8 +24,10 @@
 #include "shp-pointz.h"
 #include "shp-polygon.h"
 #include "shp-polygonm.h"
+#include "shp-polygonz.h"
 #include "shp-polyline.h"
 #include "shp-polylinem.h"
+#include "shp-polylinez.h"
 #include <stddef.h>
 #include <stdio.h>
 
@@ -92,10 +94,14 @@ typedef struct shp_record_t {
                                             @c SHPT_POLYLINE */
         shp_polylinem_t polylinem;     /**< PolyLineM if @a shape_type is
                                             @c SHPT_POLYLINEM */
+        shp_polylinez_t polylinez;     /**< PolyLineZ if @a shape_type is
+                                            @c SHPT_POLYLINEZ */
         shp_polygon_t polygon;         /**< Polygon if @a shape_type is
                                             @c SHPT_POLYGON */
         shp_polygonm_t polygonm;       /**< PolygonM if @a shape_type is
                                             @c SHPT_POLYGONM */
+        shp_polygonz_t polygonz;       /**< PolygonZ if @a shape_type is
+                                            @c SHPT_POLYGONZ */
     } shape;
 } shp_record_t;
 

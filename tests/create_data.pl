@@ -6,7 +6,7 @@ use utf8;
 
 use Encode                qw(encode);
 use File::Spec::Functions qw(catfile);
-use List::Util 1.42       qw(any reduce unpairs);
+use List::Util 1.54       qw(any reduce reductions);
 use Time::Piece;
 
 my $SHPT_NULL        = 0;
@@ -261,17 +261,17 @@ sub pack_multipoint {
         @_
     );
 
-    my @points       = @{$h{points}};
-    my $points_count = scalar @points;
+    my @points = @{$h{points}};
+    my @xy     = map { $_->[0], $_->[1] } @points;
 
-    my @flattened_points       = unpairs @points;
-    my $flattened_points_count = scalar @flattened_points;
+    my $points_count = scalar @points;
+    my $xy_count     = scalar @xy;
 
     my $content_length = (40 + 16 * $points_count) / 2;
 
-    my $bytes = pack "N2Ld<4L" . "d<${flattened_points_count}",
+    my $bytes = pack "N2Ld<4L" . "d<${xy_count}",
         $h{record_number}, $content_length, $h{shape_type},
-        @{$h{box}}[0 .. 3], $points_count, @flattened_points;
+        @{$h{box}}[0 .. 3], $points_count, @xy;
 
     return $bytes;
 }
@@ -286,22 +286,19 @@ sub pack_multipointm {
         @_
     );
 
-    my @points       = map { [$_->[0], $_->[1]] } @{$h{points}};
-    my @m_array      = map { $_->[2] } @{$h{points}};
-    my $points_count = scalar @points;
+    my @points = @{$h{points}};
+    my @xy     = map { $_->[0], $_->[1] } @points;
+    my @m      = map { $_->[2] } @points;
 
-    my @flattened_points       = unpairs @points;
-    my $flattened_points_count = scalar @flattened_points;
+    my $points_count = scalar @points;
+    my $xy_count     = scalar @xy;
 
     my $content_length = (56 + 24 * $points_count) / 2;
 
     my $bytes
-        = pack "N2Ld<4L"
-        . "d<${flattened_points_count}"
-        . "d<2d<${points_count}",
+        = pack "N2Ld<4L" . "d<${xy_count}" . "d<2d<${points_count}",
         $h{record_number}, $content_length, $h{shape_type},
-        @{$h{box}}[0 .. 3], $points_count, @flattened_points,
-        @{$h{m_range}}[0 .. 1], @m_array;
+        @{$h{box}}[0 .. 3], $points_count, @xy, @{$h{m_range}}[0 .. 1], @m;
 
     return $bytes;
 }
@@ -317,25 +314,24 @@ sub pack_multipointz {
         @_
     );
 
-    my @points       = map { [$_->[0], $_->[1]] } @{$h{points}};
-    my @z_array      = map { $_->[2] } @{$h{points}};
-    my @m_array      = map { $_->[3] } @{$h{points}};
-    my $points_count = scalar @points;
+    my @points = @{$h{points}};
+    my @xy     = map { $_->[0], $_->[1] } @points;
+    my @z      = map { $_->[2] } @points;
+    my @m      = map { $_->[3] } @points;
 
-    my @flattened_points       = unpairs @points;
-    my $flattened_points_count = scalar @flattened_points;
+    my $points_count = scalar @points;
+    my $xy_count     = scalar @xy;
 
     my $content_length = (72 + 32 * $points_count) / 2;
 
     my $bytes
         = pack "N2Ld<4L"
-        . "d<${flattened_points_count}"
+        . "d<${xy_count}"
         . "d<2d<${points_count}"
         . "d<2d<${points_count}",
         $h{record_number}, $content_length, $h{shape_type},
-        @{$h{box}}[0 .. 3],     $points_count, @flattened_points,
-        @{$h{z_range}}[0 .. 1], @z_array,
-        @{$h{m_range}}[0 .. 1], @m_array;
+        @{$h{box}}[0 .. 3], $points_count, @xy,
+        @{$h{z_range}}[0 .. 1], @z, @{$h{m_range}}[0 .. 1], @m;
 
     return $bytes;
 }
@@ -349,26 +345,25 @@ sub pack_polyline {
         @_
     );
 
-    my @parts       = @{$h{parts}};
-    my $parts_count = scalar @parts;
+    my @parts = @{$h{parts}};
 
-    my @parts_index = map { scalar @{$_} } @parts;
-    unshift @parts_index, 0;
+    my @parts_index = reductions { $a + scalar @{$b} } 0, @parts;
     pop @parts_index;
 
-    my @points       = map { @{$_} } @parts;
-    my $points_count = scalar @points;
+    my @points = map { @{$_} } @parts;
+    my @xy     = map { $_->[0], $_->[1] } @points;
 
-    my @flattened_points       = unpairs @points;
-    my $flattened_points_count = scalar @flattened_points;
+    my $parts_count  = scalar @parts;
+    my $points_count = scalar @points;
+    my $xy_count     = scalar @xy;
 
     my $content_length = (44 + 4 * $parts_count + 16 * $points_count) / 2;
 
     my $bytes
-        = pack "N2Ld<4L2L${parts_count}" . "d<${flattened_points_count}",
+        = pack "N2Ld<4L2L${parts_count}" . "d<${xy_count}",
         $h{record_number}, $content_length, $h{shape_type},
         @{$h{box}}[0 .. 3], $parts_count, $points_count, @parts_index,
-        @flattened_points;
+        @xy;
 
     return $bytes;
 }
@@ -386,26 +381,64 @@ sub pack_polylinem {
     my @parts       = @{$h{parts}};
     my $parts_count = scalar @parts;
 
-    my @parts_index = map { scalar @{$_} - 1 } @parts;
-    unshift @parts_index, 0;
+    my @parts_index = reductions { $a + scalar @{$b} } 0, @parts;
     pop @parts_index;
 
-    my @points       = map { [$_->[0], $_->[1]] } map { @{$_} } @parts;
-    my @m_array      = map { $_->[2] } map            { @{$_} } @parts;
-    my $points_count = scalar @points;
+    my @points = map { @{$_} } @parts;
+    my @xy     = map { $_->[0], $_->[1] } @points;
+    my @m      = map { $_->[2] } @points;
 
-    my @flattened_points       = unpairs @points;
-    my $flattened_points_count = scalar @flattened_points;
+    my $points_count = scalar @points;
+    my $xy_count     = scalar @xy;
 
     my $content_length = (60 + 4 * $parts_count + 24 * $points_count) / 2;
 
     my $bytes
         = pack "N2Ld<4L2L${parts_count}"
-        . "d<${flattened_points_count}"
+        . "d<${xy_count}"
         . "d<2d<${points_count}",
         $h{record_number}, $content_length, $h{shape_type},
         @{$h{box}}[0 .. 3], $parts_count, $points_count, @parts_index,
-        @flattened_points, @{$h{m_range}}[0 .. 1], @m_array;
+        @xy, @{$h{m_range}}[0 .. 1], @m;
+
+    return $bytes;
+}
+
+sub pack_polylinez {
+    my %h = (
+        record_number => 0,
+        shape_type    => $SHPT_POLYLINEZ,
+        box           => [0.0, 0.0, 0.0, 0.0],
+        z_range       => [0.0, 0.0],
+        m_range       => [0.0, 0.0],
+        parts         => [],
+        @_
+    );
+
+    my @parts       = @{$h{parts}};
+    my $parts_count = scalar @parts;
+
+    my @parts_index = reductions { $a + scalar @{$b} } 0, @parts;
+    pop @parts_index;
+
+    my @points = map { @{$_} } @parts;
+    my @xy     = map { $_->[0], $_->[1] } @points;
+    my @z      = map { $_->[2] } @points;
+    my @m      = map { $_->[3] } @points;
+
+    my $points_count = scalar @points;
+    my $xy_count     = scalar @xy;
+
+    my $content_length = (76 + 4 * $parts_count + 32 * $points_count) / 2;
+
+    my $bytes
+        = pack "N2Ld<4L2L${parts_count}"
+        . "d<${xy_count}"
+        . "d<2d<${points_count}"
+        . "d<2d<${points_count}",
+        $h{record_number}, $content_length, $h{shape_type},
+        @{$h{box}}[0 .. 3], $parts_count, $points_count, @parts_index,
+        @xy, @{$h{z_range}}[0 .. 1], @z, @{$h{m_range}}[0 .. 1], @m;
 
     return $bytes;
 }
@@ -435,6 +468,20 @@ sub pack_polygonm {
     return pack_polylinem(%h);
 }
 
+sub pack_polygonz {
+    my %h = (
+        record_number => 0,
+        shape_type    => $SHPT_POLYGONZ,
+        box           => [0.0, 0.0, 0.0, 0.0],
+        z_range       => [0.0, 0.0],
+        m_range       => [0.0, 0.0],
+        parts         => [],
+        @_
+    );
+
+    return pack_polylinez(%h);
+}
+
 my %pack_shp_record = (
     $SHPT_NULL        => \&pack_null,
     $SHPT_POINT       => \&pack_point,
@@ -442,8 +489,8 @@ my %pack_shp_record = (
     $SHPT_POLYGON     => \&pack_polygon,
     $SHPT_MULTIPOINT  => \&pack_multipoint,
     $SHPT_POINTZ      => \&pack_pointz,
-    $SHPT_POLYLINEZ   => undef,
-    $SHPT_POLYGONZ    => undef,
+    $SHPT_POLYLINEZ   => \&pack_polylinez,
+    $SHPT_POLYGONZ    => \&pack_polygonz,
     $SHPT_MULTIPOINTZ => \&pack_multipointz,
     $SHPT_POINTM      => \&pack_pointm,
     $SHPT_POLYLINEM   => \&pack_polylinem,
@@ -999,6 +1046,65 @@ write_shp_and_shx(
 );
 
 #
+# polylinez.shp
+#
+
+write_dbf(
+    file   => catfile(qw(data polylinez.dbf)),
+    header => {
+        fields => [{
+            name   => 'id',
+            type   => 'N',
+            length => 10,
+        }],
+    },
+    records => [[q{ }, 1]]
+);
+
+write_shp_and_shx(
+    shp_file => catfile(qw(data polylinez.shp)),
+    shx_file => catfile(qw(data polylinez.shx)),
+    header   => {
+        shape_type => $SHPT_POLYLINEZ,
+        x_min      => 8.975675,
+        y_min      => 48.746122,
+        x_max      => 8.976038,
+        y_max      => 48.746420,
+        z_min      => 477.5,
+        z_max      => 493.3,
+        m_min      => 0.0,
+        m_max      => 2.02,
+    },
+    shapes => [
+        {   shape_type => $SHPT_POLYLINEZ,
+            box        => [8.975675, 48.746122, 8.976038, 48.746420],
+            z_range    => [477.5,    493.3],
+            m_range    => [0.0,      2.02],
+            parts      => [
+                [   [8.975817, 48.746274, 493.2, 0.0],
+                    [8.975824, 48.746279, 493.3, 0.0],
+                    [8.975824, 48.746269, 491.1, 0.15],
+                    [8.975806, 48.746263, 488.8, 0.45],
+                    [8.975681, 48.746227, 485.6, 2.02],
+                    [8.975677, 48.746213, 485.2, 1.53],
+                    [8.975675, 48.746135, 482.3, 1.36],
+                    [8.975675, 48.746122, 482.1, 1.36],
+                ],
+                [   [8.975819, 48.746283, 480.3, 0.0],
+                    [8.975821, 48.746283, 480.1, 0.26],
+                    [8.975826, 48.746284, 479.3, 0.62],
+                    [8.975833, 48.746284, 478.1, 0.0],
+                    [8.975848, 48.746289, 478.8, 0.6],
+                    [8.975943, 48.746341, 478.1, 1.4],
+                    [8.975954, 48.746351, 477.5, 1.39],
+                    [8.976038, 48.746420, 478.9, 1.43],
+                ],
+            ]
+        },
+    ]
+);
+
+#
 # polygon.shp
 #
 
@@ -1119,3 +1225,79 @@ write_shp_and_shx(
     ]
 );
 
+#
+# polygonz.shp
+#
+
+write_dbf(
+    file   => catfile(qw(data polygonz.dbf)),
+    header => {
+        fields => [{
+            name   => 'id',
+            type   => 'N',
+            length => 10,
+        }],
+    },
+    records => [[q{ }, 1]]
+);
+
+write_shp_and_shx(
+    shp_file => catfile(qw(data polygonz.shp)),
+    shx_file => catfile(qw(data polygonz.shx)),
+    header   => {
+        shape_type => $SHPT_POLYGONZ,
+        x_min      => 0,
+        y_min      => 0,
+        x_max      => 1,
+        y_max      => 1,
+        z_min      => 0,
+        z_max      => 1,
+        m_min      => 0,
+        m_max      => 29,
+    },
+    shapes => [
+        {   shape_type => $SHPT_POLYGONZ,
+            box        => [0, 0, 1, 1],
+            z_range    => [0, 1],
+            m_range    => [0, 29],
+            parts      => [
+                [   [0, 0, 0, 0],
+                    [0, 1, 0, 1],
+                    [0, 1, 1, 2],
+                    [0, 0, 1, 3],
+                    [0, 0, 0, 4]
+                ],
+                [   [0, 0, 0, 5],
+                    [0, 0, 1, 6],
+                    [1, 0, 1, 7],
+                    [1, 0, 0, 8],
+                    [0, 0, 0, 9]
+                ],
+                [   [0, 0, 1, 20],
+                    [0, 1, 1, 21],
+                    [1, 1, 1, 22],
+                    [1, 0, 1, 23],
+                    [0, 0, 1, 24]
+                ],
+                [   [1, 1, 0, 10],
+                    [1, 1, 1, 11],
+                    [0, 1, 1, 12],
+                    [0, 1, 0, 13],
+                    [1, 1, 0, 14]
+                ],
+                [   [1, 0, 0, 15],
+                    [1, 0, 1, 16],
+                    [1, 1, 1, 17],
+                    [1, 1, 0, 18],
+                    [1, 0, 0, 19]
+                ],
+                [   [0, 0, 0, 25],
+                    [0, 1, 0, 26],
+                    [1, 1, 0, 27],
+                    [1, 0, 0, 28],
+                    [0, 0, 0, 29]
+                ],
+            ]
+        },
+    ]
+);

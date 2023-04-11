@@ -10,8 +10,10 @@ set(tests
   multipointz
   polyline
   polylinem
+  polylinez
   polygon
   polygonm
+  polygonz
 )
 
 foreach(name ${tests})

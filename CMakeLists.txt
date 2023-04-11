@@ -30,8 +30,10 @@ set(libshapereader_a_SOURCES
   shp-multipointz.c
   shp-polygon.c
   shp-polygonm.c
+  shp-polygonz.c
   shp-polyline.c
   shp-polylinem.c
+  shp-polylinez.c
   shp.c
   shx.c
 )
@@ -47,8 +49,10 @@ set(pkginclude_HEADERS
   shp-pointz.h
   shp-polygon.h
   shp-polygonm.h
+  shp-polygonz.h
   shp-polyline.h
   shp-polylinem.h
+  shp-polylinez.h
   shp-range.h
   shp.h
   shx.h
