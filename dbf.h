@@ -446,7 +446,7 @@ typedef struct dbf_file_t {
     FILE *fp;            /**< File pointer */
     void *user_data;     /**< Callback data */
     size_t num_bytes;    /**< Number of bytes read */
-    char error[1024];    /**< Error message */
+    char error[128];     /**< Error message */
     size_t _record_size; /* Record size from the file header */
 } dbf_file_t;
 

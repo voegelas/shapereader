@@ -112,7 +112,7 @@ typedef struct shp_file_t {
     FILE *fp;         /**< File pointer */
     void *user_data;  /**< Callback data */
     size_t num_bytes; /**< Number of bytes read */
-    char error[1024]; /**< Error message */
+    char error[128];  /**< Error message */
 } shp_file_t;
 
 /**

@@ -73,7 +73,7 @@ int read_dbf(const char *filename) {
       free(header);
     }
     if (rc < 0) {
-      fprintf(stderr, "%s", fh.error);
+      fprintf(stderr, "%s\n", fh.error);
     }
     fclose(fp);
   }
@@ -109,7 +109,7 @@ int read_shp(const char *filename) {
       }
     }
     if (rc < 0) {
-      fprintf(stderr, "%s", fh.error);
+      fprintf(stderr, "%s\n", fh.error);
     }
     fclose(fp);
   }
