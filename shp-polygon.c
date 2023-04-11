@@ -64,8 +64,7 @@ shp_polygon_point(const shp_polygon_t *polygon, size_t point_num,
 }
 
 int
-shp_polygon_point_in_polygon(const shp_polygon_t *polygon,
-                             const shp_point_t *point)
+shp_point_in_polygon(const shp_point_t *point, const shp_polygon_t *polygon)
 {
     size_t parts_count, part_num, i, n;
     shp_point_t p;
@@ -75,7 +74,8 @@ shp_polygon_point_in_polygon(const shp_polygon_t *polygon,
     assert(polygon != NULL);
     assert(point != NULL);
 
-    if (shp_box_point_in_box(&polygon->box, point) == 0) {
+    if (shp_point_in_bounding_box(point, polygon->x_min, polygon->y_min,
+                                  polygon->x_max, polygon->y_max) == 0) {
         return 0;
     }
 

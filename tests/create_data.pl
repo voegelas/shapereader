@@ -261,17 +261,17 @@ sub pack_multipoint {
         @_
     );
 
-    my @points = @{$h{points}};
-    my @xy     = map { $_->[0], $_->[1] } @points;
+    my @points   = @{$h{points}};
+    my @xy_array = map { $_->[0], $_->[1] } @points;
 
     my $points_count = scalar @points;
-    my $xy_count     = scalar @xy;
+    my $xy_count     = scalar @xy_array;
 
     my $content_length = (40 + 16 * $points_count) / 2;
 
     my $bytes = pack "N2Ld<4L" . "d<${xy_count}",
         $h{record_number}, $content_length, $h{shape_type},
-        @{$h{box}}[0 .. 3], $points_count, @xy;
+        @{$h{box}}[0 .. 3], $points_count, @xy_array;
 
     return $bytes;
 }
@@ -286,19 +286,20 @@ sub pack_multipointm {
         @_
     );
 
-    my @points = @{$h{points}};
-    my @xy     = map { $_->[0], $_->[1] } @points;
-    my @m      = map { $_->[2] } @points;
+    my @points   = @{$h{points}};
+    my @xy_array = map { $_->[0], $_->[1] } @points;
+    my @m_array  = map { $_->[2] } @points;
 
     my $points_count = scalar @points;
-    my $xy_count     = scalar @xy;
+    my $xy_count     = scalar @xy_array;
 
     my $content_length = (56 + 24 * $points_count) / 2;
 
     my $bytes
         = pack "N2Ld<4L" . "d<${xy_count}" . "d<2d<${points_count}",
         $h{record_number}, $content_length, $h{shape_type},
-        @{$h{box}}[0 .. 3], $points_count, @xy, @{$h{m_range}}[0 .. 1], @m;
+        @{$h{box}}[0 .. 3], $points_count, @xy_array, @{$h{m_range}}[0 .. 1],
+        @m_array;
 
     return $bytes;
 }
@@ -314,13 +315,13 @@ sub pack_multipointz {
         @_
     );
 
-    my @points = @{$h{points}};
-    my @xy     = map { $_->[0], $_->[1] } @points;
-    my @z      = map { $_->[2] } @points;
-    my @m      = map { $_->[3] } @points;
+    my @points   = @{$h{points}};
+    my @xy_array = map { $_->[0], $_->[1] } @points;
+    my @z_array  = map { $_->[2] } @points;
+    my @m_array  = map { $_->[3] } @points;
 
     my $points_count = scalar @points;
-    my $xy_count     = scalar @xy;
+    my $xy_count     = scalar @xy_array;
 
     my $content_length = (72 + 32 * $points_count) / 2;
 
@@ -330,8 +331,8 @@ sub pack_multipointz {
         . "d<2d<${points_count}"
         . "d<2d<${points_count}",
         $h{record_number}, $content_length, $h{shape_type},
-        @{$h{box}}[0 .. 3], $points_count, @xy,
-        @{$h{z_range}}[0 .. 1], @z, @{$h{m_range}}[0 .. 1], @m;
+        @{$h{box}}[0 .. 3], $points_count, @xy_array,
+        @{$h{z_range}}[0 .. 1], @z_array, @{$h{m_range}}[0 .. 1], @m_array;
 
     return $bytes;
 }
@@ -350,12 +351,12 @@ sub pack_polyline {
     my @parts_index = reductions { $a + scalar @{$b} } 0, @parts;
     pop @parts_index;
 
-    my @points = map { @{$_} } @parts;
-    my @xy     = map { $_->[0], $_->[1] } @points;
+    my @points   = map { @{$_} } @parts;
+    my @xy_array = map { $_->[0], $_->[1] } @points;
 
     my $parts_count  = scalar @parts;
     my $points_count = scalar @points;
-    my $xy_count     = scalar @xy;
+    my $xy_count     = scalar @xy_array;
 
     my $content_length = (44 + 4 * $parts_count + 16 * $points_count) / 2;
 
@@ -363,7 +364,7 @@ sub pack_polyline {
         = pack "N2Ld<4L2L${parts_count}" . "d<${xy_count}",
         $h{record_number}, $content_length, $h{shape_type},
         @{$h{box}}[0 .. 3], $parts_count, $points_count, @parts_index,
-        @xy;
+        @xy_array;
 
     return $bytes;
 }
@@ -384,12 +385,12 @@ sub pack_polylinem {
     my @parts_index = reductions { $a + scalar @{$b} } 0, @parts;
     pop @parts_index;
 
-    my @points = map { @{$_} } @parts;
-    my @xy     = map { $_->[0], $_->[1] } @points;
-    my @m      = map { $_->[2] } @points;
+    my @points   = map { @{$_} } @parts;
+    my @xy_array = map { $_->[0], $_->[1] } @points;
+    my @m_array  = map { $_->[2] } @points;
 
     my $points_count = scalar @points;
-    my $xy_count     = scalar @xy;
+    my $xy_count     = scalar @xy_array;
 
     my $content_length = (60 + 4 * $parts_count + 24 * $points_count) / 2;
 
@@ -399,7 +400,7 @@ sub pack_polylinem {
         . "d<2d<${points_count}",
         $h{record_number}, $content_length, $h{shape_type},
         @{$h{box}}[0 .. 3], $parts_count, $points_count, @parts_index,
-        @xy, @{$h{m_range}}[0 .. 1], @m;
+        @xy_array, @{$h{m_range}}[0 .. 1], @m_array;
 
     return $bytes;
 }
@@ -421,13 +422,13 @@ sub pack_polylinez {
     my @parts_index = reductions { $a + scalar @{$b} } 0, @parts;
     pop @parts_index;
 
-    my @points = map { @{$_} } @parts;
-    my @xy     = map { $_->[0], $_->[1] } @points;
-    my @z      = map { $_->[2] } @points;
-    my @m      = map { $_->[3] } @points;
+    my @points   = map { @{$_} } @parts;
+    my @xy_array = map { $_->[0], $_->[1] } @points;
+    my @z_array  = map { $_->[2] } @points;
+    my @m_array  = map { $_->[3] } @points;
 
     my $points_count = scalar @points;
-    my $xy_count     = scalar @xy;
+    my $xy_count     = scalar @xy_array;
 
     my $content_length = (76 + 4 * $parts_count + 32 * $points_count) / 2;
 
@@ -438,7 +439,8 @@ sub pack_polylinez {
         . "d<2d<${points_count}",
         $h{record_number}, $content_length, $h{shape_type},
         @{$h{box}}[0 .. 3], $parts_count, $points_count, @parts_index,
-        @xy, @{$h{z_range}}[0 .. 1], @z, @{$h{m_range}}[0 .. 1], @m;
+        @xy_array, @{$h{z_range}}[0 .. 1], @z_array, @{$h{m_range}}[0 .. 1],
+        @m_array;
 
     return $bytes;
 }

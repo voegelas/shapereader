@@ -16,23 +16,25 @@
 #ifndef _SHAPEREADER_SHP_POLYLINE_H
 #define _SHAPEREADER_SHP_POLYLINE_H
 
-#include "shp-box.h"
 #include "shp-point.h"
 #include <stddef.h>
 
 /**
  * PolyLine
  *
- * A polyline consists of one or more parts.  A part is a connected sequence
+ * A PolyLine consists of one or more parts.  A part is a connected sequence
  * of of two or more points.  See the "ESRI Shapefile Technical Description"
  * @cite ESRI_shape for more information.
  */
 typedef struct shp_polyline_t {
-    shp_box_t box;       /**< Bounding box */
+    double x_min;        /**< X minimum value */
+    double x_max;        /**< X maximum value */
+    double y_min;        /**< Y minimum value */
+    double y_max;        /**< Y maximum value */
     size_t num_parts;    /**< Number of parts */
     size_t num_points;   /**< Total number of points */
     const char *_parts;  /* Index to first point in part */
-    const char *_points; /* Points for all parts */
+    const char *_points; /* X and Y coordinates */
 } shp_polyline_t;
 
 /**
@@ -54,9 +56,9 @@ extern size_t shp_polyline_points(const shp_polyline_t *polyline,
                                   size_t *end);
 
 /**
- * Get a point
+ * Get a Point
  *
- * Gets a point that belongs to a polyline.
+ * Gets a Point that belongs to a PolyLine.
  *
  * @b Example
  *
@@ -75,7 +77,7 @@ extern size_t shp_polyline_points(const shp_polyline_t *polyline,
  * @endcode
  *
  * @memberof shp_polyline_t
- * @param polyline a polyline.
+ * @param polyline a PolyLine.
  * @param point_num a zero-based point number.
  * @param[out] point a shp_point_t structure.
  *

@@ -23,10 +23,10 @@
  * temperature.
  */
 typedef struct shp_pointz_t {
-    double x; /**< The X coordinate */
-    double y; /**< The Y coordinate */
-    double z; /**< The Z coordinate */
-    double m; /**< Some measure */
+    double x; /**< X coordinate */
+    double y; /**< Y coordinate */
+    double z; /**< Z coordinate */
+    double m; /**< Measure */
 } shp_pointz_t;
 
 #endif

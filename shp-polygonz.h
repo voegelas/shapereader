@@ -16,9 +16,7 @@
 #ifndef _SHAPEREADER_SHP_POLYGONZ_H
 #define _SHAPEREADER_SHP_POLYGONZ_H
 
-#include "shp-box.h"
 #include "shp-pointz.h"
-#include "shp-range.h"
 #include <stddef.h>
 
 /**
@@ -29,14 +27,19 @@
  * point is associated with a measure, for example a temperature.
  */
 typedef struct shp_polygonz_t {
-    shp_box_t box;        /**< Bounding box */
+    double x_min;         /**< X minimum value */
+    double x_max;         /**< X maximum value */
+    double y_min;         /**< Y minimum value */
+    double y_max;         /**< Y maximum value */
+    double z_min;         /**< Z minimum value */
+    double z_max;         /**< Z maximum value */
+    double m_min;         /**< M minimum value */
+    double m_max;         /**< M maximum value */
     size_t num_parts;     /**< Number of parts */
     size_t num_points;    /**< Total number of points */
     const char *_parts;   /* Index to first point in part */
     const char *_points;  /* X and Y coordinates */
-    shp_range_t z_range;  /**< Bounding Z range */
     const char *_z_array; /* Z coordinates */
-    shp_range_t m_range;  /**< Bounding measure range */
     const char *_m_array; /* Measures */
 } shp_polygonz_t;
 

@@ -33,11 +33,10 @@ test_record_shape_type(void)
 static int
 test_ranges(void)
 {
-    const shp_box_t *b = &polygonz->box;
-    const shp_range_t *z = &polygonz->z_range;
-    const shp_range_t *m = &polygonz->m_range;
-    return b->x_min == 0 && b->y_min == 0 && b->x_max == 1 && b->y_max == 1 &&
-           z->min == 0 && z->max == 1 && m->min == 0 && m->max == 29;
+    return polygonz->x_min == 0 && polygonz->y_min == 0 &&
+           polygonz->x_max == 1 && polygonz->y_max == 1 &&
+           polygonz->z_min == 0 && polygonz->z_max == 1 &&
+           polygonz->m_min == 0 && polygonz->m_max == 29;
 }
 
 static int

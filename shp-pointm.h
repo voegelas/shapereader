@@ -19,15 +19,13 @@
 /**
  * PointM
  *
- * A location in a two-dimensional coordinate plane with a measure.
- *
- * A measure is some value, for example a temperature, that is associated
- * with a point.
+ * A location in a two-dimensional coordinate plane with a measure, for
+ * example a temperature.
  */
 typedef struct shp_pointm_t {
-    double x; /**< The horizontal position */
-    double y; /**< The vertical position */
-    double m; /**< Some measure */
+    double x; /**< X coordinate */
+    double y; /**< Y coordinate */
+    double m; /**< Measure */
 } shp_pointm_t;
 
 #endif

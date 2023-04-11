@@ -33,12 +33,10 @@ test_record_shape_type(void)
 static int
 test_ranges(void)
 {
-    const shp_box_t *b = &polylinez->box;
-    const shp_range_t *z = &polylinez->z_range;
-    const shp_range_t *m = &polylinez->m_range;
-    return b->x_min == 8.975675 && b->y_min == 48.746122 &&
-           b->x_max == 8.976038 && b->y_max == 48.746420 && z->min == 477.5 &&
-           z->max == 493.3 && m->min == 0.0 && m->max == 2.02;
+    return polylinez->x_min == 8.975675 && polylinez->y_min == 48.746122 &&
+           polylinez->x_max == 8.976038 && polylinez->y_max == 48.746420 &&
+           polylinez->z_min == 477.5 && polylinez->z_max == 493.3 &&
+           polylinez->m_min == 0.0 && polylinez->m_max == 2.02;
 }
 
 static int

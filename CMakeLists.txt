@@ -24,7 +24,6 @@ string(CONCAT description
 
 set(libshapereader_a_SOURCES
   dbf.c
-  shp-box.c
   shp-multipoint.c
   shp-multipointm.c
   shp-multipointz.c
@@ -40,7 +39,6 @@ set(libshapereader_a_SOURCES
 
 set(pkginclude_HEADERS
   dbf.h
-  shp-box.h
   shp-multipoint.h
   shp-multipointm.h
   shp-multipointz.h
@@ -53,7 +51,6 @@ set(pkginclude_HEADERS
   shp-polyline.h
   shp-polylinem.h
   shp-polylinez.h
-  shp-range.h
   shp.h
   shx.h
   shapereader.h

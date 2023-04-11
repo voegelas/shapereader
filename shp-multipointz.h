@@ -16,9 +16,7 @@
 #ifndef _SHAPEREADER_SHP_MULTIPOINTZ_H
 #define _SHAPEREADER_SHP_MULTIPOINTZ_H
 
-#include "shp-box.h"
 #include "shp-pointz.h"
-#include "shp-range.h"
 #include <stddef.h>
 
 /**
@@ -28,19 +26,24 @@
  * a temperature.
  */
 typedef struct shp_multipointz_t {
-    shp_box_t box;        /**< Bounding box */
+    double x_min;         /**< X minimum value */
+    double x_max;         /**< X maximum value */
+    double y_min;         /**< Y minimum value */
+    double y_max;         /**< Y maximum value */
+    double z_min;         /**< Z minimum value */
+    double z_max;         /**< Z maximum value */
+    double m_min;         /**< M minimum value */
+    double m_max;         /**< M maximum value */
     size_t num_points;    /**< Number of points */
     const char *_points;  /* X and Y coordinates */
-    shp_range_t z_range;  /**< Bounding Z range */
     const char *_z_array; /* Z coordinates */
-    shp_range_t m_range;  /**< Bounding measure range */
     const char *_m_array; /* Measures */
 } shp_multipointz_t;
 
 /**
  * Get a PointZ
  *
- * Gets a point and a measure from a set of points.
+ * Gets a PointZ and a measure from a MultiPointZ.
  *
  * @b Example
  *

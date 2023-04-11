@@ -33,8 +33,8 @@ test_record_shape_type(void)
 static int
 test_bbox(void)
 {
-    const shp_box_t *b = &polygonm->box;
-    return b->x_min == 1 && b->y_min == 1 && b->x_max == 2 && b->y_max == 2;
+    return polygonm->x_min == 1 && polygonm->y_min == 1 &&
+           polygonm->x_max == 2 && polygonm->y_max == 2;
 }
 
 static int

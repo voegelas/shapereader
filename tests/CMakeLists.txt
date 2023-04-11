@@ -1,7 +1,6 @@
 set(tests
   byteorder
   dbf
-  box
   point
   pointm
   pointz

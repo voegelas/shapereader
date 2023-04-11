@@ -89,49 +89,49 @@ static int
 test_is_inside(void)
 {
     shp_point_t point = {0.5, 0.5};
-    return shp_polygon_point_in_polygon(polygon, &point) == 1;
+    return shp_point_in_polygon(&point, polygon) == 1;
 }
 
 static int
 test_is_outside(void)
 {
     shp_point_t point = {0.1, 0.5};
-    return shp_polygon_point_in_polygon(polygon, &point) == 0;
+    return shp_point_in_polygon(&point, polygon) == 0;
 }
 
 static int
 test_is_on_top_edge(void)
 {
     shp_point_t point = {0.5, 0.8};
-    return shp_polygon_point_in_polygon(polygon, &point) == -1;
+    return shp_point_in_polygon(&point, polygon) == -1;
 }
 
 static int
 test_is_on_bottom_edge(void)
 {
     shp_point_t point = {0.5, 0.2};
-    return shp_polygon_point_in_polygon(polygon, &point) == -1;
+    return shp_point_in_polygon(&point, polygon) == -1;
 }
 
 static int
 test_is_on_left_edge(void)
 {
     shp_point_t point = {0.2, 0.5};
-    return shp_polygon_point_in_polygon(polygon, &point) == -1;
+    return shp_point_in_polygon(&point, polygon) == -1;
 }
 
 static int
 test_is_on_right_edge(void)
 {
     shp_point_t point = {0.8, 0.5};
-    return shp_polygon_point_in_polygon(polygon, &point) == -1;
+    return shp_point_in_polygon(&point, polygon) == -1;
 }
 
 static int
 test_is_outside_box(void)
 {
     shp_point_t point = {1.1, 0.5};
-    return shp_polygon_point_in_polygon(polygon, &point) == 0;
+    return shp_point_in_polygon(&point, polygon) == 0;
 }
 
 /*
@@ -154,35 +154,35 @@ static int
 test_is_inside_with_hole(void)
 {
     shp_point_t point = {0.3, 0.3};
-    return shp_polygon_point_in_polygon(polygon, &point) == 1;
+    return shp_point_in_polygon(&point, polygon) == 1;
 }
 
 static int
 test_is_outside_with_hole(void)
 {
     shp_point_t point = {0.3, 0.7};
-    return shp_polygon_point_in_polygon(polygon, &point) == 0;
+    return shp_point_in_polygon(&point, polygon) == 0;
 }
 
 static int
 test_is_in_the_hole(void)
 {
     shp_point_t point = {0.5, 0.5};
-    return shp_polygon_point_in_polygon(polygon, &point) == 0;
+    return shp_point_in_polygon(&point, polygon) == 0;
 }
 
 static int
 test_is_on_inside_edge(void)
 {
     shp_point_t point = {0.45, 0.4};
-    return shp_polygon_point_in_polygon(polygon, &point) == -1;
+    return shp_point_in_polygon(&point, polygon) == -1;
 }
 
 static int
 test_is_on_outside_egde(void)
 {
     shp_point_t point = {0.65, 0.2};
-    return shp_polygon_point_in_polygon(polygon, &point) == -1;
+    return shp_point_in_polygon(&point, polygon) == -1;
 }
 
 /*
@@ -193,28 +193,28 @@ static int
 test_is_los_angeles(void)
 {
     shp_point_t point = {-122.35007, 47.650499};
-    return shp_polygon_point_in_polygon(polygon, &point) == 1;
+    return shp_point_in_polygon(&point, polygon) == 1;
 }
 
 static int
 test_is_africa_juba(void)
 {
     shp_point_t point = {28.0, 9.5}; /* Disputed area */
-    return shp_polygon_point_in_polygon(polygon, &point) == 1;
+    return shp_point_in_polygon(&point, polygon) == 1;
 }
 
 static int
 test_is_africa_khartoum(void)
 {
     shp_point_t point = {28.0, 9.5}; /* Disputed area */
-    return shp_polygon_point_in_polygon(polygon, &point) == 1;
+    return shp_point_in_polygon(&point, polygon) == 1;
 }
 
 static int
 test_is_oslo(void)
 {
     shp_point_t point = {10.757933, 59.911491};
-    return shp_polygon_point_in_polygon(polygon, &point) == 1;
+    return shp_point_in_polygon(&point, polygon) == 1;
 }
 
 static int

@@ -61,7 +61,7 @@ compare_points(size_t num_points, const shp_pointm_t points[])
 static int
 test_measure_range_in_africa(void)
 {
-    return multipointm->m_range.min == 20 && multipointm->m_range.max == 31;
+    return multipointm->m_min == 20 && multipointm->m_max == 31;
 }
 
 static int
@@ -79,7 +79,7 @@ test_points_in_africa(void)
 static int
 test_measure_range_in_europe(void)
 {
-    return multipointm->m_range.min == -5 && multipointm->m_range.max == 15;
+    return multipointm->m_min == -5 && multipointm->m_max == 15;
 }
 
 static int

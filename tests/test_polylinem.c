@@ -33,8 +33,8 @@ test_record_shape_type(void)
 static int
 test_bbox(void)
 {
-    const shp_box_t *b = &polylinem->box;
-    return b->x_min == 1 && b->y_min == 1 && b->x_max == 4 && b->y_max == 2;
+    return polylinem->x_min == 1 && polylinem->y_min == 1 &&
+           polylinem->x_max == 4 && polylinem->y_max == 2;
 }
 
 static int

@@ -207,10 +207,10 @@ get_multipoint(shp_file_t *fh, const char *buf, shp_record_t *record)
         goto cleanup;
     }
 
-    multipoint->box.x_min = shp_le64_to_double(&buf[4]);
-    multipoint->box.y_min = shp_le64_to_double(&buf[12]);
-    multipoint->box.x_max = shp_le64_to_double(&buf[20]);
-    multipoint->box.y_max = shp_le64_to_double(&buf[28]);
+    multipoint->x_min = shp_le64_to_double(&buf[4]);
+    multipoint->y_min = shp_le64_to_double(&buf[12]);
+    multipoint->x_max = shp_le64_to_double(&buf[20]);
+    multipoint->y_max = shp_le64_to_double(&buf[28]);
     multipoint->num_points = shp_le32_to_uint32(&buf[36]);
 
     points_size = 16 * multipoint->num_points;
@@ -248,10 +248,10 @@ get_multipointm(shp_file_t *fh, const char *buf, shp_record_t *record)
         goto cleanup;
     }
 
-    multipointm->box.x_min = shp_le64_to_double(&buf[4]);
-    multipointm->box.y_min = shp_le64_to_double(&buf[12]);
-    multipointm->box.x_max = shp_le64_to_double(&buf[20]);
-    multipointm->box.y_max = shp_le64_to_double(&buf[28]);
+    multipointm->x_min = shp_le64_to_double(&buf[4]);
+    multipointm->y_min = shp_le64_to_double(&buf[12]);
+    multipointm->x_max = shp_le64_to_double(&buf[20]);
+    multipointm->y_max = shp_le64_to_double(&buf[28]);
     multipointm->num_points = shp_le32_to_uint32(&buf[36]);
 
     points_size = 16 * multipointm->num_points;
@@ -269,8 +269,8 @@ get_multipointm(shp_file_t *fh, const char *buf, shp_record_t *record)
     multipointm->_points = &buf[40];
 
     buf = multipointm->_points + points_size;
-    multipointm->m_range.min = shp_le64_to_double(&buf[0]);
-    multipointm->m_range.max = shp_le64_to_double(&buf[8]);
+    multipointm->m_min = shp_le64_to_double(&buf[0]);
+    multipointm->m_max = shp_le64_to_double(&buf[8]);
     multipointm->_m_array = &buf[16];
 
     rc = 1;
@@ -295,10 +295,10 @@ get_multipointz(shp_file_t *fh, const char *buf, shp_record_t *record)
         goto cleanup;
     }
 
-    multipointz->box.x_min = shp_le64_to_double(&buf[4]);
-    multipointz->box.y_min = shp_le64_to_double(&buf[12]);
-    multipointz->box.x_max = shp_le64_to_double(&buf[20]);
-    multipointz->box.y_max = shp_le64_to_double(&buf[28]);
+    multipointz->x_min = shp_le64_to_double(&buf[4]);
+    multipointz->y_min = shp_le64_to_double(&buf[12]);
+    multipointz->x_max = shp_le64_to_double(&buf[20]);
+    multipointz->y_max = shp_le64_to_double(&buf[28]);
     multipointz->num_points = shp_le32_to_uint32(&buf[36]);
 
     points_size = 16 * multipointz->num_points;
@@ -317,13 +317,13 @@ get_multipointz(shp_file_t *fh, const char *buf, shp_record_t *record)
     multipointz->_points = &buf[40];
 
     buf = multipointz->_points + points_size;
-    multipointz->z_range.min = shp_le64_to_double(&buf[0]);
-    multipointz->z_range.max = shp_le64_to_double(&buf[8]);
+    multipointz->z_min = shp_le64_to_double(&buf[0]);
+    multipointz->z_max = shp_le64_to_double(&buf[8]);
     multipointz->_z_array = &buf[16];
 
     buf = multipointz->_z_array + z_size;
-    multipointz->m_range.min = shp_le64_to_double(&buf[0]);
-    multipointz->m_range.max = shp_le64_to_double(&buf[8]);
+    multipointz->m_min = shp_le64_to_double(&buf[0]);
+    multipointz->m_max = shp_le64_to_double(&buf[8]);
     multipointz->_m_array = &buf[16];
 
     rc = 1;
@@ -348,10 +348,10 @@ get_polyline(shp_file_t *fh, const char *buf, shp_record_t *record)
         goto cleanup;
     }
 
-    polyline->box.x_min = shp_le64_to_double(&buf[4]);
-    polyline->box.y_min = shp_le64_to_double(&buf[12]);
-    polyline->box.x_max = shp_le64_to_double(&buf[20]);
-    polyline->box.y_max = shp_le64_to_double(&buf[28]);
+    polyline->x_min = shp_le64_to_double(&buf[4]);
+    polyline->y_min = shp_le64_to_double(&buf[12]);
+    polyline->x_max = shp_le64_to_double(&buf[20]);
+    polyline->y_max = shp_le64_to_double(&buf[28]);
     polyline->num_parts = shp_le32_to_uint32(&buf[36]);
     polyline->num_points = shp_le32_to_uint32(&buf[40]);
 
@@ -392,10 +392,10 @@ get_polylinem(shp_file_t *fh, const char *buf, shp_record_t *record)
         goto cleanup;
     }
 
-    polylinem->box.x_min = shp_le64_to_double(&buf[4]);
-    polylinem->box.y_min = shp_le64_to_double(&buf[12]);
-    polylinem->box.x_max = shp_le64_to_double(&buf[20]);
-    polylinem->box.y_max = shp_le64_to_double(&buf[28]);
+    polylinem->x_min = shp_le64_to_double(&buf[4]);
+    polylinem->y_min = shp_le64_to_double(&buf[12]);
+    polylinem->x_max = shp_le64_to_double(&buf[20]);
+    polylinem->y_max = shp_le64_to_double(&buf[28]);
     polylinem->num_parts = shp_le32_to_uint32(&buf[36]);
     polylinem->num_points = shp_le32_to_uint32(&buf[40]);
 
@@ -416,8 +416,8 @@ get_polylinem(shp_file_t *fh, const char *buf, shp_record_t *record)
     polylinem->_points = polylinem->_parts + parts_size;
 
     buf = polylinem->_points + points_size;
-    polylinem->m_range.min = shp_le64_to_double(&buf[0]);
-    polylinem->m_range.max = shp_le64_to_double(&buf[8]);
+    polylinem->m_min = shp_le64_to_double(&buf[0]);
+    polylinem->m_max = shp_le64_to_double(&buf[8]);
     polylinem->_m_array = &buf[16];
 
     rc = 1;
@@ -443,10 +443,10 @@ get_polylinez(shp_file_t *fh, const char *buf, shp_record_t *record)
         goto cleanup;
     }
 
-    polylinez->box.x_min = shp_le64_to_double(&buf[4]);
-    polylinez->box.y_min = shp_le64_to_double(&buf[12]);
-    polylinez->box.x_max = shp_le64_to_double(&buf[20]);
-    polylinez->box.y_max = shp_le64_to_double(&buf[28]);
+    polylinez->x_min = shp_le64_to_double(&buf[4]);
+    polylinez->y_min = shp_le64_to_double(&buf[12]);
+    polylinez->x_max = shp_le64_to_double(&buf[20]);
+    polylinez->y_max = shp_le64_to_double(&buf[28]);
     polylinez->num_parts = shp_le32_to_uint32(&buf[36]);
     polylinez->num_points = shp_le32_to_uint32(&buf[40]);
 
@@ -468,13 +468,13 @@ get_polylinez(shp_file_t *fh, const char *buf, shp_record_t *record)
     polylinez->_points = polylinez->_parts + parts_size;
 
     buf = polylinez->_points + points_size;
-    polylinez->z_range.min = shp_le64_to_double(&buf[0]);
-    polylinez->z_range.max = shp_le64_to_double(&buf[8]);
+    polylinez->z_min = shp_le64_to_double(&buf[0]);
+    polylinez->z_max = shp_le64_to_double(&buf[8]);
     polylinez->_z_array = &buf[16];
 
     buf = polylinez->_z_array + z_size;
-    polylinez->m_range.min = shp_le64_to_double(&buf[0]);
-    polylinez->m_range.max = shp_le64_to_double(&buf[8]);
+    polylinez->m_min = shp_le64_to_double(&buf[0]);
+    polylinez->m_max = shp_le64_to_double(&buf[8]);
     polylinez->_m_array = &buf[16];
 
     rc = 1;
@@ -499,10 +499,10 @@ get_polygon(shp_file_t *fh, const char *buf, shp_record_t *record)
         goto cleanup;
     }
 
-    polygon->box.x_min = shp_le64_to_double(&buf[4]);
-    polygon->box.y_min = shp_le64_to_double(&buf[12]);
-    polygon->box.x_max = shp_le64_to_double(&buf[20]);
-    polygon->box.y_max = shp_le64_to_double(&buf[28]);
+    polygon->x_min = shp_le64_to_double(&buf[4]);
+    polygon->y_min = shp_le64_to_double(&buf[12]);
+    polygon->x_max = shp_le64_to_double(&buf[20]);
+    polygon->y_max = shp_le64_to_double(&buf[28]);
     polygon->num_parts = shp_le32_to_uint32(&buf[36]);
     polygon->num_points = shp_le32_to_uint32(&buf[40]);
 
@@ -543,10 +543,10 @@ get_polygonm(shp_file_t *fh, const char *buf, shp_record_t *record)
         goto cleanup;
     }
 
-    polygonm->box.x_min = shp_le64_to_double(&buf[4]);
-    polygonm->box.y_min = shp_le64_to_double(&buf[12]);
-    polygonm->box.x_max = shp_le64_to_double(&buf[20]);
-    polygonm->box.y_max = shp_le64_to_double(&buf[28]);
+    polygonm->x_min = shp_le64_to_double(&buf[4]);
+    polygonm->y_min = shp_le64_to_double(&buf[12]);
+    polygonm->x_max = shp_le64_to_double(&buf[20]);
+    polygonm->y_max = shp_le64_to_double(&buf[28]);
     polygonm->num_parts = shp_le32_to_uint32(&buf[36]);
     polygonm->num_points = shp_le32_to_uint32(&buf[40]);
 
@@ -567,8 +567,8 @@ get_polygonm(shp_file_t *fh, const char *buf, shp_record_t *record)
     polygonm->_points = polygonm->_parts + parts_size;
 
     buf = polygonm->_points + points_size;
-    polygonm->m_range.min = shp_le64_to_double(&buf[0]);
-    polygonm->m_range.max = shp_le64_to_double(&buf[8]);
+    polygonm->m_min = shp_le64_to_double(&buf[0]);
+    polygonm->m_max = shp_le64_to_double(&buf[8]);
     polygonm->_m_array = &buf[16];
 
     rc = 1;
@@ -594,10 +594,10 @@ get_polygonz(shp_file_t *fh, const char *buf, shp_record_t *record)
         goto cleanup;
     }
 
-    polygonz->box.x_min = shp_le64_to_double(&buf[4]);
-    polygonz->box.y_min = shp_le64_to_double(&buf[12]);
-    polygonz->box.x_max = shp_le64_to_double(&buf[20]);
-    polygonz->box.y_max = shp_le64_to_double(&buf[28]);
+    polygonz->x_min = shp_le64_to_double(&buf[4]);
+    polygonz->y_min = shp_le64_to_double(&buf[12]);
+    polygonz->x_max = shp_le64_to_double(&buf[20]);
+    polygonz->y_max = shp_le64_to_double(&buf[28]);
     polygonz->num_parts = shp_le32_to_uint32(&buf[36]);
     polygonz->num_points = shp_le32_to_uint32(&buf[40]);
 
@@ -619,13 +619,13 @@ get_polygonz(shp_file_t *fh, const char *buf, shp_record_t *record)
     polygonz->_points = polygonz->_parts + parts_size;
 
     buf = polygonz->_points + points_size;
-    polygonz->z_range.min = shp_le64_to_double(&buf[0]);
-    polygonz->z_range.max = shp_le64_to_double(&buf[8]);
+    polygonz->z_min = shp_le64_to_double(&buf[0]);
+    polygonz->z_max = shp_le64_to_double(&buf[8]);
     polygonz->_z_array = &buf[16];
 
     buf = polygonz->_z_array + z_size;
-    polygonz->m_range.min = shp_le64_to_double(&buf[0]);
-    polygonz->m_range.max = shp_le64_to_double(&buf[8]);
+    polygonz->m_min = shp_le64_to_double(&buf[0]);
+    polygonz->m_max = shp_le64_to_double(&buf[8]);
     polygonz->_m_array = &buf[16];
 
     rc = 1;

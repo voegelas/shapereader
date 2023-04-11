@@ -16,31 +16,31 @@
 #ifndef _SHAPEREADER_SHP_MULTIPOINTM_H
 #define _SHAPEREADER_SHP_MULTIPOINTM_H
 
-#include "shp-box.h"
 #include "shp-pointm.h"
-#include "shp-range.h"
 #include <stddef.h>
 
 /**
  * MultiPointM
  *
- * A MultiPointM is a set of points with one measure per point.
- *
- * A measure is some value, for example a temperature, that is associated
- * with a point.
+ * A MultiPointM is a set of points with one measure per point, for example
+ * a temperature.
  */
 typedef struct shp_multipointm_t {
-    shp_box_t box;        /**< Bounding box */
+    double x_min;         /**< X minimum value */
+    double x_max;         /**< X maximum value */
+    double y_min;         /**< Y minimum value */
+    double y_max;         /**< Y maximum value */
+    double m_min;         /**< M minimum value */
+    double m_max;         /**< M maximum value */
     size_t num_points;    /**< Number of points */
-    const char *_points;  /* Points */
-    shp_range_t m_range;  /**< Bounding measure range */
+    const char *_points;  /* X and Y coordinates */
     const char *_m_array; /* Measures */
 } shp_multipointm_t;
 
 /**
  * Get a PointM
  *
- * Gets a point and a measure from a set of points.
+ * Gets a PointM and a measure from a MultiPointM.
  *
  * @b Example
  *

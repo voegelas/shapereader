@@ -22,8 +22,40 @@
  * A location in a two-dimensional coordinate plane.
  */
 typedef struct shp_point_t {
-    double x; /**< The horizontal position */
-    double y; /**< The vertical position */
+    double x; /**< X coordinate */
+    double y; /**< Y coordinate */
 } shp_point_t;
+
+/**
+ * Check whether a point is in a bounding box
+ *
+ * Determines whether a point is inside or outside a bounding box.
+ *
+ * @memberof shp_point_t
+ * @param point a point.
+ * @param x_min X coordinate of the bottom left corner.
+ * @param y_min Y coordinate of the bottom left corner.
+ * @param x_max X coordinate of the top right corner.
+ * @param y_max Y coordinate of the top right corner.
+ * @retval 1 if the point is in the box.
+ * @retval 0 if the point is not in the box.
+ * @retval -1 if the point is on the boundary.
+ *
+ * @see shp_point_in_polygon
+ */
+static inline int
+shp_point_in_bounding_box(const shp_point_t *point, double x_min,
+                          double y_min, double x_max, double y_max)
+{
+    double x = point->x, y = point->y;
+
+    if (x >= x_min && x <= x_max && y >= y_min && y <= y_max) {
+        if (x == x_min || x == x_max || y == y_min || y == y_max) {
+            return -1;
+        }
+        return 1;
+    }
+    return 0;
+}
 
 #endif

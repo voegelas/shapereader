@@ -16,7 +16,6 @@
 #ifndef _SHAPEREADER_SHP_POLYGON_H
 #define _SHAPEREADER_SHP_POLYGON_H
 
-#include "shp-box.h"
 #include "shp-point.h"
 #include <stddef.h>
 
@@ -29,11 +28,14 @@
  * information.
  */
 typedef struct shp_polygon_t {
-    shp_box_t box;       /**< Bounding box */
+    double x_min;        /**< X minimum value */
+    double x_max;        /**< X maximum value */
+    double y_min;        /**< Y minimum value */
+    double y_max;        /**< Y maximum value */
     size_t num_parts;    /**< Number of parts */
     size_t num_points;   /**< Total number of points */
     const char *_parts;  /* Index to first point in part */
-    const char *_points; /* Points for all parts */
+    const char *_points; /* X and Y coordinates */
 } shp_polygon_t;
 
 /**
@@ -54,9 +56,9 @@ extern size_t shp_polygon_points(const shp_polygon_t *polygon,
                                  size_t part_num, size_t *start, size_t *end);
 
 /**
- * Get a point
+ * Get a Point
  *
- * Gets a point that belongs to the edges of a polygon.
+ * Gets a Point that belongs to the edges of a Polygon.
  *
  * @b Example
  *
@@ -89,19 +91,19 @@ extern void shp_polygon_point(const shp_polygon_t *polygon, size_t point_num,
  *
  * Determines whether a point is inside or outside a polygon.
  *
- * @memberof shp_polygon_t
- * @param polygon a polygon.
+ * @memberof shp_point_t
  * @param point a point.
+ * @param polygon a polygon.
  * @retval 1 if the point is in the polygon.
  * @retval 0 if the point is not in the polygon.
  * @retval -1 if the point is on the polygon's edges.
  *
- * @see shp_box_point_in_box
+ * @see shp_point_in_bounding_box
  * @see "Optimal Reliable Point-in-Polygon Test and Differential Coding
  *      Boolean Operations on Polygons" @cite sym10100477 for a description
  *      of the point-in-polygon algorithm.
  */
-extern int shp_polygon_point_in_polygon(const shp_polygon_t *polygon,
-                                        const shp_point_t *point);
+extern int shp_point_in_polygon(const shp_point_t *point,
+                                const shp_polygon_t *polygon);
 
 #endif
