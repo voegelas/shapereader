@@ -89,19 +89,19 @@ int
 main(int argc, char *argv[])
 {
     const char *filename = "polylinem.shp";
-    FILE *fp;
+    FILE *stream;
     shp_file_t fh;
 
     plan(6);
 
-    fp = fopen(filename, "rb");
-    if (fp == NULL) {
+    stream = fopen(filename, "rb");
+    if (stream == NULL) {
         fprintf(stderr, "# Cannot open file \"%s\": %s\n", filename,
                 strerror(errno));
         return 1;
     }
 
-    shp_init_file(&fh, fp, NULL);
+    shp_init_file(&fh, stream, NULL);
 
     if (shp_read_header(&fh, &shp_header) > 0) {
         ok(test_header_shape_type, "header shape type is polylinem");
@@ -114,7 +114,7 @@ main(int argc, char *argv[])
         fprintf(stderr, "# %s\n", fh.error);
     }
 
-    fclose(fp);
+    fclose(stream);
 
     done_testing();
 }

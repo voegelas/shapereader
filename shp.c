@@ -22,13 +22,47 @@
 #define SHP_MIN_BUF_SIZE 26214400
 #endif
 
+static size_t
+file_fread(shp_file_t *fh, void *buf, size_t count)
+{
+    size_t nr = fread(buf, 1, count, (FILE *) fh->stream);
+    fh->num_bytes += nr;
+    return nr;
+}
+
+static int
+file_feof(shp_file_t *fh)
+{
+    return feof((FILE *) fh->stream);
+}
+
+static int
+file_ferror(shp_file_t *fh)
+{
+    return ferror((FILE *) fh->stream);
+}
+
+static int
+file_fsetpos(shp_file_t *fh, size_t offset)
+{
+    if (offset > LONG_MAX) {
+        errno = EINVAL;
+        return -1;
+    }
+    return fseek((FILE *) fh->stream, (long) offset, SEEK_SET);
+}
+
 shp_file_t *
-shp_init_file(shp_file_t *fh, FILE *fp, void *user_data)
+shp_init_file(shp_file_t *fh, FILE *stream, void *user_data)
 {
     assert(fh != NULL);
-    assert(fp != NULL);
+    assert(stream != NULL);
 
-    fh->fp = fp;
+    fh->stream = stream;
+    fh->fread = file_fread;
+    fh->feof = file_feof;
+    fh->ferror = file_ferror;
+    fh->fsetpos = file_fsetpos;
     fh->user_data = user_data;
     fh->num_bytes = 0;
     fh->error[0] = '\0';
@@ -58,12 +92,10 @@ shp_read_header(shp_file_t *fh, shp_header_t *header)
     size_t nr;
 
     assert(fh != NULL);
-    assert(fh->fp != NULL);
     assert(header != NULL);
 
-    nr = fread(buf, 1, 100, fh->fp);
-    fh->num_bytes += nr;
-    if (ferror(fh->fp)) {
+    nr = (*fh->fread)(fh, buf, 100);
+    if ((*fh->ferror)(fh)) {
         shp_set_error(fh, "Cannot read file header");
         goto cleanup;
     }
@@ -99,7 +131,7 @@ shp_read_header(shp_file_t *fh, shp_header_t *header)
     header->m_min = shp_le64_to_double(&buf[84]);
     header->m_max = shp_le64_to_double(&buf[92]);
 
-    if (feof(fh->fp)) {
+    if ((*fh->feof)(fh)) {
         rc = 0;
         goto cleanup;
     }
@@ -645,13 +677,12 @@ read_record(shp_file_t *fh, shp_record_t **precord, size_t *size)
     struct shp_record_t *record;
     size_t nr;
 
-    nr = fread(header_buf, 1, 8, fh->fp);
-    fh->num_bytes += nr;
-    if (ferror(fh->fp)) {
+    nr = (*fh->fread)(fh, header_buf, 8);
+    if ((*fh->ferror)(fh)) {
         shp_set_error(fh, "Cannot read record header");
         goto cleanup;
     }
-    if (feof(fh->fp)) {
+    if ((*fh->feof)(fh)) {
         /* Reached end of file. */
         rc = 0;
         goto cleanup;
@@ -690,9 +721,8 @@ read_record(shp_file_t *fh, shp_record_t **precord, size_t *size)
 
     buf = ((char *) record) + sizeof(*record);
 
-    nr = fread(buf, 1, record_size, fh->fp);
-    fh->num_bytes += nr;
-    if (ferror(fh->fp)) {
+    nr = (*fh->fread)(fh, buf, record_size);
+    if ((*fh->ferror)(fh)) {
         shp_set_error(fh, "Cannot read record %zu", record_number);
         goto cleanup;
     }
@@ -767,7 +797,6 @@ shp_read_record(shp_file_t *fh, shp_record_t **precord)
     size_t buf_size = 0;
 
     assert(fh != NULL);
-    assert(fh->fp != NULL);
     assert(precord != NULL);
 
     rc = read_record(fh, &record, &buf_size);
@@ -789,14 +818,12 @@ shp_seek_record(shp_file_t *fh, size_t file_offset, shp_record_t **precord)
     size_t buf_size = 0;
 
     assert(fh != NULL);
-    assert(fh->fp != NULL);
     assert(precord != NULL);
 
     /* The largest possible file offset is 8GB minus 12 bytes for a null
      * shape.  The offset may be further limited by LONG_MAX on 32-bit
      * systems. */
-    if (file_offset > LONG_MAX ||
-        fseek(fh->fp, (long) file_offset, SEEK_SET) != 0) {
+    if ((*fh->fsetpos)(fh, file_offset) != 0) {
         shp_set_error(fh, "Cannot set file position to %zu\n", file_offset);
         goto cleanup;
     }
@@ -825,7 +852,6 @@ shp_read(shp_file_t *fh, shp_header_callback_t handle_header,
     size_t file_offset;
 
     assert(fh != NULL);
-    assert(fh->fp != NULL);
     assert(handle_header != NULL);
     assert(handle_record != NULL);
 

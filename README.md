@@ -50,15 +50,15 @@ void print_field(const dbf_record_t *record, const dbf_field_t *field) {
 
 int read_dbf(const char *filename) {
   int rc = -1;
-  FILE *fp;
+  FILE *stream;
   dbf_file_t fh;
   dbf_header_t *header;
   dbf_record_t *record;
   dbf_field_t *field;
 
-  fp = fopen(filename, "rb");
-  if (fp != NULL) {
-    dbf_init_file(&fh, fp, NULL);
+  stream = fopen(filename, "rb");
+  if (stream != NULL) {
+    dbf_init_file(&fh, stream, NULL);
     if ((rc = dbf_read_header(&fh, &header)) > 0) {
       while ((rc = dbf_read_record(&fh, &record)) > 0) {
         if (!dbf_record_is_deleted(record)) {
@@ -75,7 +75,7 @@ int read_dbf(const char *filename) {
     if (rc < 0) {
       fprintf(stderr, "%s\n", fh.error);
     }
-    fclose(fp);
+    fclose(stream);
   }
   return rc;
 }
@@ -94,14 +94,14 @@ void print_shape(const shp_record_t *record) {
 
 int read_shp(const char *filename) {
   int rc = -1;
-  FILE *fp;
+  FILE *stream;
   shp_file_t fh;
   shp_header_t header;
   shp_record_t *record;
 
-  fp = fopen(filename, "rb");
-  if (fp != NULL) {
-    shp_init_file(&fh, fp, NULL);
+  stream = fopen(filename, "rb");
+  if (stream != NULL) {
+    shp_init_file(&fh, stream, NULL);
     if ((rc = shp_read_header(&fh, &header)) > 0) {
       while ((rc = shp_read_record(&fh, &record)) > 0) {
         print_shape(record);
@@ -111,7 +111,7 @@ int read_shp(const char *filename) {
     if (rc < 0) {
       fprintf(stderr, "%s\n", fh.error);
     }
-    fclose(fp);
+    fclose(stream);
   }
   return rc;
 }

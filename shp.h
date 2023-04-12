@@ -109,10 +109,22 @@ typedef struct shp_record_t {
  * File handle
  */
 typedef struct shp_file_t {
-    FILE *fp;         /**< File pointer */
-    void *user_data;  /**< Callback data */
-    size_t num_bytes; /**< Number of bytes read */
-    char error[128];  /**< Error message */
+    /* File pointer */
+    void *stream;
+    /* Read bytes from the stream */
+    size_t (*fread)(struct shp_file_t *fh, void *buf, size_t count);
+    /* Test the stream's the end-of-file indicator */
+    int (*feof)(struct shp_file_t *fh);
+    /* Test the stream's error indicator */
+    int (*ferror)(struct shp_file_t *fh);
+    /* Set the stream's file position */
+    int (*fsetpos)(struct shp_file_t *fh, size_t offset);
+    /** Callback data */
+    void *user_data;
+    /** Number of bytes read */
+    size_t num_bytes;
+    /** Error message */
+    char error[128];
 } shp_file_t;
 
 /**
@@ -121,11 +133,12 @@ typedef struct shp_file_t {
  * Initializes a shp_file_t structure.
  *
  * @param fh an uninitialized file handle.
- * @param fp a file pointer.
+ * @param stream a FILE pointer.
  * @param user_data callback data or NULL.
  * @return the initialized file handle.
  */
-extern shp_file_t *shp_init_file(shp_file_t *fh, FILE *fp, void *user_data);
+extern shp_file_t *shp_init_file(shp_file_t *fh, FILE *stream,
+                                 void *user_data);
 
 /**
  * Set an error message
@@ -200,7 +213,7 @@ typedef int (*shp_record_callback_t)(shp_file_t *fh,
  *   return 1;
  * }
  *
- * shp_init_file(fh, fp, mydata)
+ * shp_init_file(fh, stream, mydata)
  * rc = shp_read(fh, handle_header, handle_record);
  * @endcode
  *

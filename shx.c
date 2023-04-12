@@ -17,9 +17,9 @@
 #include <stdio.h>
 
 shx_file_t *
-shx_init_file(shx_file_t *fh, FILE *fp, void *user_data)
+shx_init_file(shx_file_t *fh, FILE *stream, void *user_data)
 {
-    return shp_init_file(fh, fp, user_data);
+    return shp_init_file(fh, stream, user_data);
 }
 
 void
@@ -49,13 +49,12 @@ read_record(shx_file_t *fh, shx_record_t *record)
     size_t nr;
     size_t offset, content_length;
 
-    nr = fread(buf, 1, 8, fh->fp);
-    fh->num_bytes += nr;
-    if (ferror(fh->fp)) {
+    nr = (*fh->fread)(fh, buf, 8);
+    if ((*fh->ferror)(fh)) {
         shx_set_error(fh, "Cannot read index record");
         goto cleanup;
     }
-    if (feof(fh->fp)) {
+    if ((*fh->feof)(fh)) {
         /* Reached end of file. */
         rc = 0;
         goto cleanup;
@@ -97,7 +96,6 @@ shx_read_record(shx_file_t *fh, shx_record_t *record)
     int rc = -1;
 
     assert(fh != NULL);
-    assert(fh->fp != NULL);
     assert(record != NULL);
 
     rc = read_record(fh, record);
@@ -109,10 +107,9 @@ int
 shx_seek_record(shx_file_t *fh, size_t record_number, shx_record_t *record)
 {
     int rc = -1;
-    long file_offset;
+    size_t file_offset;
 
     assert(fh != NULL);
-    assert(fh->fp != NULL);
     assert(record != NULL);
 
     /* The largest possible record number is (8GB - 100) / 12. */
@@ -122,8 +119,8 @@ shx_seek_record(shx_file_t *fh, size_t record_number, shx_record_t *record)
         goto cleanup;
     }
 
-    file_offset = (long) record_number * 8 + 100;
-    if (fseek(fh->fp, file_offset, SEEK_SET) != 0) {
+    file_offset = record_number * 8 + 100;
+    if ((*fh->fsetpos)(fh, file_offset) != 0) {
         shx_set_error(fh, "Cannot set file position to record number %zu\n",
                       record_number);
         goto cleanup;
@@ -145,7 +142,6 @@ shx_read(shx_file_t *fh, shx_header_callback_t handle_header,
     shx_record_t record;
 
     assert(fh != NULL);
-    assert(fh->fp != NULL);
     assert(handle_header != NULL);
     assert(handle_record != NULL);
 

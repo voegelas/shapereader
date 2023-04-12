@@ -624,28 +624,28 @@ int
 main(int argc, char *argv[])
 {
     const char *filename = "types.dbf";
-    FILE *fp;
+    FILE *stream;
     dbf_file_t fh;
 
     plan(56);
 
     test_dates();
 
-    fp = fopen(filename, "rb");
-    if (fp == NULL) {
+    stream = fopen(filename, "rb");
+    if (stream == NULL) {
         fprintf(stderr, "# Cannot open file \"%s\": %s\n", filename,
                 strerror(errno));
         return 1;
     }
 
-    dbf_init_file(&fh, fp, NULL);
+    dbf_init_file(&fh, stream, NULL);
 
     if (dbf_read(&fh, handle_dbf_header, handle_dbf_record) == -1) {
         fprintf(stderr, "# Cannot read file \"%s\": %s\n", filename,
                 fh.error);
     }
 
-    fclose(fp);
+    fclose(stream);
 
     done_testing();
 }

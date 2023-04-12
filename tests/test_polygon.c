@@ -281,23 +281,23 @@ int
 main(int argc, char *argv[])
 {
     const char *filename = "polygon.shp";
-    FILE *fp;
+    FILE *stream;
     shp_file_t fh;
 
     plan(28);
 
-    fp = fopen(filename, "rb");
-    if (fp == NULL) {
+    stream = fopen(filename, "rb");
+    if (stream == NULL) {
         fprintf(stderr, "# Cannot open file \"%s\": %s\n", filename,
                 strerror(errno));
         return 1;
     }
 
-    fseek(fp, 0, SEEK_END);
-    file_size = ftell(fp);
-    fseek(fp, 0, SEEK_SET);
+    fseek(stream, 0, SEEK_END);
+    file_size = ftell(stream);
+    fseek(stream, 0, SEEK_SET);
 
-    shp_init_file(&fh, fp, NULL);
+    shp_init_file(&fh, stream, NULL);
     if (shp_read(&fh, handle_shp_header, handle_shp_record) == -1) {
         fprintf(stderr, "# Cannot read file \"%s\": %s\n", filename,
                 fh.error);
@@ -306,7 +306,7 @@ main(int argc, char *argv[])
     num_bytes = fh.num_bytes;
     ok(test_entire_file_read, "entire file has been read");
 
-    fclose(fp);
+    fclose(stream);
 
     done_testing();
 }

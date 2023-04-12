@@ -13,18 +13,53 @@
 #include "byteorder.h"
 #include <assert.h>
 #include <errno.h>
+#include <limits.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
+static size_t
+file_fread(dbf_file_t *fh, void *buf, size_t count)
+{
+    size_t nr = fread(buf, 1, count, (FILE *) fh->stream);
+    fh->num_bytes += nr;
+    return nr;
+}
+
+static int
+file_feof(dbf_file_t *fh)
+{
+    return feof((FILE *) fh->stream);
+}
+
+static int
+file_ferror(dbf_file_t *fh)
+{
+    return ferror((FILE *) fh->stream);
+}
+
+static int
+file_fsetpos(dbf_file_t *fh, size_t offset)
+{
+    if (offset > LONG_MAX) {
+        errno = EINVAL;
+        return -1;
+    }
+    return fseek((FILE *) fh->stream, (long) offset, SEEK_SET);
+}
+
 dbf_file_t *
-dbf_init_file(dbf_file_t *fh, FILE *fp, void *user_data)
+dbf_init_file(dbf_file_t *fh, FILE *stream, void *user_data)
 {
     assert(fh != NULL);
-    assert(fp != NULL);
+    assert(stream != NULL);
 
-    fh->fp = fp;
+    fh->stream = stream;
+    fh->fread = file_fread;
+    fh->feof = file_feof;
+    fh->ferror = file_ferror;
+    fh->fsetpos = file_fsetpos;
     fh->user_data = user_data;
     fh->num_bytes = 0;
     fh->error[0] = '\0';
@@ -797,9 +832,8 @@ read_header_dbase2(dbf_file_t *fh, dbf_version_t version,
     dbf_header_t *header = NULL;
 
     header_size = 521;
-    nr = fread(&buf[1], 1, header_size - 1, fh->fp);
-    fh->num_bytes += nr;
-    if (ferror(fh->fp)) {
+    nr = (*fh->fread)(fh, &buf[1], header_size - 1);
+    if ((*fh->ferror)(fh)) {
         dbf_set_error(fh, "Cannot read file header");
         goto cleanup;
     }
@@ -871,7 +905,7 @@ read_header_dbase2(dbf_file_t *fh, dbf_version_t version,
         goto cleanup;
     }
 
-    if (feof(fh->fp)) {
+    if ((*fh->feof)(fh)) {
         free(header);
         header = NULL;
         rc = 0;
@@ -901,9 +935,8 @@ read_header_dbase3(dbf_file_t *fh, dbf_version_t version,
     dbf_field_t *fields, *field, **field_next;
     dbf_header_t *header = NULL;
 
-    nr = fread(&buf[1], 1, 31, fh->fp);
-    fh->num_bytes += nr;
-    if (ferror(fh->fp)) {
+    nr = (*fh->fread)(fh, &buf[1], 31);
+    if ((*fh->ferror)(fh)) {
         dbf_set_error(fh, "Cannot read file header");
         goto cleanup;
     }
@@ -946,9 +979,8 @@ read_header_dbase3(dbf_file_t *fh, dbf_version_t version,
         goto cleanup;
     }
 
-    nr = fread(descriptors, 1, descriptors_size, fh->fp);
-    fh->num_bytes += nr;
-    if (ferror(fh->fp)) {
+    nr = (*fh->fread)(fh, descriptors, descriptors_size);
+    if ((*fh->ferror)(fh)) {
         dbf_set_error(fh, "Cannot read field descriptors");
         goto cleanup;
     }
@@ -1019,7 +1051,7 @@ read_header_dbase3(dbf_file_t *fh, dbf_version_t version,
         goto cleanup;
     }
 
-    if (feof(fh->fp)) {
+    if ((*fh->feof)(fh)) {
         free(header);
         header = NULL;
         rc = 0;
@@ -1046,12 +1078,10 @@ dbf_read_header(dbf_file_t *fh, dbf_header_t **pheader)
     dbf_version_t version;
 
     assert(fh != NULL);
-    assert(fh->fp != NULL);
     assert(pheader != NULL);
 
-    nr = fread(bytes, 1, 1, fh->fp);
-    fh->num_bytes += nr;
-    if (ferror(fh->fp)) {
+    nr = (*fh->fread)(fh, bytes, 1);
+    if ((*fh->ferror)(fh)) {
         dbf_set_error(fh, "Cannot read file version");
         goto cleanup;
     }
@@ -1091,7 +1121,6 @@ dbf_read_record(dbf_file_t *fh, dbf_record_t **precord)
     size_t nr;
 
     assert(fh != NULL);
-    assert(fh->fp != NULL);
     assert(fh->_record_size > 0);
     assert(precord != NULL);
 
@@ -1106,9 +1135,7 @@ dbf_read_record(dbf_file_t *fh, dbf_record_t **precord)
 
     buf = ((char *) record) + sizeof(*record);
     record->_bytes = buf;
-    if ((nr = fread(buf, 1, record_size, fh->fp)) > 0) {
-        fh->num_bytes += nr;
-
+    if ((nr = (*fh->fread)(fh, buf, record_size)) > 0) {
         if (buf[0] == '\x1a') {
             /* Reached end-of-file marker. */
             free(record);
@@ -1126,14 +1153,14 @@ dbf_read_record(dbf_file_t *fh, dbf_record_t **precord)
         }
     }
 
-    if (ferror(fh->fp)) {
+    if ((*fh->ferror)(fh)) {
         dbf_set_error(fh, "Cannot read record");
         free(record);
         record = NULL;
         goto cleanup;
     }
 
-    if (feof(fh->fp)) {
+    if ((*fh->feof)(fh)) {
         free(record);
         record = NULL;
         rc = 0;
@@ -1163,7 +1190,6 @@ dbf_read(dbf_file_t *fh, dbf_header_callback_t handle_header,
     size_t nr;
 
     assert(fh != NULL);
-    assert(fh->fp != NULL);
     assert(handle_header != NULL);
     assert(handle_record != NULL);
 
@@ -1193,14 +1219,12 @@ dbf_read(dbf_file_t *fh, dbf_header_callback_t handle_header,
         goto cleanup;
     }
 
-    record_num = 0;
-
     buf = ((char *) record) + sizeof(*record);
     record->_bytes = buf;
-    while ((nr = fread(buf, 1, record_size, fh->fp)) > 0) {
-        file_offset = fh->num_bytes;
-        fh->num_bytes += nr;
 
+    record_num = 0;
+    file_offset = fh->num_bytes;
+    while ((nr = (*fh->fread)(fh, buf, record_size)) > 0) {
         if (buf[0] == '\x1a') {
             /* Reached end-of-file marker. */
             rc = 0;
@@ -1224,10 +1248,11 @@ dbf_read(dbf_file_t *fh, dbf_header_callback_t handle_header,
             goto cleanup;
         }
 
+        file_offset = fh->num_bytes;
         ++record_num;
     }
 
-    if (ferror(fh->fp)) {
+    if ((*fh->ferror)(fh)) {
         dbf_set_error(fh, "Cannot read record");
         goto cleanup;
     }
@@ -1239,7 +1264,7 @@ dbf_read(dbf_file_t *fh, dbf_header_callback_t handle_header,
         goto cleanup;
     }
 
-    if (feof(fh->fp)) {
+    if ((*fh->feof)(fh)) {
         rc = 0;
         goto cleanup;
     }

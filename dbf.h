@@ -473,11 +473,24 @@ extern int dbf_record_strtoull(const dbf_record_t *record,
  * File handle
  */
 typedef struct dbf_file_t {
-    FILE *fp;            /**< File pointer */
-    void *user_data;     /**< Callback data */
-    size_t num_bytes;    /**< Number of bytes read */
-    char error[128];     /**< Error message */
-    size_t _record_size; /* Record size from the file header */
+    /* File pointer */
+    void *stream;
+    /* Read bytes from the stream */
+    size_t (*fread)(struct dbf_file_t *fh, void *buf, size_t count);
+    /* Test the stream's the end-of-file indicator */
+    int (*feof)(struct dbf_file_t *fh);
+    /* Test the stream's error indicator */
+    int (*ferror)(struct dbf_file_t *fh);
+    /* Set the stream's file position */
+    int (*fsetpos)(struct dbf_file_t *fh, size_t offset);
+    /** Callback data */
+    void *user_data;
+    /** Number of bytes read */
+    size_t num_bytes;
+    /** Error message */
+    char error[128];
+    /* Record size from the file header */
+    size_t _record_size;
 } dbf_file_t;
 
 /**
@@ -486,11 +499,12 @@ typedef struct dbf_file_t {
  * Initializes a dbf_file_t structure.
  *
  * @param fh an uninitialized file handle.
- * @param fp a file pointer.
+ * @param stream a FILE pointer.
  * @param user_data callback data or NULL.
  * @return the initialized file handle.
  */
-extern dbf_file_t *dbf_init_file(dbf_file_t *fh, FILE *fp, void *user_data);
+extern dbf_file_t *dbf_init_file(dbf_file_t *fh, FILE *stream,
+                                 void *user_data);
 
 /**
  * Set an error message
@@ -565,7 +579,7 @@ typedef int (*dbf_record_callback_t)(dbf_file_t *fh,
  *   return 1;
  * }
  *
- * dbf_init_file(fh, fp, mydata)
+ * dbf_init_file(fh, stream, mydata)
  * rc = dbf_read(fh, handle_header, handle_record);
  * @endcode
  *
