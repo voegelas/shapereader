@@ -78,7 +78,7 @@ typedef struct shp_record_t {
     size_t record_size;   /**< Content length in bytes */
     shp_type_t type;      /**< Shape type */
     union {
-        /** Point if @a type is  @c SHP_TYPE_POINT */
+        /** Point if @a type is @c SHP_TYPE_POINT */
         shp_point_t point;
         /** PointM if @a type is @c SHP_TYPE_POINTM */
         shp_pointm_t pointm;
@@ -113,7 +113,7 @@ typedef struct shp_file_t {
     void *stream;
     /* Read bytes from the stream */
     size_t (*fread)(struct shp_file_t *fh, void *buf, size_t count);
-    /* Test the stream's the end-of-file indicator */
+    /* Test the stream's end-of-file indicator */
     int (*feof)(struct shp_file_t *fh);
     /* Test the stream's error indicator */
     int (*ferror)(struct shp_file_t *fh);

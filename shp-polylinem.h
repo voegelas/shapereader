@@ -46,7 +46,7 @@ typedef struct shp_polylinem_t {
  * Gets the indices for the points specified by @p part_num.
  *
  * @memberof shp_polylinem_t
- * @param polyline a PolyLineM.
+ * @param polylinem a PolyLineM.
  * @param part_num a zero-based part number.
  * @param[out] start the range start.
  * @param[out] end the range end (exclusive).

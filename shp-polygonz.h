@@ -83,7 +83,7 @@ extern size_t shp_polygonz_points(const shp_polygonz_t *polygonz,
  * @endcode
  *
  * @memberof shp_polygonz_t
- * @param polygon a PolygonZ.
+ * @param polygonz a PolygonZ.
  * @param point_num a zero-based point number.
  * @param[out] pointz a shp_pointz_t structure.
  *

@@ -49,7 +49,7 @@ typedef struct shp_polylinez_t {
  * Gets the indices for the points specified by @p part_num.
  *
  * @memberof shp_polylinez_t
- * @param polyline a PolyLineZ.
+ * @param polylinez a PolyLineZ.
  * @param part_num a zero-based part number.
  * @param[out] start the range start.
  * @param[out] end the range end (exclusive).

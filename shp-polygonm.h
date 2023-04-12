@@ -80,7 +80,7 @@ extern size_t shp_polygonm_points(const shp_polygonm_t *polygonm,
  * @endcode
  *
  * @memberof shp_polygonm_t
- * @param polygon a PolygonM.
+ * @param polygonm a PolygonM.
  * @param point_num a zero-based point number.
  * @param[out] pointm a shp_pointm_t structure.
  *

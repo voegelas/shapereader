@@ -477,7 +477,7 @@ typedef struct dbf_file_t {
     void *stream;
     /* Read bytes from the stream */
     size_t (*fread)(struct dbf_file_t *fh, void *buf, size_t count);
-    /* Test the stream's the end-of-file indicator */
+    /* Test the stream's end-of-file indicator */
     int (*feof)(struct dbf_file_t *fh);
     /* Test the stream's error indicator */
     int (*ferror)(struct dbf_file_t *fh);
