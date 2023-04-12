@@ -46,7 +46,7 @@ compare_area(const char *area)
 
     field = &dbf_header->fields[0];
     switch (field->type) {
-    case DBFT_CHARACTER:
+    case DBF_TYPE_CHARACTER:
         s = dbf_record_strdup(dbf_record, field);
         if (s != NULL) {
             ok = (strcmp(s, area) == 0);

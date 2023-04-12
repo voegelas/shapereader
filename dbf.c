@@ -50,7 +50,7 @@ static size_t
 field_size(const dbf_field_t *field)
 {
     size_t n;
-    if (field->type == DBFT_CHARACTER) {
+    if (field->type == DBF_TYPE_CHARACTER) {
         n = (field->decimal_places << 8) | field->length;
     }
     else {
@@ -418,20 +418,20 @@ dbf_record_is_null(const dbf_record_t *record, const dbf_field_t *field)
     assert(field != NULL);
 
     switch (field->type) {
-    case DBFT_CHARACTER:
+    case DBF_TYPE_CHARACTER:
         get_left_justified_string(record, field, &s, &n);
         is_null = (n == 0);
         break;
-    case DBFT_DATE:
+    case DBF_TYPE_DATE:
         get_left_justified_string(record, field, &s, &n);
         is_null = (n == 0 || is_all(s, n, '0'));
         break;
-    case DBFT_FLOAT:
-    case DBFT_NUMBER:
+    case DBF_TYPE_FLOAT:
+    case DBF_TYPE_NUMBER:
         get_right_justified_string(record, field, &s, &n);
         is_null = (n == 0 || s[0] == '*');
         break;
-    case DBFT_LOGICAL:
+    case DBF_TYPE_LOGICAL:
         switch (dbf_record_logical(record, field)) {
         case 'F':
         case 'f':

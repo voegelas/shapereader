@@ -230,21 +230,21 @@ static int
 test_field_festival(void)
 {
     dbf_field_t *field = &header->fields[FESTIVAL];
-    return (field->type == DBFT_CHARACTER);
+    return (field->type == DBF_TYPE_CHARACTER);
 }
 
 static int
 test_field_from(void)
 {
     dbf_field_t *field = &header->fields[FROM];
-    return (field->type == DBFT_DATE);
+    return (field->type == DBF_TYPE_DATE);
 }
 
 static int
 test_field_to(void)
 {
     dbf_field_t *field = &header->fields[TO];
-    return (field->type == DBFT_DATETIME);
+    return (field->type == DBF_TYPE_DATETIME);
 }
 
 static int
@@ -258,7 +258,7 @@ static int
 test_field_latitude(void)
 {
     dbf_field_t *field = &header->fields[LATITUDE];
-    return (field->type == DBFT_FLOAT);
+    return (field->type == DBF_TYPE_FLOAT);
 }
 
 static int
@@ -272,35 +272,35 @@ static int
 test_field_bands(void)
 {
     dbf_field_t *field = &header->fields[BANDS];
-    return (field->type == DBFT_INTEGER);
+    return (field->type == DBF_TYPE_INTEGER);
 }
 
 static int
 test_field_admission(void)
 {
     dbf_field_t *field = &header->fields[ADMISSION];
-    return (field->type == DBFT_NUMBER && field->decimal_places == 0);
+    return (field->type == DBF_TYPE_NUMBER && field->decimal_places == 0);
 }
 
 static int
 test_field_beer_price(void)
 {
     dbf_field_t *field = &header->fields[BEER_PRICE];
-    return (field->type == DBFT_CURRENCY && field->decimal_places == 4);
+    return (field->type == DBF_TYPE_CURRENCY && field->decimal_places == 4);
 }
 
 static int
 test_field_food_price(void)
 {
     dbf_field_t *field = &header->fields[FOOD_PRICE];
-    return (field->type == DBFT_NUMBER);
+    return (field->type == DBF_TYPE_NUMBER);
 }
 
 static int
 test_field_sold_out(void)
 {
     dbf_field_t *field = &header->fields[SOLD_OUT];
-    return (field->type == DBFT_LOGICAL && field->length == 1);
+    return (field->type == DBF_TYPE_LOGICAL && field->length == 1);
 }
 
 static int

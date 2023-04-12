@@ -47,26 +47,27 @@ typedef enum dbf_version_t {
  * Field types
  */
 typedef enum dbf_type_t {
-    DBFT_AUTOINCREMENT = '+',    /**< Autoincrement (4 bytes) */
-    DBFT_BINARY_OR_DOUBLE = 'B', /**< Binary (integer stored as a string) or
-                                      Double (8 bytes) in FoxPro */
-    DBFT_BLOB = 'W',             /**< Blob (integer stored as a string) */
-    DBFT_CHARACTER = 'C',        /**< String */
-    DBFT_CURRENCY = 'Y',         /**< Decimal number (8 bytes) */
-    DBFT_DATE = 'D',             /**< Date (stored as "YYYYMMDD") */
-    DBFT_DATETIME = 'T',         /**< Date and time (8 bytes) */
-    DBFT_DOUBLE = 'O',           /**< Double (8 bytes) */
-    DBFT_FLOAT = 'F',            /**< Number (stored as a string) */
-    DBFT_GENERAL = 'G',          /**< OLE (integer stored as a string) */
-    DBFT_INTEGER = 'I',          /**< Integer (4 bytes) */
-    DBFT_LOGICAL = 'L',          /**< Logical (1 byte) */
-    DBFT_MEMO = 'M',             /**< Memo (integer stored as a string) */
-    DBFT_NULLFLAGS = '0',        /**< _NullFlags (bytes) */
-    DBFT_NUMBER = 'N',           /**< Number (stored as a string) */
-    DBFT_PICTURE = 'P',          /**< Picture (integer stored as a string) */
-    DBFT_TIMESTAMP = '@',        /**< Timestamp (8 bytes) */
-    DBFT_VARBINARY = 'Q',        /**< Varbinary */
-    DBFT_VARCHAR = 'V'           /**< Varchar */
+    DBF_TYPE_AUTOINCREMENT = '+',    /**< Autoincrement (4 bytes) */
+    DBF_TYPE_BINARY_OR_DOUBLE = 'B', /**< Binary (integer stored as a string)
+                                          or Double (8 bytes) in FoxPro */
+    DBF_TYPE_BLOB = 'W',             /**< Blob (integer stored as a string) */
+    DBF_TYPE_CHARACTER = 'C',        /**< String */
+    DBF_TYPE_CURRENCY = 'Y',         /**< Decimal number (8 bytes) */
+    DBF_TYPE_DATE = 'D',             /**< Date (stored as "YYYYMMDD") */
+    DBF_TYPE_DATETIME = 'T',         /**< Date and time (8 bytes) */
+    DBF_TYPE_DOUBLE = 'O',           /**< Double (8 bytes) */
+    DBF_TYPE_FLOAT = 'F',            /**< Number (stored as a string) */
+    DBF_TYPE_GENERAL = 'G',          /**< OLE (integer stored as a string) */
+    DBF_TYPE_INTEGER = 'I',          /**< Integer (4 bytes) */
+    DBF_TYPE_LOGICAL = 'L',          /**< Logical (1 byte) */
+    DBF_TYPE_MEMO = 'M',             /**< Memo (integer stored as a string) */
+    DBF_TYPE_NULLFLAGS = '0',        /**< _NullFlags (bytes) */
+    DBF_TYPE_NUMBER = 'N',           /**< Number (stored as a string) */
+    DBF_TYPE_PICTURE = 'P',          /**< Picture (integer stored as a
+                                          string) */
+    DBF_TYPE_TIMESTAMP = '@',        /**< Timestamp (8 bytes) */
+    DBF_TYPE_VARBINARY = 'Q',        /**< Varbinary */
+    DBF_TYPE_VARCHAR = 'V'           /**< Varchar */
 } dbf_type_t;
 
 /**

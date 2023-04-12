@@ -32,15 +32,15 @@ void print_field(const dbf_record_t *record, const dbf_field_t *field) {
   double d;
 
   switch (field->type) {
-  case DBFT_CHARACTER:
+  case DBF_TYPE_CHARACTER:
     s = dbf_record_strdup(record, field);
     if (s != NULL) {
       puts(s);
       free(s);
     }
     break;
-  case DBFT_FLOAT:
-  case DBFT_NUMBER:
+  case DBF_TYPE_FLOAT:
+  case DBF_TYPE_NUMBER:
     if (dbf_record_strtod(record, field, &d)) {
       printf("%lf\n", d);
     }
