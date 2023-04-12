@@ -89,7 +89,7 @@ shp_read_header(shp_file_t *fh, shp_header_t *header)
     header->unused[4] = shp_be32_to_int32(&buf[20]);
     header->file_size = 2 * (size_t) shp_be32_to_uint32(&buf[24]);
     header->version = shp_le32_to_int32(&buf[28]);
-    header->shape_type = (shp_type_t) shp_le32_to_int32(&buf[32]);
+    header->type = (shp_type_t) shp_le32_to_int32(&buf[32]);
     header->x_min = shp_le64_to_double(&buf[36]);
     header->y_min = shp_le64_to_double(&buf[44]);
     header->x_max = shp_le64_to_double(&buf[52]);
@@ -706,8 +706,8 @@ read_record(shp_file_t *fh, shp_record_t **precord, size_t *size)
 
     record->record_number = record_number;
     record->record_size = record_size;
-    record->shape_type = (shp_type_t) shp_le32_to_int32(&buf[0]);
-    switch (record->shape_type) {
+    record->type = (shp_type_t) shp_le32_to_int32(&buf[0]);
+    switch (record->type) {
     case SHP_TYPE_NULL:
         rc = 1;
         break;
@@ -749,7 +749,7 @@ read_record(shp_file_t *fh, shp_record_t **precord, size_t *size)
         break;
     default:
         shp_set_error(fh, "Shape type %d is unknown in record %zu",
-                      (int) record->shape_type, record_number);
+                      (int) record->type, record_number);
         errno = EINVAL;
         break;
     }

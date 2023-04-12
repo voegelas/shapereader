@@ -83,7 +83,7 @@ int read_dbf(const char *filename) {
 void print_shape(const shp_record_t *record) {
   double x, y;
 
-  switch (record->shape_type) {
+  switch (record->type) {
   case SHP_TYPE_POINT:
     x = record->shape.point.x;
     y = record->shape.point.y;

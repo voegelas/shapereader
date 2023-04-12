@@ -18,72 +18,72 @@ size_t record_number;
  * Box tests
  */
 
-double x1 = -1.0;
-double y1 = -1.0;
-double x2 = 1.0;
-double y2 = 1.0;
+double x_min = -1.0;
+double y_min = -1.0;
+double x_max = 1.0;
+double y_max = 1.0;
 
 static int
 test_is_in_box(void)
 {
-    shp_point_t point = {0.0, 0.0};
-    return shp_point_in_bounding_box(&point, x1, y1, x2, y2) == 1;
+    shp_point_t p = {0.0, 0.0};
+    return shp_point_in_bounding_box(&p, x_min, y_min, x_max, y_max) == 1;
 }
 
 static int
 test_is_left_of_box(void)
 {
-    shp_point_t point = {-1.0001, 0.0};
-    return shp_point_in_bounding_box(&point, x1, y1, x2, y2) == 0;
+    shp_point_t p = {-1.0001, 0.0};
+    return shp_point_in_bounding_box(&p, x_min, y_min, x_max, y_max) == 0;
 }
 
 static int
 test_is_right_of_box(void)
 {
-    shp_point_t point = {1.0001, 0.0};
-    return shp_point_in_bounding_box(&point, x1, y1, x2, y2) == 0;
+    shp_point_t p = {1.0001, 0.0};
+    return shp_point_in_bounding_box(&p, x_min, y_min, x_max, y_max) == 0;
 }
 
 static int
 test_is_below_box(void)
 {
-    shp_point_t point = {0.0, -1.0001};
-    return shp_point_in_bounding_box(&point, x1, y1, x2, y2) == 0;
+    shp_point_t p = {0.0, -1.0001};
+    return shp_point_in_bounding_box(&p, x_min, y_min, x_max, y_max) == 0;
 }
 
 static int
 test_is_above_box(void)
 {
-    shp_point_t point = {0.0, 1.0001};
-    return shp_point_in_bounding_box(&point, x1, y1, x2, y2) == 0;
+    shp_point_t p = {0.0, 1.0001};
+    return shp_point_in_bounding_box(&p, x_min, y_min, x_max, y_max) == 0;
 }
 
 static int
 test_is_on_left_boundary(void)
 {
-    shp_point_t point = {-1.0, 0.0};
-    return shp_point_in_bounding_box(&point, x1, y1, x2, y2) == -1;
+    shp_point_t p = {-1.0, 0.0};
+    return shp_point_in_bounding_box(&p, x_min, y_min, x_max, y_max) == -1;
 }
 
 static int
 test_is_on_right_boundary(void)
 {
-    shp_point_t point = {1.0, 0.0};
-    return shp_point_in_bounding_box(&point, x1, y1, x2, y2) == -1;
+    shp_point_t p = {1.0, 0.0};
+    return shp_point_in_bounding_box(&p, x_min, y_min, x_max, y_max) == -1;
 }
 
 static int
 test_is_on_bottom_boundary(void)
 {
-    shp_point_t point = {0.0, -1.0};
-    return shp_point_in_bounding_box(&point, x1, y1, x2, y2) == -1;
+    shp_point_t p = {0.0, -1.0};
+    return shp_point_in_bounding_box(&p, x_min, y_min, x_max, y_max) == -1;
 }
 
 static int
 test_is_on_top_boundary(void)
 {
-    shp_point_t point = {0.0, 1.0};
-    return shp_point_in_bounding_box(&point, x1, y1, x2, y2) == -1;
+    shp_point_t p = {0.0, 1.0};
+    return shp_point_in_bounding_box(&p, x_min, y_min, x_max, y_max) == -1;
 }
 
 /*
@@ -93,13 +93,13 @@ test_is_on_top_boundary(void)
 static int
 test_header_shape_type(void)
 {
-    return shp_header.shape_type == SHP_TYPE_POINT;
+    return shp_header.type == SHP_TYPE_POINT;
 }
 
 static int
 test_record_shape_type(void)
 {
-    return shp_record->shape_type == SHP_TYPE_POINT;
+    return shp_record->type == SHP_TYPE_POINT;
 }
 
 static int

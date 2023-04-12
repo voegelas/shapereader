@@ -21,13 +21,13 @@ size_t record_number;
 static int
 test_header_shape_type(void)
 {
-    return shp_header.shape_type == SHP_TYPE_POLYLINEZ;
+    return shp_header.type == SHP_TYPE_POLYLINEZ;
 }
 
 static int
 test_record_shape_type(void)
 {
-    return shp_record->shape_type == SHP_TYPE_POLYLINEZ;
+    return shp_record->type == SHP_TYPE_POLYLINEZ;
 }
 
 static int
