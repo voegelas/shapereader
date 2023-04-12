@@ -716,27 +716,27 @@ database_type(dbf_version_t version)
     dbf_version_t type;
 
     switch (version) {
-    case DBFV_DBASE2:
-        type = DBFV_DBASE2;
+    case DBF_VERSION_DBASE2:
+        type = DBF_VERSION_DBASE2;
         break;
-    case DBFV_DBASE3:
-    case DBFV_DBASE3_MEMO:
-    case DBFV_DBASE4:
-    case DBFV_DBASE4_MEMO:
-    case DBFV_DBASE5:
-    case DBFV_FOXPRO_MEMO:
-    case DBFV_VISUAL_FOXPRO:
-    case DBFV_VISUAL_FOXPRO_AUTO:
-    case DBFV_VISUAL_FOXPRO_VARIFIELD:
-    case DBFV_VISUAL_OBJECTS:
-    case DBFV_VISUAL_OBJECTS_MEMO:
-        type = DBFV_DBASE3;
+    case DBF_VERSION_DBASE3:
+    case DBF_VERSION_DBASE3_MEMO:
+    case DBF_VERSION_DBASE4:
+    case DBF_VERSION_DBASE4_MEMO:
+    case DBF_VERSION_DBASE5:
+    case DBF_VERSION_FOXPRO_MEMO:
+    case DBF_VERSION_VISUAL_FOXPRO:
+    case DBF_VERSION_VISUAL_FOXPRO_AUTO:
+    case DBF_VERSION_VISUAL_FOXPRO_VARIFIELD:
+    case DBF_VERSION_VISUAL_OBJECTS:
+    case DBF_VERSION_VISUAL_OBJECTS_MEMO:
+        type = DBF_VERSION_DBASE3;
         break;
-    case DBFV_DBASE7:
-        type = DBFV_DBASE7;
+    case DBF_VERSION_DBASE7:
+        type = DBF_VERSION_DBASE7;
         break;
     default:
-        type = DBFV_UNKNOWN;
+        type = DBF_VERSION_UNKNOWN;
         break;
     }
     return type;
@@ -1063,10 +1063,10 @@ dbf_read_header(dbf_file_t *fh, dbf_header_t **pheader)
 
     version = (dbf_version_t) bytes[0];
     switch (database_type(version)) {
-    case DBFV_DBASE2:
+    case DBF_VERSION_DBASE2:
         rc = read_header_dbase2(fh, version, pheader);
         break;
-    case DBFV_DBASE3:
+    case DBF_VERSION_DBASE3:
         rc = read_header_dbase3(fh, version, pheader);
         break;
     default:

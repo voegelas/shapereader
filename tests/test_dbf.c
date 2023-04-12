@@ -199,7 +199,7 @@ test_dates(void)
 static int
 test_database_version(void)
 {
-    return header->version == DBFV_VISUAL_FOXPRO;
+    return header->version == DBF_VERSION_VISUAL_FOXPRO;
 }
 
 static int

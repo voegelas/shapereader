@@ -25,22 +25,34 @@
  * Versions
  */
 typedef enum dbf_version_t {
-    DBFV_UNKNOWN = 0x00,                 /**< Unknown */
-    DBFV_DBASE2 = 0x02,                  /**< dBase II */
-    DBFV_DBASE3 = 0x03,                  /**< dBase III */
-    DBFV_DBASE4 = 0x04,                  /**< dBase IV */
-    DBFV_DBASE5 = 0x05,                  /**< dBase V */
-    DBFV_VISUAL_OBJECTS = 0x07,          /**< Visual Objects */
-    DBFV_VISUAL_FOXPRO = 0x30,           /**< Visual FoxPro */
-    DBFV_VISUAL_FOXPRO_AUTO = 0x31,      /**< Visual FoxPro with
-                                              Autoincrement field */
-    DBFV_VISUAL_FOXPRO_VARIFIELD = 0x32, /**< Visual FoxPro with Varchar or
-                                              Varbinary field */
-    DBFV_DBASE3_MEMO = 0x83,             /**< dBase III with memo file */
-    DBFV_VISUAL_OBJECTS_MEMO = 0x87,     /**< Visual Objects with memo file */
-    DBFV_DBASE4_MEMO = 0x8b,             /**< dBase IV with memo file */
-    DBFV_DBASE7 = 0x8c,                  /**< dBase 7 */
-    DBFV_FOXPRO_MEMO = 0xf5              /**< FoxPro with memo file */
+    /** Unknown */
+    DBF_VERSION_UNKNOWN = 0x00,
+    /** dBase II */
+    DBF_VERSION_DBASE2 = 0x02,
+    /** dBase III */
+    DBF_VERSION_DBASE3 = 0x03,
+    /** dBase IV */
+    DBF_VERSION_DBASE4 = 0x04,
+    /** dBase V */
+    DBF_VERSION_DBASE5 = 0x05,
+    /** Visual Objects */
+    DBF_VERSION_VISUAL_OBJECTS = 0x07,
+    /** Visual FoxPro */
+    DBF_VERSION_VISUAL_FOXPRO = 0x30,
+    /** Visual FoxPro with Autoincrement field */
+    DBF_VERSION_VISUAL_FOXPRO_AUTO = 0x31,
+    /**< Visual FoxPro with Varchar or Varbinary field */
+    DBF_VERSION_VISUAL_FOXPRO_VARIFIELD = 0x32,
+    /** dBase III with memo file */
+    DBF_VERSION_DBASE3_MEMO = 0x83,
+    /** Visual Objects with memo file */
+    DBF_VERSION_VISUAL_OBJECTS_MEMO = 0x87,
+    /** dBase IV with memo file */
+    DBF_VERSION_DBASE4_MEMO = 0x8b,
+    /** dBase 7 */
+    DBF_VERSION_DBASE7 = 0x8c,
+    /** FoxPro with memo file */
+    DBF_VERSION_FOXPRO_MEMO = 0xf5
 } dbf_version_t;
 
 /**
