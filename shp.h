@@ -34,22 +34,22 @@
 /**
  * Shape types
  */
-typedef enum shp_shpt_t {
-    SHPT_NULL = 0,         /**< Null shape without geometric data */
-    SHPT_POINT = 1,        /**< Point with X, Y coordinates */
-    SHPT_POLYLINE = 3,     /**< PolyLine with X, Y coordinates */
-    SHPT_POLYGON = 5,      /**< Polygon with X, Y coordinates */
-    SHPT_MULTIPOINT = 8,   /**< Set of Points */
-    SHPT_POINTZ = 11,      /**< PointZ with X, Y, Z, M coordinates */
-    SHPT_POLYLINEZ = 13,   /**< PolyLineZ with X, Y, Z, M coordinates */
-    SHPT_POLYGONZ = 15,    /**< PolygonZ with X, Y, Z, M coordinates */
-    SHPT_MULTIPOINTZ = 18, /**< Set of PointZs */
-    SHPT_POINTM = 21,      /**< PointM with X, Y, M coordinates */
-    SHPT_POLYLINEM = 23,   /**< PolyLineM with X, Y, M coordinates */
-    SHPT_POLYGONM = 25,    /**< PolygonM with X, Y, M coordinates */
-    SHPT_MULTIPOINTM = 28, /**< Set of PointMs */
-    SHPT_MULTIPATCH = 31   /**< Complex surfaces */
-} shp_shpt_t;
+typedef enum shp_type_t {
+    SHP_TYPE_NULL = 0,         /**< Null shape without geometric data */
+    SHP_TYPE_POINT = 1,        /**< Point with X, Y coordinates */
+    SHP_TYPE_POLYLINE = 3,     /**< PolyLine with X, Y coordinates */
+    SHP_TYPE_POLYGON = 5,      /**< Polygon with X, Y coordinates */
+    SHP_TYPE_MULTIPOINT = 8,   /**< Set of Points */
+    SHP_TYPE_POINTZ = 11,      /**< PointZ with X, Y, Z, M coordinates */
+    SHP_TYPE_POLYLINEZ = 13,   /**< PolyLineZ with X, Y, Z, M coordinates */
+    SHP_TYPE_POLYGONZ = 15,    /**< PolygonZ with X, Y, Z, M coordinates */
+    SHP_TYPE_MULTIPOINTZ = 18, /**< Set of PointZs */
+    SHP_TYPE_POINTM = 21,      /**< PointM with X, Y, M coordinates */
+    SHP_TYPE_POLYLINEM = 23,   /**< PolyLineM with X, Y, M coordinates */
+    SHP_TYPE_POLYGONM = 25,    /**< PolygonM with X, Y, M coordinates */
+    SHP_TYPE_MULTIPOINTM = 28, /**< Set of PointMs */
+    SHP_TYPE_MULTIPATCH = 31   /**< Complex surfaces */
+} shp_type_t;
 
 /**
  * File header
@@ -59,7 +59,7 @@ typedef struct shp_header_t {
     long unused[5];        /**< Unused fields */
     size_t file_size;      /**< Total file length in bytes */
     long version;          /**< Always 1000 */
-    shp_shpt_t shape_type; /**< Shape type */
+    shp_type_t shape_type; /**< Shape type */
     double x_min;          /**< Minimum X */
     double y_min;          /**< Minimum Y */
     double x_max;          /**< Maximum X */
@@ -76,32 +76,32 @@ typedef struct shp_header_t {
 typedef struct shp_record_t {
     size_t record_number;  /**< Record number */
     size_t record_size;    /**< Content length in bytes */
-    shp_shpt_t shape_type; /**< Shape type */
+    shp_type_t shape_type; /**< Shape type */
     union {
         shp_point_t point;             /**< Point if @a shape_type is
-                                            @c SHPT_POINT */
+                                            @c SHP_TYPE_POINT */
         shp_pointm_t pointm;           /**< PointM if @a shape_type is
-                                            @c SHPT_POINTM */
+                                            @c SHP_TYPE_POINTM */
         shp_pointz_t pointz;           /**< PointZ if @a shape_type is
-                                            @c SHPT_POINTZ */
+                                            @c SHP_TYPE_POINTZ */
         shp_multipoint_t multipoint;   /**< Set of Points if @a shape_type is
-                                            @c SHPT_MULTIPOINT */
+                                            @c SHP_TYPE_MULTIPOINT */
         shp_multipointm_t multipointm; /**< Set of PointMs if @a shape_type is
-                                            @c SHPT_MULTIPOINTM */
+                                            @c SHP_TYPE_MULTIPOINTM */
         shp_multipointz_t multipointz; /**< Set of PointZs if @a shape_type is
-                                            @c SHPT_MULTIPOINTZ */
+                                            @c SHP_TYPE_MULTIPOINTZ */
         shp_polyline_t polyline;       /**< PolyLine if @a shape_type is
-                                            @c SHPT_POLYLINE */
+                                            @c SHP_TYPE_POLYLINE */
         shp_polylinem_t polylinem;     /**< PolyLineM if @a shape_type is
-                                            @c SHPT_POLYLINEM */
+                                            @c SHP_TYPE_POLYLINEM */
         shp_polylinez_t polylinez;     /**< PolyLineZ if @a shape_type is
-                                            @c SHPT_POLYLINEZ */
+                                            @c SHP_TYPE_POLYLINEZ */
         shp_polygon_t polygon;         /**< Polygon if @a shape_type is
-                                            @c SHPT_POLYGON */
+                                            @c SHP_TYPE_POLYGON */
         shp_polygonm_t polygonm;       /**< PolygonM if @a shape_type is
-                                            @c SHPT_POLYGONM */
+                                            @c SHP_TYPE_POLYGONM */
         shp_polygonz_t polygonz;       /**< PolygonZ if @a shape_type is
-                                            @c SHPT_POLYGONZ */
+                                            @c SHP_TYPE_POLYGONZ */
     } shape;
 } shp_record_t;
 

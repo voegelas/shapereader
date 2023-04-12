@@ -48,7 +48,7 @@ test_version(void)
 static int
 test_shape_type(void)
 {
-    return header->shape_type == SHPT_POLYGON;
+    return header->shape_type == SHP_TYPE_POLYGON;
 }
 
 static int
@@ -82,7 +82,7 @@ test_y_max(void)
 static int
 test_is_polygon(void)
 {
-    return record->shape_type == SHPT_POLYGON;
+    return record->shape_type == SHP_TYPE_POLYGON;
 }
 
 static int

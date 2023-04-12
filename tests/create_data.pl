@@ -9,20 +9,20 @@ use File::Spec::Functions qw(catfile);
 use List::Util 1.54       qw(any reduce reductions);
 use Time::Piece;
 
-my $SHPT_NULL        = 0;
-my $SHPT_POINT       = 1;
-my $SHPT_POLYLINE    = 3;
-my $SHPT_POLYGON     = 5;
-my $SHPT_MULTIPOINT  = 8;
-my $SHPT_POINTZ      = 11;
-my $SHPT_POLYLINEZ   = 13;
-my $SHPT_POLYGONZ    = 15;
-my $SHPT_MULTIPOINTZ = 18;
-my $SHPT_POINTM      = 21;
-my $SHPT_POLYLINEM   = 23;
-my $SHPT_POLYGONM    = 25;
-my $SHPT_MULTIPOINTM = 28;
-my $SHPT_MULTIPATCH  = 31;
+my $SHP_TYPE_NULL        = 0;
+my $SHP_TYPE_POINT       = 1;
+my $SHP_TYPE_POLYLINE    = 3;
+my $SHP_TYPE_POLYGON     = 5;
+my $SHP_TYPE_MULTIPOINT  = 8;
+my $SHP_TYPE_POINTZ      = 11;
+my $SHP_TYPE_POLYLINEZ   = 13;
+my $SHP_TYPE_POLYGONZ    = 15;
+my $SHP_TYPE_MULTIPOINTZ = 18;
+my $SHP_TYPE_POINTM      = 21;
+my $SHP_TYPE_POLYLINEM   = 23;
+my $SHP_TYPE_POLYGONM    = 25;
+my $SHP_TYPE_MULTIPOINTM = 28;
+my $SHP_TYPE_MULTIPATCH  = 31;
 
 my %ENCODING_FOR = (
     0x00 => 'UTF-8',
@@ -201,7 +201,7 @@ sub pack_shp_header {
 sub pack_null {
     my %h = (
         record_number => 0,
-        shape_type    => $SHPT_NULL,
+        shape_type    => $SHP_TYPE_NULL,
         @_
     );
 
@@ -213,7 +213,7 @@ sub pack_null {
 sub pack_point {
     my %h = (
         record_number => 0,
-        shape_type    => $SHPT_POINT,
+        shape_type    => $SHP_TYPE_POINT,
         point         => [0.0, 0.0],
         @_
     );
@@ -227,7 +227,7 @@ sub pack_point {
 sub pack_pointm {
     my %h = (
         record_number => 0,
-        shape_type    => $SHPT_POINTM,
+        shape_type    => $SHP_TYPE_POINTM,
         point         => [0.0, 0.0, 0.0],
         @_
     );
@@ -241,7 +241,7 @@ sub pack_pointm {
 sub pack_pointz {
     my %h = (
         record_number => 0,
-        shape_type    => $SHPT_POINTZ,
+        shape_type    => $SHP_TYPE_POINTZ,
         point         => [0.0, 0.0, 0.0, 0.0],
         @_
     );
@@ -255,7 +255,7 @@ sub pack_pointz {
 sub pack_multipoint {
     my %h = (
         record_number => 0,
-        shape_type    => $SHPT_MULTIPOINT,
+        shape_type    => $SHP_TYPE_MULTIPOINT,
         box           => [0.0, 0.0, 0.0, 0.0],
         points        => [],
         @_
@@ -279,7 +279,7 @@ sub pack_multipoint {
 sub pack_multipointm {
     my %h = (
         record_number => 0,
-        shape_type    => $SHPT_MULTIPOINTM,
+        shape_type    => $SHP_TYPE_MULTIPOINTM,
         box           => [0.0, 0.0, 0.0, 0.0],
         m_range       => [0.0, 0.0],
         points        => [],
@@ -307,7 +307,7 @@ sub pack_multipointm {
 sub pack_multipointz {
     my %h = (
         record_number => 0,
-        shape_type    => $SHPT_MULTIPOINTZ,
+        shape_type    => $SHP_TYPE_MULTIPOINTZ,
         box           => [0.0, 0.0, 0.0, 0.0],
         z_range       => [0.0, 0.0],
         m_range       => [0.0, 0.0],
@@ -340,7 +340,7 @@ sub pack_multipointz {
 sub pack_polyline {
     my %h = (
         record_number => 0,
-        shape_type    => $SHPT_POLYLINE,
+        shape_type    => $SHP_TYPE_POLYLINE,
         box           => [0.0, 0.0, 0.0, 0.0],
         parts         => [],
         @_
@@ -372,7 +372,7 @@ sub pack_polyline {
 sub pack_polylinem {
     my %h = (
         record_number => 0,
-        shape_type    => $SHPT_POLYLINEM,
+        shape_type    => $SHP_TYPE_POLYLINEM,
         box           => [0.0, 0.0, 0.0, 0.0],
         m_range       => [0.0, 0.0],
         parts         => [],
@@ -408,7 +408,7 @@ sub pack_polylinem {
 sub pack_polylinez {
     my %h = (
         record_number => 0,
-        shape_type    => $SHPT_POLYLINEZ,
+        shape_type    => $SHP_TYPE_POLYLINEZ,
         box           => [0.0, 0.0, 0.0, 0.0],
         z_range       => [0.0, 0.0],
         m_range       => [0.0, 0.0],
@@ -448,7 +448,7 @@ sub pack_polylinez {
 sub pack_polygon {
     my %h = (
         record_number => 0,
-        shape_type    => $SHPT_POLYGON,
+        shape_type    => $SHP_TYPE_POLYGON,
         box           => [0.0, 0.0, 0.0, 0.0],
         parts         => [],
         @_
@@ -460,7 +460,7 @@ sub pack_polygon {
 sub pack_polygonm {
     my %h = (
         record_number => 0,
-        shape_type    => $SHPT_POLYGONM,
+        shape_type    => $SHP_TYPE_POLYGONM,
         box           => [0.0, 0.0, 0.0, 0.0],
         m_range       => [0.0, 0.0],
         parts         => [],
@@ -473,7 +473,7 @@ sub pack_polygonm {
 sub pack_polygonz {
     my %h = (
         record_number => 0,
-        shape_type    => $SHPT_POLYGONZ,
+        shape_type    => $SHP_TYPE_POLYGONZ,
         box           => [0.0, 0.0, 0.0, 0.0],
         z_range       => [0.0, 0.0],
         m_range       => [0.0, 0.0],
@@ -485,20 +485,20 @@ sub pack_polygonz {
 }
 
 my %pack_shp_record = (
-    $SHPT_NULL        => \&pack_null,
-    $SHPT_POINT       => \&pack_point,
-    $SHPT_POLYLINE    => \&pack_polyline,
-    $SHPT_POLYGON     => \&pack_polygon,
-    $SHPT_MULTIPOINT  => \&pack_multipoint,
-    $SHPT_POINTZ      => \&pack_pointz,
-    $SHPT_POLYLINEZ   => \&pack_polylinez,
-    $SHPT_POLYGONZ    => \&pack_polygonz,
-    $SHPT_MULTIPOINTZ => \&pack_multipointz,
-    $SHPT_POINTM      => \&pack_pointm,
-    $SHPT_POLYLINEM   => \&pack_polylinem,
-    $SHPT_POLYGONM    => \&pack_polygonm,
-    $SHPT_MULTIPOINTM => \&pack_multipointm,
-    $SHPT_MULTIPATCH  => undef,
+    $SHP_TYPE_NULL        => \&pack_null,
+    $SHP_TYPE_POINT       => \&pack_point,
+    $SHP_TYPE_POLYLINE    => \&pack_polyline,
+    $SHP_TYPE_POLYGON     => \&pack_polygon,
+    $SHP_TYPE_MULTIPOINT  => \&pack_multipoint,
+    $SHP_TYPE_POINTZ      => \&pack_pointz,
+    $SHP_TYPE_POLYLINEZ   => \&pack_polylinez,
+    $SHP_TYPE_POLYGONZ    => \&pack_polygonz,
+    $SHP_TYPE_MULTIPOINTZ => \&pack_multipointz,
+    $SHP_TYPE_POINTM      => \&pack_pointm,
+    $SHP_TYPE_POLYLINEM   => \&pack_polylinem,
+    $SHP_TYPE_POLYGONM    => \&pack_polygonm,
+    $SHP_TYPE_MULTIPOINTM => \&pack_multipointm,
+    $SHP_TYPE_MULTIPATCH  => undef,
 );
 
 sub pack_shp_record {
@@ -674,23 +674,23 @@ write_shp_and_shx(
     shp_file => catfile(qw(data point.shp)),
     shx_file => catfile(qw(data point.shx)),
     header   => {
-        shape_type => $SHPT_POINT,
+        shape_type => $SHP_TYPE_POINT,
         x_min      => 7.8522,
         y_min      => 47.9959,
         x_max      => 9.1770,
         y_max      => 49.4891,
     },
     shapes => [
-        {   shape_type => $SHPT_POINT,
+        {   shape_type => $SHP_TYPE_POINT,
             point      => [7.8522, 47.9959],
         },
-        {   shape_type => $SHPT_POINT,
+        {   shape_type => $SHP_TYPE_POINT,
             point      => [8.4044, 49.0094],
         },
-        {   shape_type => $SHPT_POINT,
+        {   shape_type => $SHP_TYPE_POINT,
             point      => [8.4669, 49.4891],
         },
-        {   shape_type => $SHPT_POINT,
+        {   shape_type => $SHP_TYPE_POINT,
             point      => [9.1770, 48.7823],
         },
     ]
@@ -731,23 +731,23 @@ write_shp_and_shx(
     shp_file => catfile(qw(data pointm.shp)),
     shx_file => catfile(qw(data pointm.shx)),
     header   => {
-        shape_type => $SHPT_POINTM,
+        shape_type => $SHP_TYPE_POINTM,
         x_min      => -118.2437,
         y_min      => -34.6132,
         x_max      => 151.2073,
         y_max      => 59.9127,
     },
     shapes => [
-        {   shape_type => $SHPT_POINTM,
+        {   shape_type => $SHP_TYPE_POINTM,
             point      => [-58.3772, -34.6132, 29],
         },
-        {   shape_type => $SHPT_POINTM,
+        {   shape_type => $SHP_TYPE_POINTM,
             point      => [-118.2437, 34.0522, 26],
         },
-        {   shape_type => $SHPT_POINTM,
+        {   shape_type => $SHP_TYPE_POINTM,
             point      => [10.7461, 59.9127, -13],
         },
-        {   shape_type => $SHPT_POINTM,
+        {   shape_type => $SHP_TYPE_POINTM,
             point      => [151.2073, -33.8679, 17],
         },
     ]
@@ -789,7 +789,7 @@ write_shp_and_shx(
     shp_file => catfile(qw(data pointz.shp)),
     shx_file => catfile(qw(data pointz.shx)),
     header   => {
-        shape_type => $SHPT_POINTZ,
+        shape_type => $SHP_TYPE_POINTZ,
         x_min      => 6.864325,
         y_min      => 45.832544,
         x_max      => 12.6939,
@@ -800,13 +800,13 @@ write_shp_and_shx(
         m_max      => 2812,
     },
     shapes => [
-        {   shape_type => $SHPT_POINTZ,
+        {   shape_type => $SHP_TYPE_POINTZ,
             point      => [12.6939, 47.074531, 3798, 175],
         },
-        {   shape_type => $SHPT_POINTZ,
+        {   shape_type => $SHP_TYPE_POINTZ,
             point      => [6.864325, 45.832544, 4807.81, 2812],
         },
-        {   shape_type => $SHPT_POINTZ,
+        {   shape_type => $SHP_TYPE_POINTZ,
             point      => [10.9863, 47.42122, 2962.06, 25.8],
         },
     ]
@@ -833,21 +833,21 @@ write_shp_and_shx(
     shp_file => catfile(qw(data multipoint.shp)),
     shx_file => catfile(qw(data multipoint.shx)),
     header   => {
-        shape_type => $SHPT_MULTIPOINT,
+        shape_type => $SHP_TYPE_MULTIPOINT,
         x_min      => 8.9973,
         y_min      => 48.5671,
         x_max      => 9.0911,
         y_max      => 48.7719,
     },
     shapes => [
-        {   shape_type => $SHPT_MULTIPOINT,
+        {   shape_type => $SHP_TYPE_MULTIPOINT,
             box        => [9.0909, 48.7642, 9.0911, 48.7719],
             points     => [
                 [9.0909, 48.7642],    # Grillplatz am Wapitiweg
                 [9.0911, 48.7719],    # Pappelgartengrillhütte
             ]
         },
-        {   shape_type => $SHPT_MULTIPOINT,
+        {   shape_type => $SHP_TYPE_MULTIPOINT,
             box        => [8.9973, 48.5671, 9.0611, 48.6091],
             points     => [
                 [8.9973, 48.5851],    # Feuerstelle Ziegelweiher
@@ -882,7 +882,7 @@ write_shp_and_shx(
     shp_file => catfile(qw(data multipointm.shp)),
     shx_file => catfile(qw(data multipointm.shx)),
     header   => {
-        shape_type => $SHPT_MULTIPOINTM,
+        shape_type => $SHP_TYPE_MULTIPOINTM,
         x_min      => -21.8277,
         y_min      => -33.9189,
         x_max      => 37.6184,
@@ -891,7 +891,7 @@ write_shp_and_shx(
         m_max      => 31,
     },
     shapes => [
-        {   shape_type => $SHPT_MULTIPOINTM,
+        {   shape_type => $SHP_TYPE_MULTIPOINTM,
             box        => [-0.2059, -33.9189, 31.2333, 30.0333],
             m_range    => [20, 31],
             points     => [
@@ -900,7 +900,7 @@ write_shp_and_shx(
                 [18.4233, -33.9189, 23],    # Cape Town
             ]
         },
-        {   shape_type => $SHPT_MULTIPOINTM,
+        {   shape_type => $SHP_TYPE_MULTIPOINTM,
             box        => [-21.8277, 38.7369, 37.6184, 64.1283],
             m_range    => [-5, 15],
             points     => [
@@ -935,7 +935,7 @@ write_shp_and_shx(
     shp_file => catfile(qw(data multipointz.shp)),
     shx_file => catfile(qw(data multipointz.shx)),
     header   => {
-        shape_type => $SHPT_MULTIPOINTZ,
+        shape_type => $SHP_TYPE_MULTIPOINTZ,
         x_min      => -151.007708,
         y_min      => -32.653333,
         x_max      => -68.54176,
@@ -946,7 +946,7 @@ write_shp_and_shx(
         m_max      => 16536,
     },
     shapes => [
-        {   shape_type => $SHPT_MULTIPOINTZ,
+        {   shape_type => $SHP_TYPE_MULTIPOINTZ,
             box        => [-151.007708, 19.027778, -98.623056, 63.068515],
             z_range    => [4392,        6190],
             m_range    => [142,         7450],
@@ -956,7 +956,7 @@ write_shp_and_shx(
                 [-98.623056,  19.027778, 5452, 142],     # Popocatépetl
             ]
         },
-        {   shape_type => $SHPT_MULTIPOINTZ,
+        {   shape_type => $SHP_TYPE_MULTIPOINTZ,
             box        => [-78.437131, -32.653333, -68.54176, -0.684067],
             z_range    => [5897,       6961],
             m_range    => [96.67,      16536],
@@ -989,18 +989,18 @@ write_shp_and_shx(
     shp_file => catfile(qw(data polyline.shp)),
     shx_file => catfile(qw(data polyline.shx)),
     header   => {
-        shape_type => $SHPT_POLYLINE,
+        shape_type => $SHP_TYPE_POLYLINE,
         x_min      => 1,
         y_min      => 1,
         x_max      => 3,
         y_max      => 3,
     },
     shapes => [
-        {   shape_type => $SHPT_POLYLINE,
+        {   shape_type => $SHP_TYPE_POLYLINE,
             box        => [1, 1, 3, 3],
             parts      => [[[1, 1], [3, 3]], [[1, 3], [3, 1]]]
         },
-        {   shape_type => $SHPT_POLYLINE,
+        {   shape_type => $SHP_TYPE_POLYLINE,
             box        => [1, 1, 3, 3],
             parts      => [[[1, 2], [2, 2], [2, 3]], [[2, 1], [2, 2], [3, 2]]]
         },
@@ -1027,7 +1027,7 @@ write_shp_and_shx(
     shp_file => catfile(qw(data polylinem.shp)),
     shx_file => catfile(qw(data polylinem.shx)),
     header   => {
-        shape_type => $SHPT_POLYLINEM,
+        shape_type => $SHP_TYPE_POLYLINEM,
         x_min      => 1,
         y_min      => 1,
         x_max      => 4,
@@ -1036,7 +1036,7 @@ write_shp_and_shx(
         m_max      => 6,
     },
     shapes => [
-        {   shape_type => $SHPT_POLYLINEM,
+        {   shape_type => $SHP_TYPE_POLYLINEM,
             box        => [1, 1, 4, 2],
             m_range    => [1, 6],
             parts      => [[
@@ -1067,7 +1067,7 @@ write_shp_and_shx(
     shp_file => catfile(qw(data polylinez.shp)),
     shx_file => catfile(qw(data polylinez.shx)),
     header   => {
-        shape_type => $SHPT_POLYLINEZ,
+        shape_type => $SHP_TYPE_POLYLINEZ,
         x_min      => 8.975675,
         y_min      => 48.746122,
         x_max      => 8.976038,
@@ -1078,7 +1078,7 @@ write_shp_and_shx(
         m_max      => 2.02,
     },
     shapes => [
-        {   shape_type => $SHPT_POLYLINEZ,
+        {   shape_type => $SHP_TYPE_POLYLINEZ,
             box        => [8.975675, 48.746122, 8.976038, 48.746420],
             z_range    => [477.5,    493.3],
             m_range    => [0.0,      2.02],
@@ -1133,7 +1133,7 @@ write_shp_and_shx(
     shp_file => catfile(qw(data polygon.shp)),
     shx_file => catfile(qw(data polygon.shx)),
     header   => {
-        shape_type => $SHPT_POLYGON,
+        shape_type => $SHP_TYPE_POLYGON,
         x_min      => -180.0,
         y_min      => -90.0,
         x_max      => 180.0,
@@ -1141,13 +1141,13 @@ write_shp_and_shx(
     },
     shapes => [
         {    # rectangle
-            shape_type => $SHPT_POLYGON,
+            shape_type => $SHP_TYPE_POLYGON,
             box        => [0, 0, 1, 1],
             parts      =>
                 [[[0.2, 0.2], [0.2, 0.8], [0.8, 0.8], [0.8, 0.2], [0.2, 0.2]]]
         },
         {    # triangle with hole
-            shape_type => $SHPT_POLYGON,
+            shape_type => $SHP_TYPE_POLYGON,
             box        => [0, 0, 1, 1],
             parts      => [
                 [[0.2, 0.2], [0.5, 0.8], [0.8, 0.2], [0.2, 0.2]],
@@ -1155,13 +1155,13 @@ write_shp_and_shx(
             ]
         },
         {    # America/Los_Angeles
-            shape_type => $SHPT_POLYGON,
+            shape_type => $SHP_TYPE_POLYGON,
             box        => [-126, 33, -114, 49],
             parts      =>
                 [[[-126, 33], [-126, 49], [-114, 49], [-114, 33], [-126, 33]]]
         },
         {    # Africa/Juba
-            shape_type => $SHPT_POLYGON,
+            shape_type => $SHP_TYPE_POLYGON,
             box        => [23.45, 3.49, 35.95, 12.24],
             parts      => [[
                 [23.45, 3.49],
@@ -1172,7 +1172,7 @@ write_shp_and_shx(
             ]]
         },
         {    # Africa/Khartoum
-            shape_type => $SHPT_POLYGON,
+            shape_type => $SHP_TYPE_POLYGON,
             box        => [21.81, 8.69, 39.06, 22.22],
             parts      => [[
                 [21.81, 8.69],
@@ -1183,7 +1183,7 @@ write_shp_and_shx(
             ]]
         },
         {    # Europe/Oslo
-            shape_type => $SHPT_POLYGON,
+            shape_type => $SHP_TYPE_POLYGON,
             box        => [10, 59, 11, 60],
             parts      => [[[10, 59], [10, 60], [11, 60], [11, 59], [10, 59]]]
         },
@@ -1210,7 +1210,7 @@ write_shp_and_shx(
     shp_file => catfile(qw(data polygonm.shp)),
     shx_file => catfile(qw(data polygonm.shx)),
     header   => {
-        shape_type => $SHPT_POLYGONM,
+        shape_type => $SHP_TYPE_POLYGONM,
         x_min      => 1,
         y_min      => 1,
         x_max      => 2,
@@ -1219,7 +1219,7 @@ write_shp_and_shx(
         m_max      => 5,
     },
     shapes => [
-        {   shape_type => $SHPT_POLYGONM,
+        {   shape_type => $SHP_TYPE_POLYGONM,
             box        => [1, 1, 2, 2],
             m_range    => [1, 5],
             parts => [[[1, 1, 1], [1, 2, 2], [2, 2, 3], [2, 1, 4], [1, 1, 5]]]
@@ -1247,7 +1247,7 @@ write_shp_and_shx(
     shp_file => catfile(qw(data polygonz.shp)),
     shx_file => catfile(qw(data polygonz.shx)),
     header   => {
-        shape_type => $SHPT_POLYGONZ,
+        shape_type => $SHP_TYPE_POLYGONZ,
         x_min      => 0,
         y_min      => 0,
         x_max      => 1,
@@ -1258,7 +1258,7 @@ write_shp_and_shx(
         m_max      => 29,
     },
     shapes => [
-        {   shape_type => $SHPT_POLYGONZ,
+        {   shape_type => $SHP_TYPE_POLYGONZ,
             box        => [0, 0, 1, 1],
             z_range    => [0, 1],
             m_range    => [0, 29],

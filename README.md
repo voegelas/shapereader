@@ -84,7 +84,7 @@ void print_shape(const shp_record_t *record) {
   double x, y;
 
   switch (record->shape_type) {
-  case SHPT_POINT:
+  case SHP_TYPE_POINT:
     x = record->shape.point.x;
     y = record->shape.point.y;
     printf("[%lf, %lf]\n", x, y);
