@@ -40,13 +40,13 @@ test_ranges(void)
 }
 
 static int
-test_has_two_parts(void)
+test_num_parts(void)
 {
     return polygonz->num_parts == 6;
 }
 
 static int
-test_has_sixteen_points(void)
+test_num_points(void)
 {
     return polygonz->num_points == 30;
 }
@@ -54,7 +54,7 @@ test_has_sixteen_points(void)
 static int
 test_points_match(void)
 {
-    size_t i, j, n;
+    size_t part_num, i, j, n;
     shp_pointz_t p;
     const shp_pointz_t points[30] = {
         {0, 0, 0, 0},  {0, 1, 0, 1},  {0, 1, 1, 2},  {0, 0, 1, 3},
@@ -66,15 +66,22 @@ test_points_match(void)
         {1, 0, 0, 19}, {0, 0, 0, 25}, {0, 1, 0, 26}, {1, 1, 0, 27},
         {1, 0, 0, 28}, {0, 0, 0, 29}};
 
+    if (polygonz->num_parts != 6) {
+        return 0;
+    }
+
     j = 0;
-    shp_polygonz_points(polygonz, 0, &i, &n);
-    while (i < n) {
-        shp_polygonz_pointz(polygonz, i, &p);
-        if (p.x != points[j].x || p.y != points[j].y || p.m != points[j].m) {
-            return 0;
+    for (part_num = 0; part_num < polygonz->num_parts; ++part_num) {
+        shp_polygonz_points(polygonz, part_num, &i, &n);
+        while (i < n) {
+            shp_polygonz_pointz(polygonz, i, &p);
+            if (p.x != points[j].x || p.y != points[j].y ||
+                p.m != points[j].m) {
+                return 0;
+            }
+            ++j;
+            ++i;
         }
-        ++j;
-        ++i;
     }
     return 1;
 }
@@ -86,9 +93,9 @@ test_shp(void)
     polygonz = &shp_record->shape.polygonz;
     switch (record_number) {
     case 0:
-        ok(test_ranges, "bounding box and ranges match");
-        ok(test_has_two_parts, "gon has two parts");
-        ok(test_has_sixteen_points, "gon has sixteen points");
+        ok(test_ranges, "ranges match");
+        ok(test_num_parts, "num_parts matches");
+        ok(test_num_points, "num_points matches");
         ok(test_points_match, "points match");
         break;
     }
