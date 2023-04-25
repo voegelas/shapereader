@@ -31,20 +31,20 @@ test_record_shape_type(void)
 }
 
 static int
-test_bbox(void)
+test_ranges(void)
 {
     return polygonm->x_min == 1 && polygonm->y_min == 1 &&
            polygonm->x_max == 2 && polygonm->y_max == 2;
 }
 
 static int
-test_has_one_part(void)
+test_num_parts(void)
 {
     return polygonm->num_parts == 1;
 }
 
 static int
-test_has_six_points(void)
+test_num_points(void)
 {
     return polygonm->num_points == 5;
 }
@@ -52,20 +52,27 @@ test_has_six_points(void)
 static int
 test_points_match(void)
 {
-    size_t i, j, n;
+    size_t part_num, i, j, n;
     shp_pointm_t p;
     const shp_pointm_t points[5] = {
         {1, 1, 1}, {1, 2, 2}, {2, 2, 3}, {2, 1, 4}, {1, 1, 5}};
 
+    if (polygonm->num_parts != 1) {
+        return 0;
+    }
+
     j = 0;
-    shp_polygonm_points(polygonm, 0, &i, &n);
-    while (i < n) {
-        shp_polygonm_pointm(polygonm, i, &p);
-        if (p.x != points[j].x || p.y != points[j].y || p.m != points[j].m) {
-            return 0;
+    for (part_num = 0; part_num < polygonm->num_parts; ++part_num) {
+        shp_polygonm_points(polygonm, part_num, &i, &n);
+        while (i < n) {
+            shp_polygonm_pointm(polygonm, i, &p);
+            if (p.x != points[j].x || p.y != points[j].y ||
+                p.m != points[j].m) {
+                return 0;
+            }
+            ++j;
+            ++i;
         }
-        ++j;
-        ++i;
     }
     return 1;
 }
@@ -77,9 +84,9 @@ test_shp(void)
     polygonm = &shp_record->shape.polygonm;
     switch (record_number) {
     case 0:
-        ok(test_bbox, "bounding box matches");
-        ok(test_has_one_part, "polygon has one part");
-        ok(test_has_six_points, "polygon has five points");
+        ok(test_ranges, "ranges match");
+        ok(test_num_parts, "num_parts matches");
+        ok(test_num_points, "num_points matches");
         ok(test_points_match, "points match");
         break;
     }

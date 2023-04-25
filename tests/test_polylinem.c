@@ -31,20 +31,20 @@ test_record_shape_type(void)
 }
 
 static int
-test_bbox(void)
+test_ranges(void)
 {
     return polylinem->x_min == 1 && polylinem->y_min == 1 &&
            polylinem->x_max == 4 && polylinem->y_max == 2;
 }
 
 static int
-test_has_one_part(void)
+test_num_parts(void)
 {
     return polylinem->num_parts == 1;
 }
 
 static int
-test_has_six_points(void)
+test_num_points(void)
 {
     return polylinem->num_points == 6;
 }
@@ -52,20 +52,27 @@ test_has_six_points(void)
 static int
 test_points_match(void)
 {
-    size_t i, j, n;
+    size_t part_num, i, j, n;
     shp_pointm_t p;
     const shp_pointm_t points[6] = {{1, 1, 1}, {2, 1, 2}, {2, 2, 3},
                                     {3, 2, 4}, {3, 1, 5}, {4, 1, 6}};
 
+    if (polylinem->num_parts != 1) {
+        return 0;
+    }
+
     j = 0;
-    shp_polylinem_points(polylinem, 0, &i, &n);
-    while (i < n) {
-        shp_polylinem_pointm(polylinem, i, &p);
-        if (p.x != points[j].x || p.y != points[j].y || p.m != points[j].m) {
-            return 0;
+    for (part_num = 0; part_num < polylinem->num_parts; ++part_num) {
+        shp_polylinem_points(polylinem, part_num, &i, &n);
+        while (i < n) {
+            shp_polylinem_pointm(polylinem, i, &p);
+            if (p.x != points[j].x || p.y != points[j].y ||
+                p.m != points[j].m) {
+                return 0;
+            }
+            ++j;
+            ++i;
         }
-        ++j;
-        ++i;
     }
     return 1;
 }
@@ -77,9 +84,9 @@ test_shp(void)
     polylinem = &shp_record->shape.polylinem;
     switch (record_number) {
     case 0:
-        ok(test_bbox, "bounding box matches");
-        ok(test_has_one_part, "line has one part");
-        ok(test_has_six_points, "line has six points");
+        ok(test_ranges, "ranges match");
+        ok(test_num_parts, "num_parts matches");
+        ok(test_num_points, "num_points matches");
         ok(test_points_match, "points match");
         break;
     }

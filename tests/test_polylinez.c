@@ -40,13 +40,13 @@ test_ranges(void)
 }
 
 static int
-test_has_two_parts(void)
+test_num_parts(void)
 {
     return polylinez->num_parts == 2;
 }
 
 static int
-test_has_sixteen_points(void)
+test_num_points(void)
 {
     return polylinez->num_points == 16;
 }
@@ -54,7 +54,7 @@ test_has_sixteen_points(void)
 static int
 test_points_match(void)
 {
-    size_t i, j, n;
+    size_t part_num, i, j, n;
     shp_pointz_t p;
     const shp_pointz_t points[16] = {
         {8.975817, 48.746274, 493.2, 0.0},
@@ -75,15 +75,22 @@ test_points_match(void)
         {8.976038, 48.746420, 478.9, 1.43},
     };
 
+    if (polylinez->num_parts != 2) {
+        return 0;
+    }
+
     j = 0;
-    shp_polylinez_points(polylinez, 0, &i, &n);
-    while (i < n) {
-        shp_polylinez_pointz(polylinez, i, &p);
-        if (p.x != points[j].x || p.y != points[j].y || p.m != points[j].m) {
-            return 0;
+    for (part_num = 0; part_num < polylinez->num_parts; ++part_num) {
+        shp_polylinez_points(polylinez, part_num, &i, &n);
+        while (i < n) {
+            shp_polylinez_pointz(polylinez, i, &p);
+            if (p.x != points[j].x || p.y != points[j].y ||
+                p.m != points[j].m) {
+                return 0;
+            }
+            ++j;
+            ++i;
         }
-        ++j;
-        ++i;
     }
     return 1;
 }
@@ -95,9 +102,9 @@ test_shp(void)
     polylinez = &shp_record->shape.polylinez;
     switch (record_number) {
     case 0:
-        ok(test_ranges, "bounding box and ranges match");
-        ok(test_has_two_parts, "line has two parts");
-        ok(test_has_sixteen_points, "line has sixteen points");
+        ok(test_ranges, "ranges match");
+        ok(test_num_parts, "num_parts matches");
+        ok(test_num_points, "num_points matches");
         ok(test_points_match, "points match");
         break;
     }
