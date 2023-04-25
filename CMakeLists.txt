@@ -24,6 +24,7 @@ string(CONCAT description
 
 set(libshapereader_a_SOURCES
   dbf.c
+  shp-multipatch.c
   shp-multipoint.c
   shp-multipointm.c
   shp-multipointz.c
@@ -39,6 +40,7 @@ set(libshapereader_a_SOURCES
 
 set(pkginclude_HEADERS
   dbf.h
+  shp-multipatch.h
   shp-multipoint.h
   shp-multipointm.h
   shp-multipointz.h

@@ -24,6 +24,13 @@ my $SHP_TYPE_POLYGONM    = 25;
 my $SHP_TYPE_MULTIPOINTM = 28;
 my $SHP_TYPE_MULTIPATCH  = 31;
 
+my $SHP_PART_TYPE_TRIANGLE_STRIP = 0;
+my $SHP_PART_TYPE_TRIANGLE_FAN   = 1;
+my $SHP_PART_TYPE_OUTER_RING     = 2;
+my $SHP_PART_TYPE_INNER_RING     = 3;
+my $SHP_PART_TYPE_FIRST_RING     = 4;
+my $SHP_PART_TYPE_RING           = 5;
+
 my %ENCODING_FOR = (
     0x00 => 'UTF-8',
     0x13 => 'cp932',
@@ -482,6 +489,47 @@ sub pack_polygonz {
     return pack_polylinez(%h);
 }
 
+sub pack_multipatch {
+    my %h = (
+        record_number => 0,
+        type          => $SHP_TYPE_POLYLINEZ,
+        box           => [0.0, 0.0, 0.0, 0.0],
+        z_range       => [0.0, 0.0],
+        m_range       => [0.0, 0.0],
+        part_types    => [],
+        parts         => [],
+        @_
+    );
+
+    my @parts       = @{$h{parts}};
+    my $parts_count = scalar @parts;
+    my @part_types  = @{$h{part_types}};
+
+    my @parts_index = reductions { $a + scalar @{$b} } 0, @parts;
+    pop @parts_index;
+
+    my @points   = map { @{$_} } @parts;
+    my @xy_array = map { $_->[0], $_->[1] } @points;
+    my @z_array  = map { $_->[2] } @points;
+    my @m_array  = map { $_->[3] } @points;
+
+    my $points_count = scalar @points;
+    my $xy_count     = scalar @xy_array;
+
+    my $content_length = (76 + 8 * $parts_count + 32 * $points_count) / 2;
+
+    my $bytes
+        = pack "N2Ld<4L2L${parts_count}L${parts_count}"
+        . "d<${xy_count}"
+        . "d<2d<${points_count}"
+        . "d<2d<${points_count}",
+        $h{record_number}, $content_length, $h{type}, @{$h{box}}[0 .. 3],
+        $parts_count, $points_count, @parts_index, @part_types, @xy_array,
+        @{$h{z_range}}[0 .. 1], @z_array, @{$h{m_range}}[0 .. 1], @m_array;
+
+    return $bytes;
+}
+
 my %pack_shp_record = (
     $SHP_TYPE_NULL        => \&pack_null,
     $SHP_TYPE_POINT       => \&pack_point,
@@ -496,7 +544,7 @@ my %pack_shp_record = (
     $SHP_TYPE_POLYLINEM   => \&pack_polylinem,
     $SHP_TYPE_POLYGONM    => \&pack_polygonm,
     $SHP_TYPE_MULTIPOINTM => \&pack_multipointm,
-    $SHP_TYPE_MULTIPATCH  => undef,
+    $SHP_TYPE_MULTIPATCH  => \&pack_multipatch,
 );
 
 sub pack_shp_record {
@@ -1261,6 +1309,88 @@ write_shp_and_shx(
             z_range => [0, 1],
             m_range => [0, 29],
             parts   => [
+                [   [0, 0, 0, 0],
+                    [0, 1, 0, 1],
+                    [0, 1, 1, 2],
+                    [0, 0, 1, 3],
+                    [0, 0, 0, 4]
+                ],
+                [   [0, 0, 0, 5],
+                    [0, 0, 1, 6],
+                    [1, 0, 1, 7],
+                    [1, 0, 0, 8],
+                    [0, 0, 0, 9]
+                ],
+                [   [0, 0, 1, 20],
+                    [0, 1, 1, 21],
+                    [1, 1, 1, 22],
+                    [1, 0, 1, 23],
+                    [0, 0, 1, 24]
+                ],
+                [   [1, 1, 0, 10],
+                    [1, 1, 1, 11],
+                    [0, 1, 1, 12],
+                    [0, 1, 0, 13],
+                    [1, 1, 0, 14]
+                ],
+                [   [1, 0, 0, 15],
+                    [1, 0, 1, 16],
+                    [1, 1, 1, 17],
+                    [1, 1, 0, 18],
+                    [1, 0, 0, 19]
+                ],
+                [   [0, 0, 0, 25],
+                    [0, 1, 0, 26],
+                    [1, 1, 0, 27],
+                    [1, 0, 0, 28],
+                    [0, 0, 0, 29]
+                ],
+            ]
+        },
+    ]
+);
+
+#
+# multipatch.shp
+#
+
+write_dbf(
+    file   => catfile(qw(data multipatch.dbf)),
+    header => {
+        fields => [{
+            name   => 'id',
+            type   => 'N',
+            length => 10,
+        }],
+    },
+    records => [[q{ }, 1]]
+);
+
+write_shp_and_shx(
+    shp_file => catfile(qw(data multipatch.shp)),
+    shx_file => catfile(qw(data multipatch.shx)),
+    header   => {
+        type  => $SHP_TYPE_MULTIPATCH,
+        x_min => 0,
+        y_min => 0,
+        x_max => 1,
+        y_max => 1,
+        z_min => 0,
+        z_max => 1,
+        m_min => 0,
+        m_max => 29,
+    },
+    shapes => [
+        {   type       => $SHP_TYPE_MULTIPATCH,
+            box        => [0, 0, 1, 1],
+            z_range    => [0, 1],
+            m_range    => [0, 29],
+            part_types => [
+                $SHP_PART_TYPE_RING, $SHP_PART_TYPE_RING,
+                $SHP_PART_TYPE_RING, $SHP_PART_TYPE_RING,
+                $SHP_PART_TYPE_RING, $SHP_PART_TYPE_RING,
+            ],
+            parts => [
                 [   [0, 0, 0, 0],
                     [0, 1, 0, 1],
                     [0, 1, 1, 2],

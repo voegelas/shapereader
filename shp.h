@@ -16,6 +16,7 @@
 #ifndef _SHAPEREADER_SHP_H
 #define _SHAPEREADER_SHP_H
 
+#include "shp-multipatch.h"
 #include "shp-multipoint.h"
 #include "shp-multipointm.h"
 #include "shp-multipointz.h"
@@ -102,6 +103,8 @@ typedef struct shp_record_t {
         shp_polygonm_t polygonm;
         /** PolygonZ if @a type is @c SHP_TYPE_POLYGONZ */
         shp_polygonz_t polygonz;
+        /** MultiPatch if @a type is @c SHP_TYPE_MULTIPATCH */
+        shp_multipatch_t multipatch;
     } shape;
 } shp_record_t;
 

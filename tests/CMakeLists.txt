@@ -13,6 +13,7 @@ set(tests
   polygon
   polygonm
   polygonz
+  multipatch
 )
 
 foreach(name ${tests})

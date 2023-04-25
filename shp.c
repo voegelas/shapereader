@@ -668,6 +668,64 @@ cleanup:
 }
 
 static int
+get_multipatch(shp_file_t *fh, const char *buf, shp_record_t *record)
+{
+    int rc = -1;
+    shp_multipatch_t *multipatch = &record->shape.multipatch;
+    size_t record_size, parts_size, points_size, z_size, m_size,
+        expected_size;
+
+    record_size = record->record_size;
+    if (record_size < 76) {
+        shp_set_error(fh, "Record size %zu is too small in record %zu",
+                      record_size, record->record_number);
+        errno = EINVAL;
+        goto cleanup;
+    }
+
+    multipatch->x_min = shp_le64_to_double(&buf[4]);
+    multipatch->y_min = shp_le64_to_double(&buf[12]);
+    multipatch->x_max = shp_le64_to_double(&buf[20]);
+    multipatch->y_max = shp_le64_to_double(&buf[28]);
+    multipatch->num_parts = shp_le32_to_uint32(&buf[36]);
+    multipatch->num_points = shp_le32_to_uint32(&buf[40]);
+
+    parts_size = 4 * multipatch->num_parts;
+    points_size = 16 * multipatch->num_points;
+    z_size = 8 * multipatch->num_points;
+    m_size = z_size;
+
+    expected_size = 76 + 2 * parts_size + points_size + z_size + m_size;
+    if (record_size != expected_size) {
+        shp_set_error(fh,
+                      "Expected record of %zu bytes, got %zu in record %zu",
+                      expected_size, record_size, record->record_number);
+        errno = EINVAL;
+        goto cleanup;
+    }
+
+    multipatch->_parts = &buf[44];
+    multipatch->_types = multipatch->_parts + parts_size;
+    multipatch->_points = multipatch->_types + parts_size;
+
+    buf = multipatch->_points + points_size;
+    multipatch->z_min = shp_le64_to_double(&buf[0]);
+    multipatch->z_max = shp_le64_to_double(&buf[8]);
+    multipatch->_z_array = &buf[16];
+
+    buf = multipatch->_z_array + z_size;
+    multipatch->m_min = shp_le64_to_double(&buf[0]);
+    multipatch->m_max = shp_le64_to_double(&buf[8]);
+    multipatch->_m_array = &buf[16];
+
+    rc = 1;
+
+cleanup:
+
+    return rc;
+}
+
+static int
 read_record(shp_file_t *fh, shp_record_t **precord, size_t *size)
 {
     int rc = -1;
@@ -776,6 +834,9 @@ read_record(shp_file_t *fh, shp_record_t **precord, size_t *size)
         break;
     case SHP_TYPE_POLYGONZ:
         rc = get_polygonz(fh, buf, record);
+        break;
+    case SHP_TYPE_MULTIPATCH:
+        rc = get_multipatch(fh, buf, record);
         break;
     default:
         shp_set_error(fh, "Shape type %d is unknown in record %zu",
