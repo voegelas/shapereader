@@ -63,7 +63,7 @@ dbf_init_file(dbf_file_t *fh, FILE *stream, void *user_data)
     fh->user_data = user_data;
     fh->num_bytes = 0;
     fh->error[0] = '\0';
-    fh->_record_size = 0;
+    fh->record_size = 0;
 
     return fh;
 }
@@ -98,8 +98,8 @@ static void
 get_bytes_readonly(const dbf_record_t *record, const dbf_field_t *field,
                    const char **pbytes, size_t *len)
 {
-    *pbytes = record->_bytes + field->_offset;
-    *len = field->_size;
+    *pbytes = record->bytes + field->offset;
+    *len = field->size;
 }
 
 static void
@@ -426,7 +426,7 @@ dbf_record_int64(const dbf_record_t *record, const dbf_field_t *field,
 int
 dbf_record_is_deleted(const dbf_record_t *record)
 {
-    return (record->_bytes[0] == '*');
+    return (record->bytes[0] == '*');
 }
 
 static int
@@ -792,9 +792,9 @@ get_field_dbase2(const char *buf, size_t *offset, dbf_field_t *field)
         field->reserved[i] = 0;
     }
 
-    field->_size = field_size(field);
-    field->_offset = *offset;
-    *offset += field->_size;
+    field->size = field_size(field);
+    field->offset = *offset;
+    *offset += field->size;
 }
 
 static void
@@ -812,9 +812,9 @@ get_field_dbase3(const char *buf, size_t *offset, dbf_field_t *field)
         field->reserved[i] = (unsigned char) buf[18 + i];
     }
 
-    field->_size = field_size(field);
-    field->_offset = *offset;
-    *offset += field->_size;
+    field->size = field_size(field);
+    field->offset = *offset;
+    *offset += field->size;
 }
 
 static int
@@ -991,7 +991,7 @@ read_header_dbase3(dbf_file_t *fh, dbf_version_t version,
         goto cleanup;
     }
 
-    fh->_record_size = record_size;
+    fh->record_size = record_size;
 
     num_fields = 0;
     n = 0;
@@ -1121,10 +1121,10 @@ dbf_read_record(dbf_file_t *fh, dbf_record_t **precord)
     size_t nr;
 
     assert(fh != NULL);
-    assert(fh->_record_size > 0);
+    assert(fh->record_size > 0);
     assert(precord != NULL);
 
-    record_size = fh->_record_size;
+    record_size = fh->record_size;
 
     result_size = sizeof(*record) + record_size;
     record = (dbf_record_t *) malloc(result_size);
@@ -1134,7 +1134,7 @@ dbf_read_record(dbf_file_t *fh, dbf_record_t **precord)
     }
 
     buf = ((char *) record) + sizeof(*record);
-    record->_bytes = buf;
+    record->bytes = buf;
     if ((nr = (*fh->fread)(fh, buf, record_size)) > 0) {
         if (buf[0] == '\x1a') {
             /* Reached end-of-file marker. */
@@ -1220,7 +1220,7 @@ dbf_read(dbf_file_t *fh, dbf_header_callback_t handle_header,
     }
 
     buf = ((char *) record) + sizeof(*record);
-    record->_bytes = buf;
+    record->bytes = buf;
 
     record_num = 0;
     file_offset = fh->num_bytes;

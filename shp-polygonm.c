@@ -27,7 +27,7 @@ shp_polygonm_points(const shp_polygonm_t *polygonm, size_t part_num,
 
     m = polygonm->num_points;
 
-    buf = polygonm->_parts + 4 * part_num;
+    buf = polygonm->parts + 4 * part_num;
     i = shp_le32_to_int32(&buf[0]);
     if (part_num + 1 < polygonm->num_parts) {
         j = shp_le32_to_int32(&buf[4]);
@@ -58,10 +58,10 @@ shp_polygonm_pointm(const shp_polygonm_t *polygonm, size_t point_num,
     assert(point_num < polygonm->num_points);
     assert(pointm != NULL);
 
-    buf = polygonm->_points + 16 * point_num;
+    buf = polygonm->points + 16 * point_num;
     pointm->x = shp_le64_to_double(&buf[0]);
     pointm->y = shp_le64_to_double(&buf[8]);
 
-    buf = polygonm->_m_array + 8 * point_num;
+    buf = polygonm->m_array + 8 * point_num;
     pointm->m = shp_le64_to_double(&buf[0]);
 }

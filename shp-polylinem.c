@@ -27,7 +27,7 @@ shp_polylinem_points(const shp_polylinem_t *polylinem, size_t part_num,
 
     m = polylinem->num_points;
 
-    buf = polylinem->_parts + 4 * part_num;
+    buf = polylinem->parts + 4 * part_num;
     i = shp_le32_to_int32(&buf[0]);
     if (part_num + 1 < polylinem->num_parts) {
         j = shp_le32_to_int32(&buf[4]);
@@ -58,10 +58,10 @@ shp_polylinem_pointm(const shp_polylinem_t *polylinem, size_t point_num,
     assert(point_num < polylinem->num_points);
     assert(pointm != NULL);
 
-    buf = polylinem->_points + 16 * point_num;
+    buf = polylinem->points + 16 * point_num;
     pointm->x = shp_le64_to_double(&buf[0]);
     pointm->y = shp_le64_to_double(&buf[8]);
 
-    buf = polylinem->_m_array + 8 * point_num;
+    buf = polylinem->m_array + 8 * point_num;
     pointm->m = shp_le64_to_double(&buf[0]);
 }

@@ -26,18 +26,18 @@
  * a temperature.
  */
 typedef struct shp_multipointz_t {
-    double x_min;         /**< X minimum value */
-    double x_max;         /**< X maximum value */
-    double y_min;         /**< Y minimum value */
-    double y_max;         /**< Y maximum value */
-    double z_min;         /**< Z minimum value */
-    double z_max;         /**< Z maximum value */
-    double m_min;         /**< M minimum value */
-    double m_max;         /**< M maximum value */
-    size_t num_points;    /**< Number of points */
-    const char *_points;  /* X and Y coordinates */
-    const char *_z_array; /* Z coordinates */
-    const char *_m_array; /* Measures */
+    double x_min;        /**< X minimum value */
+    double x_max;        /**< X maximum value */
+    double y_min;        /**< Y minimum value */
+    double y_max;        /**< Y maximum value */
+    double z_min;        /**< Z minimum value */
+    double z_max;        /**< Z maximum value */
+    double m_min;        /**< M minimum value */
+    double m_max;        /**< M maximum value */
+    size_t num_points;   /**< Number of points */
+    const char *points;  /* X and Y coordinates */
+    const char *z_array; /* Z coordinates */
+    const char *m_array; /* Measures */
 } shp_multipointz_t;
 
 /**

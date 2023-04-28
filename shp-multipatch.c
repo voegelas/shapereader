@@ -28,7 +28,7 @@ shp_multipatch_points(const shp_multipatch_t *multipatch, size_t part_num,
     m = multipatch->num_points;
     n = 4 * part_num;
 
-    buf = multipatch->_parts + n;
+    buf = multipatch->parts + n;
     i = shp_le32_to_int32(&buf[0]);
     if (part_num + 1 < multipatch->num_parts) {
         j = shp_le32_to_int32(&buf[4]);
@@ -46,7 +46,7 @@ shp_multipatch_points(const shp_multipatch_t *multipatch, size_t part_num,
         num_points = j - i;
     }
 
-    buf = multipatch->_types + n;
+    buf = multipatch->types + n;
     *part_type = shp_le32_to_int32(&buf[0]);
 
     return num_points;
@@ -62,13 +62,13 @@ shp_multipatch_pointz(const shp_multipatch_t *multipatch, size_t point_num,
     assert(point_num < multipatch->num_points);
     assert(pointz != NULL);
 
-    buf = multipatch->_points + 16 * point_num;
+    buf = multipatch->points + 16 * point_num;
     pointz->x = shp_le64_to_double(&buf[0]);
     pointz->y = shp_le64_to_double(&buf[8]);
 
-    buf = multipatch->_z_array + 8 * point_num;
+    buf = multipatch->z_array + 8 * point_num;
     pointz->z = shp_le64_to_double(&buf[0]);
 
-    buf = multipatch->_m_array + 8 * point_num;
+    buf = multipatch->m_array + 8 * point_num;
     pointz->m = shp_le64_to_double(&buf[0]);
 }

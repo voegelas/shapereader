@@ -27,17 +27,17 @@
  * example a temperature.
  */
 typedef struct shp_polylinem_t {
-    double x_min;         /**< X minimum value */
-    double x_max;         /**< X maximum value */
-    double y_min;         /**< Y minimum value */
-    double y_max;         /**< Y maximum value */
-    double m_min;         /**< M minimum value */
-    double m_max;         /**< M maximum value */
-    size_t num_parts;     /**< Number of parts */
-    size_t num_points;    /**< Total number of points */
-    const char *_parts;   /* Index to first point in part */
-    const char *_points;  /* X and Y coordinates */
-    const char *_m_array; /* Measures */
+    double x_min;        /**< X minimum value */
+    double x_max;        /**< X maximum value */
+    double y_min;        /**< Y minimum value */
+    double y_max;        /**< Y maximum value */
+    double m_min;        /**< M minimum value */
+    double m_max;        /**< M maximum value */
+    size_t num_parts;    /**< Number of parts */
+    size_t num_points;   /**< Total number of points */
+    const char *parts;   /* Index to first point in part */
+    const char *points;  /* X and Y coordinates */
+    const char *m_array; /* Measures */
 } shp_polylinem_t;
 
 /**

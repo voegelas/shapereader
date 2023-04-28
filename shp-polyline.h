@@ -27,14 +27,14 @@
  * @cite ESRI_shape for more information.
  */
 typedef struct shp_polyline_t {
-    double x_min;        /**< X minimum value */
-    double x_max;        /**< X maximum value */
-    double y_min;        /**< Y minimum value */
-    double y_max;        /**< Y maximum value */
-    size_t num_parts;    /**< Number of parts */
-    size_t num_points;   /**< Total number of points */
-    const char *_parts;  /* Index to first point in part */
-    const char *_points; /* X and Y coordinates */
+    double x_min;       /**< X minimum value */
+    double x_max;       /**< X maximum value */
+    double y_min;       /**< Y minimum value */
+    double y_max;       /**< Y maximum value */
+    size_t num_parts;   /**< Number of parts */
+    size_t num_points;  /**< Total number of points */
+    const char *parts;  /* Index to first point in part */
+    const char *points; /* X and Y coordinates */
 } shp_polyline_t;
 
 /**

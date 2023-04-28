@@ -27,7 +27,7 @@ shp_polylinez_points(const shp_polylinez_t *polylinez, size_t part_num,
 
     m = polylinez->num_points;
 
-    buf = polylinez->_parts + 4 * part_num;
+    buf = polylinez->parts + 4 * part_num;
     i = shp_le32_to_int32(&buf[0]);
     if (part_num + 1 < polylinez->num_parts) {
         j = shp_le32_to_int32(&buf[4]);
@@ -58,13 +58,13 @@ shp_polylinez_pointz(const shp_polylinez_t *polylinez, size_t point_num,
     assert(point_num < polylinez->num_points);
     assert(pointz != NULL);
 
-    buf = polylinez->_points + 16 * point_num;
+    buf = polylinez->points + 16 * point_num;
     pointz->x = shp_le64_to_double(&buf[0]);
     pointz->y = shp_le64_to_double(&buf[8]);
 
-    buf = polylinez->_z_array + 8 * point_num;
+    buf = polylinez->z_array + 8 * point_num;
     pointz->z = shp_le64_to_double(&buf[0]);
 
-    buf = polylinez->_m_array + 8 * point_num;
+    buf = polylinez->m_array + 8 * point_num;
     pointz->m = shp_le64_to_double(&buf[0]);
 }

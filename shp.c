@@ -256,7 +256,7 @@ get_multipoint(shp_file_t *fh, const char *buf, shp_record_t *record)
         goto cleanup;
     }
 
-    multipoint->_points = &buf[40];
+    multipoint->points = &buf[40];
 
     rc = 1;
 
@@ -298,12 +298,12 @@ get_multipointm(shp_file_t *fh, const char *buf, shp_record_t *record)
         goto cleanup;
     }
 
-    multipointm->_points = &buf[40];
+    multipointm->points = &buf[40];
 
-    buf = multipointm->_points + points_size;
+    buf = multipointm->points + points_size;
     multipointm->m_min = shp_le64_to_double(&buf[0]);
     multipointm->m_max = shp_le64_to_double(&buf[8]);
-    multipointm->_m_array = &buf[16];
+    multipointm->m_array = &buf[16];
 
     rc = 1;
 
@@ -346,17 +346,17 @@ get_multipointz(shp_file_t *fh, const char *buf, shp_record_t *record)
         goto cleanup;
     }
 
-    multipointz->_points = &buf[40];
+    multipointz->points = &buf[40];
 
-    buf = multipointz->_points + points_size;
+    buf = multipointz->points + points_size;
     multipointz->z_min = shp_le64_to_double(&buf[0]);
     multipointz->z_max = shp_le64_to_double(&buf[8]);
-    multipointz->_z_array = &buf[16];
+    multipointz->z_array = &buf[16];
 
-    buf = multipointz->_z_array + z_size;
+    buf = multipointz->z_array + z_size;
     multipointz->m_min = shp_le64_to_double(&buf[0]);
     multipointz->m_max = shp_le64_to_double(&buf[8]);
-    multipointz->_m_array = &buf[16];
+    multipointz->m_array = &buf[16];
 
     rc = 1;
 
@@ -399,8 +399,8 @@ get_polyline(shp_file_t *fh, const char *buf, shp_record_t *record)
         goto cleanup;
     }
 
-    polyline->_parts = &buf[44];
-    polyline->_points = &buf[44 + parts_size];
+    polyline->parts = &buf[44];
+    polyline->points = &buf[44 + parts_size];
 
     rc = 1;
 
@@ -444,13 +444,13 @@ get_polylinem(shp_file_t *fh, const char *buf, shp_record_t *record)
         goto cleanup;
     }
 
-    polylinem->_parts = &buf[44];
-    polylinem->_points = polylinem->_parts + parts_size;
+    polylinem->parts = &buf[44];
+    polylinem->points = polylinem->parts + parts_size;
 
-    buf = polylinem->_points + points_size;
+    buf = polylinem->points + points_size;
     polylinem->m_min = shp_le64_to_double(&buf[0]);
     polylinem->m_max = shp_le64_to_double(&buf[8]);
-    polylinem->_m_array = &buf[16];
+    polylinem->m_array = &buf[16];
 
     rc = 1;
 
@@ -496,18 +496,18 @@ get_polylinez(shp_file_t *fh, const char *buf, shp_record_t *record)
         goto cleanup;
     }
 
-    polylinez->_parts = &buf[44];
-    polylinez->_points = polylinez->_parts + parts_size;
+    polylinez->parts = &buf[44];
+    polylinez->points = polylinez->parts + parts_size;
 
-    buf = polylinez->_points + points_size;
+    buf = polylinez->points + points_size;
     polylinez->z_min = shp_le64_to_double(&buf[0]);
     polylinez->z_max = shp_le64_to_double(&buf[8]);
-    polylinez->_z_array = &buf[16];
+    polylinez->z_array = &buf[16];
 
-    buf = polylinez->_z_array + z_size;
+    buf = polylinez->z_array + z_size;
     polylinez->m_min = shp_le64_to_double(&buf[0]);
     polylinez->m_max = shp_le64_to_double(&buf[8]);
-    polylinez->_m_array = &buf[16];
+    polylinez->m_array = &buf[16];
 
     rc = 1;
 
@@ -550,8 +550,8 @@ get_polygon(shp_file_t *fh, const char *buf, shp_record_t *record)
         goto cleanup;
     }
 
-    polygon->_parts = &buf[44];
-    polygon->_points = &buf[44 + parts_size];
+    polygon->parts = &buf[44];
+    polygon->points = &buf[44 + parts_size];
 
     rc = 1;
 
@@ -595,13 +595,13 @@ get_polygonm(shp_file_t *fh, const char *buf, shp_record_t *record)
         goto cleanup;
     }
 
-    polygonm->_parts = &buf[44];
-    polygonm->_points = polygonm->_parts + parts_size;
+    polygonm->parts = &buf[44];
+    polygonm->points = polygonm->parts + parts_size;
 
-    buf = polygonm->_points + points_size;
+    buf = polygonm->points + points_size;
     polygonm->m_min = shp_le64_to_double(&buf[0]);
     polygonm->m_max = shp_le64_to_double(&buf[8]);
-    polygonm->_m_array = &buf[16];
+    polygonm->m_array = &buf[16];
 
     rc = 1;
 
@@ -647,18 +647,18 @@ get_polygonz(shp_file_t *fh, const char *buf, shp_record_t *record)
         goto cleanup;
     }
 
-    polygonz->_parts = &buf[44];
-    polygonz->_points = polygonz->_parts + parts_size;
+    polygonz->parts = &buf[44];
+    polygonz->points = polygonz->parts + parts_size;
 
-    buf = polygonz->_points + points_size;
+    buf = polygonz->points + points_size;
     polygonz->z_min = shp_le64_to_double(&buf[0]);
     polygonz->z_max = shp_le64_to_double(&buf[8]);
-    polygonz->_z_array = &buf[16];
+    polygonz->z_array = &buf[16];
 
-    buf = polygonz->_z_array + z_size;
+    buf = polygonz->z_array + z_size;
     polygonz->m_min = shp_le64_to_double(&buf[0]);
     polygonz->m_max = shp_le64_to_double(&buf[8]);
-    polygonz->_m_array = &buf[16];
+    polygonz->m_array = &buf[16];
 
     rc = 1;
 
@@ -704,19 +704,19 @@ get_multipatch(shp_file_t *fh, const char *buf, shp_record_t *record)
         goto cleanup;
     }
 
-    multipatch->_parts = &buf[44];
-    multipatch->_types = multipatch->_parts + parts_size;
-    multipatch->_points = multipatch->_types + parts_size;
+    multipatch->parts = &buf[44];
+    multipatch->types = multipatch->parts + parts_size;
+    multipatch->points = multipatch->types + parts_size;
 
-    buf = multipatch->_points + points_size;
+    buf = multipatch->points + points_size;
     multipatch->z_min = shp_le64_to_double(&buf[0]);
     multipatch->z_max = shp_le64_to_double(&buf[8]);
-    multipatch->_z_array = &buf[16];
+    multipatch->z_array = &buf[16];
 
-    buf = multipatch->_z_array + z_size;
+    buf = multipatch->z_array + z_size;
     multipatch->m_min = shp_le64_to_double(&buf[0]);
     multipatch->m_max = shp_le64_to_double(&buf[8]);
-    multipatch->_m_array = &buf[16];
+    multipatch->m_array = &buf[16];
 
     rc = 1;
 

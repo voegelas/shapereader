@@ -109,8 +109,8 @@ typedef struct dbf_field_t {
     size_t length;              /**< Number of bytes */
     size_t decimal_places;      /**< Number of decimal places in a number */
     unsigned char reserved[14]; /**< Reserved bytes */
-    size_t _size;               /* Size in bytes */
-    size_t _offset;             /* Position in the record buffer */
+    size_t size;                /* Size in bytes */
+    size_t offset;              /* Position in the record buffer */
 } dbf_field_t;
 
 /**
@@ -133,7 +133,7 @@ typedef struct dbf_header_t {
  * Record
  */
 typedef struct dbf_record_t {
-    char *_bytes; /* Raw data of length record_size */
+    char *bytes; /* Raw data of length record_size */
 } dbf_record_t;
 
 /**
@@ -490,7 +490,7 @@ typedef struct dbf_file_t {
     /** Error message */
     char error[128];
     /* Record size from the file header */
-    size_t _record_size;
+    size_t record_size;
 } dbf_file_t;
 
 /**

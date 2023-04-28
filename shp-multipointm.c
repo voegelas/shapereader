@@ -23,10 +23,10 @@ shp_multipointm_pointm(const shp_multipointm_t *multipointm, size_t point_num,
     assert(point_num < multipointm->num_points);
     assert(pointm != NULL);
 
-    buf = multipointm->_points + 16 * point_num;
+    buf = multipointm->points + 16 * point_num;
     pointm->x = shp_le64_to_double(&buf[0]);
     pointm->y = shp_le64_to_double(&buf[8]);
 
-    buf = multipointm->_m_array + 8 * point_num;
+    buf = multipointm->m_array + 8 * point_num;
     pointm->m = shp_le64_to_double(&buf[0]);
 }

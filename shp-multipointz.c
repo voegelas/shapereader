@@ -23,13 +23,13 @@ shp_multipointz_pointz(const shp_multipointz_t *multipointz, size_t point_num,
     assert(point_num < multipointz->num_points);
     assert(pointz != NULL);
 
-    buf = multipointz->_points + 16 * point_num;
+    buf = multipointz->points + 16 * point_num;
     pointz->x = shp_le64_to_double(&buf[0]);
     pointz->y = shp_le64_to_double(&buf[8]);
 
-    buf = multipointz->_z_array + 8 * point_num;
+    buf = multipointz->z_array + 8 * point_num;
     pointz->z = shp_le64_to_double(&buf[0]);
 
-    buf = multipointz->_m_array + 8 * point_num;
+    buf = multipointz->m_array + 8 * point_num;
     pointz->m = shp_le64_to_double(&buf[0]);
 }

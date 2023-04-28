@@ -27,7 +27,7 @@ shp_polygonz_points(const shp_polygonz_t *polygonz, size_t part_num,
 
     m = polygonz->num_points;
 
-    buf = polygonz->_parts + 4 * part_num;
+    buf = polygonz->parts + 4 * part_num;
     i = shp_le32_to_int32(&buf[0]);
     if (part_num + 1 < polygonz->num_parts) {
         j = shp_le32_to_int32(&buf[4]);
@@ -58,13 +58,13 @@ shp_polygonz_pointz(const shp_polygonz_t *polygonz, size_t point_num,
     assert(point_num < polygonz->num_points);
     assert(pointz != NULL);
 
-    buf = polygonz->_points + 16 * point_num;
+    buf = polygonz->points + 16 * point_num;
     pointz->x = shp_le64_to_double(&buf[0]);
     pointz->y = shp_le64_to_double(&buf[8]);
 
-    buf = polygonz->_z_array + 8 * point_num;
+    buf = polygonz->z_array + 8 * point_num;
     pointz->z = shp_le64_to_double(&buf[0]);
 
-    buf = polygonz->_m_array + 8 * point_num;
+    buf = polygonz->m_array + 8 * point_num;
     pointz->m = shp_le64_to_double(&buf[0]);
 }

@@ -27,7 +27,7 @@ shp_polyline_points(const shp_polyline_t *polyline, size_t part_num,
 
     m = polyline->num_points;
 
-    buf = polyline->_parts + 4 * part_num;
+    buf = polyline->parts + 4 * part_num;
     i = shp_le32_to_int32(&buf[0]);
     if (part_num + 1 < polyline->num_parts) {
         j = shp_le32_to_int32(&buf[4]);
@@ -58,7 +58,7 @@ shp_polyline_point(const shp_polyline_t *polyline, size_t point_num,
     assert(point_num < polyline->num_points);
     assert(point != NULL);
 
-    buf = polyline->_points + 16 * point_num;
+    buf = polyline->points + 16 * point_num;
     point->x = shp_le64_to_double(&buf[0]);
     point->y = shp_le64_to_double(&buf[8]);
 }

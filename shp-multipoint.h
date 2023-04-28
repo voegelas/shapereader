@@ -25,12 +25,12 @@
  * A MultiPoint is a set of points.
  */
 typedef struct shp_multipoint_t {
-    double x_min;        /**< X minimum value */
-    double x_max;        /**< X maximum value */
-    double y_min;        /**< Y minimum value */
-    double y_max;        /**< Y maximum value */
-    size_t num_points;   /**< Number of points */
-    const char *_points; /* X and Y coordinates */
+    double x_min;       /**< X minimum value */
+    double x_max;       /**< X maximum value */
+    double y_min;       /**< Y minimum value */
+    double y_max;       /**< Y maximum value */
+    size_t num_points;  /**< Number of points */
+    const char *points; /* X and Y coordinates */
 } shp_multipoint_t;
 
 /**
