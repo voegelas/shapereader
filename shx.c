@@ -47,7 +47,7 @@ read_record(shx_file_t *fh, shx_record_t *record)
     int rc = -1;
     char buf[8];
     size_t nr;
-    size_t offset, content_length;
+    size_t offset = 0, content_length = 0;
 
     nr = (*fh->fread)(fh, buf, 8);
     if ((*fh->ferror)(fh)) {
@@ -67,25 +67,26 @@ read_record(shx_file_t *fh, shx_record_t *record)
     }
 
     offset = shp_be32_to_uint32(&buf[0]);
+    content_length = shp_be32_to_uint32(&buf[4]);
+
     if (offset < 50) {
         shx_set_error(fh, "Offset %zu is invalid", offset);
         errno = EINVAL;
         goto cleanup;
     }
 
-    content_length = shp_be32_to_uint32(&buf[4]);
     if (content_length < 2) {
         shx_set_error(fh, "Content length %zu is invalid", content_length);
         errno = EINVAL;
         goto cleanup;
     }
 
-    record->file_offset = 2 * offset;
-    record->record_size = 2 * content_length;
-
     rc = 1;
 
 cleanup:
+
+    record->file_offset = 2 * offset;
+    record->record_size = 2 * content_length;
 
     return rc;
 }
