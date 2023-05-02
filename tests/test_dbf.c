@@ -640,6 +640,8 @@ main(int argc, char *argv[])
 
     dbf_init_file(&fh, stream, NULL);
 
+    dbf_set_error(&fh, "%s", "");
+
     if (dbf_read(&fh, handle_dbf_header, handle_dbf_record) == -1) {
         fprintf(stderr, "# Cannot read file \"%s\": %s\n", filename,
                 fh.error);
