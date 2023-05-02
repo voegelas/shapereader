@@ -1,5 +1,6 @@
 set(tests
   byteorder
+  dbase2
   dbf
   point
   pointm

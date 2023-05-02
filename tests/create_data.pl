@@ -33,6 +33,7 @@ my $SHP_PART_TYPE_RING           = 5;
 
 my %ENCODING_FOR = (
     0x00 => 'UTF-8',
+    0x01 => 'cp437',
     0x13 => 'cp932',
     0x4d => 'cp936',
     0x4e => 'cp949',
@@ -108,40 +109,20 @@ sub write_cpg {
     return;
 }
 
-sub write_dbf {
-    my (%args) = @_;
+sub write_dbf_records {
+    my ($fh, $header, $records) = @_;
 
-    my $file   = $args{file};
-    my %header = (
-        version     => 0x03,
-        year        => 2022,
-        month       => 11,
-        day         => 6,
-        num_records => 0,
-        header_size => 0,
-        record_size => 0,
-        ldid        => 0x57,
-        fields      => [],
-        %{$args{header}}
-    );
-    my @records = @{$args{records}};
+    my $is_foxpro = any { $header->{version} == $_ } (0x30, 0x31, 0x32);
+    my $encoding  = $ENCODING_FOR{$header->{ldid}};
+    my $fields    = $header->{fields};
 
-    $header{num_records} = scalar @records;
-
-    my $is_foxpro = any { $header{version} == $_ } (0x30, 0x31, 0x32);
-
-    my $encoding = $ENCODING_FOR{$header{ldid}};
-    my @fields   = @{$header{fields}};
-
-    open my $fh, '>:raw', $file or die "Can't open $file: $!";
-    print {$fh} pack_dbf_header(%header);
-    for my $record (@records) {
+    for my $record (@{$records}) {
         my @values  = @{$record};
         my $deleted = shift @values;
         print {$fh} pack 'A', $deleted;
         my $i = 0;
         for my $value (@values) {
-            my $field  = $fields[$i];
+            my $field  = $fields->[$i];
             my $name   = $field->{name};
             my $type   = $field->{type};
             my $places = $field->{decimal_places} // 0;
@@ -190,6 +171,88 @@ sub write_dbf {
             ++$i;
         }
     }
+}
+
+sub write_dbf {
+    my (%args) = @_;
+
+    my $file   = $args{file};
+    my %header = (
+        version => 0x03,
+        year    => 2022,
+        month   => 11,
+        day     => 6,
+        ldid    => 0x57,
+        fields  => [],
+        %{$args{header}}
+    );
+    my $records = $args{records};
+
+    $header{num_records} = scalar @{$records};
+
+    open my $fh, '>:raw', $file or die "Can't open $file: $!";
+    print {$fh} pack_dbf_header(%header);
+    write_dbf_records($fh, \%header, $records);
+    print {$fh} "\x1a";
+    close $fh;
+    return;
+}
+
+sub pack_dbase2_field {
+    my %h = (
+        name           => q{},
+        type           => 'C',
+        length         => 0,
+        decimal_places => 0,
+        @_
+    );
+
+    my $bytes = pack 'a11aC4', $h{name}, $h{type}, $h{length}, 0, 0,
+        $h{decimal_places};
+    return $bytes;
+}
+
+sub pack_dbase2_header {
+    my (%h) = @_;
+
+    my @packed_fields = map { pack_dbase2_field(%{$_}) } @{$h{fields}};
+
+    $h{record_size} = reduce { $a + get_field_size($b) } 1, @{$h{fields}};
+
+    my $bytes = pack 'CSC3S', $h{version}, $h{num_records}, $h{month},
+        $h{day}, $h{year} - 1900, $h{record_size};
+    for my $field (@packed_fields) {
+        $bytes .= $field;
+    }
+    $bytes .= "\r";
+    my $n = length $bytes;
+    if ($n < 521) {
+        $bytes .= "\0" x (521 - $n);
+    }
+
+    return $bytes;
+}
+
+sub write_dbase2 {
+    my (%args) = @_;
+
+    my $file   = $args{file};
+    my %header = (
+        version => 0x02,
+        year    => 2023,
+        month   => 5,
+        day     => 2,
+        ldid    => 0x01,
+        fields  => [],
+        %{$args{header}}
+    );
+    my $records = $args{records};
+
+    $header{num_records} = scalar @{$records};
+
+    open my $fh, '>:raw', $file or die "Can't open $file: $!";
+    print {$fh} pack_dbase2_header(%header);
+    write_dbf_records($fh, \%header, $records);
     print {$fh} "\x1a";
     close $fh;
     return;
@@ -686,6 +749,41 @@ write_dbf(
             -2**31, undef, -2**31 / 10_000,
             -1.23,  undef,
         ],
+    ]
+);
+
+#
+# dbase2.dbf
+#
+
+write_dbase2(
+    file   => catfile(qw(data dbase2.dbf)),
+    header => {
+        fields => [
+            {   name   => 'CITY',
+                type   => 'C',
+                length => 6,
+            },
+            {   name           => 'LATITUDE',
+                type           => 'N',
+                length         => 8,
+                decimal_places => 4,
+            },
+            {   name           => 'LONGITUDE',
+                type           => 'N',
+                length         => 8,
+                decimal_places => 4,
+            },
+            {   name   => 'IS_CAPITAL',
+                type   => 'L',
+                length => 1,
+            },
+        ],
+    },
+    records => [
+        [q{ }, 'Milan',  45.4625, 9.1863,  'F'],
+        [q{ }, 'Naples', 40.8333, 14.25,   'F'],
+        [q{ }, 'Rome',   41.8833, 12.4833, 'T'],
     ]
 );
 
