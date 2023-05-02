@@ -905,13 +905,6 @@ read_header_dbase2(dbf_file_t *fh, dbf_version_t version,
         goto cleanup;
     }
 
-    if ((*fh->feof)(fh)) {
-        free(header);
-        header = NULL;
-        rc = 0;
-        goto cleanup;
-    }
-
     rc = 1;
 
 cleanup:
@@ -1048,13 +1041,6 @@ read_header_dbase3(dbf_file_t *fh, dbf_version_t version,
                       offset, record_size);
         free(header);
         header = NULL;
-        goto cleanup;
-    }
-
-    if ((*fh->feof)(fh)) {
-        free(header);
-        header = NULL;
-        rc = 0;
         goto cleanup;
     }
 

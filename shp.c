@@ -131,11 +131,6 @@ shp_read_header(shp_file_t *fh, shp_header_t *header)
     header->m_min = shp_le64_to_double(&buf[84]);
     header->m_max = shp_le64_to_double(&buf[92]);
 
-    if ((*fh->feof)(fh)) {
-        rc = 0;
-        goto cleanup;
-    }
-
     rc = 1;
 
 cleanup:
