@@ -8,14 +8,20 @@ int tests_planned = 0;
 int tests_run = 0;
 int tests_failed = 0;
 
-const shp_header_t *header;
-const shp_record_t *record;
+const shp_header_t *shp_header;
+const shp_record_t *shp_record;
 const shp_polygon_t *polygon;
 
+const shx_header_t *shx_header;
+shx_record_t shx_records[6];
+
+size_t file_offset;
 size_t record_number;
 
 size_t num_bytes;
 size_t file_size;
+
+int rc;
 
 /*
  * Header tests
@@ -24,13 +30,13 @@ size_t file_size;
 static int
 test_file_code(void)
 {
-    return header->file_code == 9994;
+    return shp_header->file_code == 9994;
 }
 
 static int
 test_file_length(void)
 {
-    return header->file_size == file_size;
+    return shp_header->file_size == file_size;
 }
 
 static int
@@ -42,37 +48,37 @@ test_entire_file_read(void)
 static int
 test_version(void)
 {
-    return header->version == 1000;
+    return shp_header->version == 1000;
 }
 
 static int
-test_shape_type(void)
+test_header_shape_type(void)
 {
-    return header->type == SHP_TYPE_POLYGON;
+    return shp_header->type == SHP_TYPE_POLYGON;
 }
 
 static int
 test_x_min(void)
 {
-    return header->x_min == -180.0;
+    return shp_header->x_min == -180.0;
 }
 
 static int
 test_y_min(void)
 {
-    return header->y_min == -90.0;
+    return shp_header->y_min == -90.0;
 }
 
 static int
 test_x_max(void)
 {
-    return header->x_max == 180.0;
+    return shp_header->x_max == 180.0;
 }
 
 static int
 test_y_max(void)
 {
-    return header->y_max == 90.0;
+    return shp_header->y_max == 90.0;
 }
 
 /*
@@ -82,7 +88,7 @@ test_y_max(void)
 static int
 test_is_polygon(void)
 {
-    return record->type == SHP_TYPE_POLYGON;
+    return shp_record->type == SHP_TYPE_POLYGON;
 }
 
 static int
@@ -217,15 +223,61 @@ test_is_oslo(void)
     return shp_point_in_polygon(&point, polygon) == 1;
 }
 
+/**
+ * Other tests
+ */
+
+static int
+test_record_shape_type(void)
+{
+    return shp_record->type == SHP_TYPE_POLYGON;
+}
+
+static int
+test_index_shape_type(void)
+{
+    return shx_header->type == SHP_TYPE_POLYGON;
+}
+
+static int
+test_file_offset(void)
+{
+    return file_offset == shx_records[record_number].file_offset;
+}
+
+static int
+test_record_size(void)
+{
+    return shp_record->record_size == shx_records[record_number].record_size;
+}
+
+static int
+test_seek_first(void)
+{
+    return rc == 1;
+}
+
+static int
+test_seek_eof(void)
+{
+    return rc == 0;
+}
+
+static int
+test_seek_invalid(void)
+{
+    return rc == -1;
+}
+
 static int
 handle_shp_header(shp_file_t *fh, const shp_header_t *h)
 {
-    header = h;
+    shp_header = h;
     record_number = 0;
     ok(test_file_code, "file code is 9994");
     ok(test_file_length, "file length matches file size");
     ok(test_version, "version is 1000");
-    ok(test_shape_type, "shape type is polygon");
+    ok(test_header_shape_type, "shape type is polygon");
     ok(test_x_min, "x_min is set");
     ok(test_y_min, "y_min is set");
     ok(test_x_max, "x_max is set");
@@ -235,11 +287,13 @@ handle_shp_header(shp_file_t *fh, const shp_header_t *h)
 
 static int
 handle_shp_record(shp_file_t *fh, const shp_header_t *h,
-                  const shp_record_t *r, size_t file_offset)
+                  const shp_record_t *r, size_t offset)
 {
-    header = h;
-    record = r;
+    shp_header = h;
+    shp_record = r;
+    file_offset = offset;
     polygon = &r->shape.polygon;
+    ok(test_record_shape_type, "shape type is polygon");
     switch (record_number) {
     case 0:
         ok(test_is_polygon, "shape is polygon");
@@ -273,6 +327,31 @@ handle_shp_record(shp_file_t *fh, const shp_header_t *h,
         ok(test_is_oslo, "location is in Europe/Oslo");
         break;
     }
+    if (record_number < 6) {
+        ok(test_file_offset, "file offset matches");
+        ok(test_record_size, "record size matches");
+    }
+    ++record_number;
+    return 1;
+}
+
+static int
+handle_shx_header(shx_file_t *fh, const shx_header_t *h)
+{
+    shx_header = h;
+    record_number = 0;
+    ok(test_index_shape_type, "shape type is polygon");
+    return 1;
+}
+
+static int
+handle_shx_record(shx_file_t *fh, const shx_header_t *h,
+                  const shx_record_t *r)
+{
+    shx_header = h;
+    if (record_number < 6) {
+        shx_records[record_number] = *r;
+    }
     ++record_number;
     return 1;
 }
@@ -280,33 +359,62 @@ handle_shp_record(shp_file_t *fh, const shp_header_t *h,
 int
 main(int argc, char *argv[])
 {
-    const char *filename = "polygon.shp";
-    FILE *stream;
-    shp_file_t fh;
+    const char *shp_filename = "polygon.shp";
+    const char *shx_filename = "polygon.shx";
+    FILE *shp_stream, *shx_stream;
+    shp_file_t shp_fh;
+    shx_file_t shx_fh;
 
-    plan(28);
+    plan(50);
 
-    stream = fopen(filename, "rb");
-    if (stream == NULL) {
-        fprintf(stderr, "# Cannot open file \"%s\": %s\n", filename,
+    shp_stream = fopen(shp_filename, "rb");
+    if (shp_stream == NULL) {
+        fprintf(stderr, "# Cannot open file \"%s\": %s\n", shp_filename,
                 strerror(errno));
         return 1;
     }
 
-    fseek(stream, 0, SEEK_END);
-    file_size = ftell(stream);
-    fseek(stream, 0, SEEK_SET);
-
-    shp_init_file(&fh, stream, NULL);
-    if (shp_read(&fh, handle_shp_header, handle_shp_record) == -1) {
-        fprintf(stderr, "# Cannot read file \"%s\": %s\n", filename,
-                fh.error);
+    shx_stream = fopen(shx_filename, "rb");
+    if (shx_stream == NULL) {
+        fprintf(stderr, "# Cannot open file \"%s\": %s\n", shx_filename,
+                strerror(errno));
+        return 1;
     }
 
-    num_bytes = fh.num_bytes;
+    fseek(shp_stream, 0, SEEK_END);
+    file_size = ftell(shp_stream);
+    fseek(shp_stream, 0, SEEK_SET);
+
+    shp_init_file(&shp_fh, shp_stream, NULL);
+    shx_init_file(&shx_fh, shx_stream, NULL);
+
+    shp_set_error(&shx_fh, "%s", "");
+    shx_set_error(&shx_fh, "%s", "");
+
+    if (shx_read(&shx_fh, handle_shx_header, handle_shx_record) == -1) {
+        fprintf(stderr, "# Cannot read file \"%s\": %s\n", shx_filename,
+                shx_fh.error);
+    }
+
+    if (shp_read(&shp_fh, handle_shp_header, handle_shp_record) == -1) {
+        fprintf(stderr, "# Cannot read file \"%s\": %s\n", shp_filename,
+                shp_fh.error);
+    }
+
+    num_bytes = shp_fh.num_bytes;
     ok(test_entire_file_read, "entire file has been read");
 
-    fclose(stream);
+    rc = shx_seek_record(&shx_fh, 1, &shx_records[0]);
+    ok(test_seek_first, "seek to first record");
+
+    rc = shx_seek_record(&shx_fh, 715827874UL, &shx_records[0]);
+    ok(test_seek_eof, "seek beyond end of file");
+
+    rc = shx_seek_record(&shx_fh, 715827875UL, &shx_records[0]);
+    ok(test_seek_invalid, "seek to impossible record number");
+
+    fclose(shp_stream);
+    fclose(shx_stream);
 
     done_testing();
 }
