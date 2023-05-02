@@ -43,19 +43,8 @@ typedef struct shp_point_t {
  *
  * @see shp_point_in_polygon
  */
-static inline int
-shp_point_in_bounding_box(const shp_point_t *point, double x_min,
-                          double y_min, double x_max, double y_max)
-{
-    double x = point->x, y = point->y;
-
-    if (x >= x_min && x <= x_max && y >= y_min && y <= y_max) {
-        if (x == x_min || x == x_max || y == y_min || y == y_max) {
-            return -1;
-        }
-        return 1;
-    }
-    return 0;
-}
+extern int shp_point_in_bounding_box(const shp_point_t *point, double x_min,
+                                     double y_min, double x_max,
+                                     double y_max);
 
 #endif

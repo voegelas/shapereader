@@ -28,6 +28,7 @@ set(libshapereader_a_SOURCES
   shp-multipoint.c
   shp-multipointm.c
   shp-multipointz.c
+  shp-point.c
   shp-polygon.c
   shp-polygonm.c
   shp-polygonz.c
