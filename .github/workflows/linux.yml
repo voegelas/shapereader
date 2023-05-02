@@ -18,6 +18,11 @@ jobs:
         run: |
           mkdir build
           cd build
-          env CFLAGS="-std=c99 -pedantic-errors -Wall -Werror" cmake ..
+          env CFLAGS="-g --coverage -std=c99 -pedantic-errors -Wall -Werror" cmake ..
           make
-          make test
+          make test-coverage
+      - name: Report coverage
+        env:
+          COVERALLS_REPO_TOKEN: ${{ github.token }}
+        run: |
+          coveralls --file build/lcov.info

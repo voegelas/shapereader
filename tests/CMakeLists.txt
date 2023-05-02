@@ -24,3 +24,12 @@ foreach(name ${tests})
     WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/data"
   )
 endforeach()
+
+# Capture coverage data in lcov.info
+add_custom_target(test-coverage
+  COMMAND ${CMAKE_MAKE_PROGRAM} test
+  COMMAND lcov -c -d CMakeFiles -o lcov.info
+  BYPRODUCTS lcov.info
+  WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
+  VERBATIM
+)
