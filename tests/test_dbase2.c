@@ -29,6 +29,24 @@ test_database_version(void)
 }
 
 static int
+test_header_day(void)
+{
+    return header->day == 2;
+}
+
+static int
+test_header_month(void)
+{
+    return header->month == 5;
+}
+
+static int
+test_header_year(void)
+{
+    return header->year + 1900 == 2023;
+}
+
+static int
 test_num_records(void)
 {
     return header->num_records == 3;
@@ -90,9 +108,12 @@ handle_dbf_header(dbf_file_t *fh, const dbf_header_t *h)
     header = h;
     record_number = 0;
     ok(test_database_version, "database version matches");
+    ok(test_header_day, "day matches");
+    ok(test_header_month, "month matches");
+    ok(test_header_year, "year matches");
     ok(test_num_records, "number of records is greater than zero");
     ok(test_header_size, "header_size matches");
-    ok(test_record_size, "record size is greater than zero");
+    ok(test_record_size, "record size matches");
     ok(test_num_fields, "number of fields matches");
     ok(test_field_city, "city is string");
     ok(test_field_latitude, "latitude is number");
@@ -173,7 +194,7 @@ main(int argc, char *argv[])
     FILE *stream;
     dbf_file_t fh;
 
-    plan(12);
+    plan(15);
 
     stream = fopen(filename, "rb");
     if (stream == NULL) {
