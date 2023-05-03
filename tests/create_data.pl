@@ -42,7 +42,31 @@ my %ENCODING_FOR = (
     0x58 => 'cp1252',
 );
 
-sub pack_dbf_field {
+sub get_field_size {
+    my $field = shift;
+
+    my $size = $field->{length};
+    if ($field->{type} eq 'C') {
+        $size |= ($field->{decimal_places} // 0) << 8;
+    }
+    return $size;
+}
+
+sub pack_dbase2_field {
+    my %h = (
+        name           => q{},
+        type           => 'C',
+        length         => 0,
+        decimal_places => 0,
+        @_
+    );
+
+    my $bytes = pack 'a11aC4', $h{name}, $h{type}, $h{length}, 0, 0,
+        $h{decimal_places};
+    return $bytes;
+}
+
+sub pack_dbase3_field {
     my %h = (
         name           => q{},
         type           => 'C',
@@ -56,23 +80,34 @@ sub pack_dbf_field {
     return $bytes;
 }
 
-sub get_field_size {
-    my $field = shift;
+sub pack_dbase2_header {
+    my (%h) = @_;
 
-    my $size = $field->{length};
-    if ($field->{type} eq 'C') {
-        $size |= ($field->{decimal_places} // 0) << 8;
+    my @packed_fields = map { pack_dbase2_field(%{$_}) } @{$h{fields}};
+
+    $h{record_size} = reduce { $a + get_field_size($b) } 1, @{$h{fields}};
+
+    my $bytes = pack 'CSC3S', $h{version}, $h{num_records}, $h{month},
+        $h{day}, $h{year} - 1900, $h{record_size};
+    for my $field (@packed_fields) {
+        $bytes .= $field;
     }
-    return $size;
+    $bytes .= "\r";
+    my $n = length $bytes;
+    if ($n < 521) {
+        $bytes .= "\0" x (521 - $n);
+    }
+
+    return $bytes;
 }
 
-sub pack_dbf_header {
+sub pack_dbase3_header {
     my (%h) = @_;
 
     my @reserved = (0) x 20;
     $reserved[17] = $h{ldid};
 
-    my @packed_fields = map { pack_dbf_field(%{$_}) } @{$h{fields}};
+    my @packed_fields = map { pack_dbase3_field(%{$_}) } @{$h{fields}};
 
     $h{header_size} = reduce { $a + length $b } 33, @packed_fields;
     $h{record_size} = reduce { $a + get_field_size($b) } 1, @{$h{fields}};
@@ -95,18 +130,6 @@ sub get_datetime {
     my $usec = 86400000 * ($jd - $day);
 
     return ($day, $usec);
-}
-
-sub write_cpg {
-    my (%args) = @_;
-
-    my $file     = $args{file};
-    my $encoding = $args{encoding};
-
-    open my $fh, '>:raw', $file or die "Can't open $file: $!";
-    print {$fh} $encoding;
-    close $fh;
-    return;
 }
 
 sub write_dbf_records {
@@ -191,69 +214,26 @@ sub write_dbf {
     $header{num_records} = scalar @{$records};
 
     open my $fh, '>:raw', $file or die "Can't open $file: $!";
-    print {$fh} pack_dbf_header(%header);
+    if ($header{version} == 0x02) {
+        print {$fh} pack_dbase2_header(%header);
+    }
+    else {
+        print {$fh} pack_dbase3_header(%header);
+    }
     write_dbf_records($fh, \%header, $records);
     print {$fh} "\x1a";
     close $fh;
     return;
 }
 
-sub pack_dbase2_field {
-    my %h = (
-        name           => q{},
-        type           => 'C',
-        length         => 0,
-        decimal_places => 0,
-        @_
-    );
-
-    my $bytes = pack 'a11aC4', $h{name}, $h{type}, $h{length}, 0, 0,
-        $h{decimal_places};
-    return $bytes;
-}
-
-sub pack_dbase2_header {
-    my (%h) = @_;
-
-    my @packed_fields = map { pack_dbase2_field(%{$_}) } @{$h{fields}};
-
-    $h{record_size} = reduce { $a + get_field_size($b) } 1, @{$h{fields}};
-
-    my $bytes = pack 'CSC3S', $h{version}, $h{num_records}, $h{month},
-        $h{day}, $h{year} - 1900, $h{record_size};
-    for my $field (@packed_fields) {
-        $bytes .= $field;
-    }
-    $bytes .= "\r";
-    my $n = length $bytes;
-    if ($n < 521) {
-        $bytes .= "\0" x (521 - $n);
-    }
-
-    return $bytes;
-}
-
-sub write_dbase2 {
+sub write_cpg {
     my (%args) = @_;
 
-    my $file   = $args{file};
-    my %header = (
-        version => 0x02,
-        year    => 2023,
-        month   => 5,
-        day     => 2,
-        ldid    => 0x01,
-        fields  => [],
-        %{$args{header}}
-    );
-    my $records = $args{records};
-
-    $header{num_records} = scalar @{$records};
+    my $file     = $args{file};
+    my $encoding = $args{encoding};
 
     open my $fh, '>:raw', $file or die "Can't open $file: $!";
-    print {$fh} pack_dbase2_header(%header);
-    write_dbf_records($fh, \%header, $records);
-    print {$fh} "\x1a";
+    print {$fh} $encoding;
     close $fh;
     return;
 }
@@ -756,10 +736,14 @@ write_dbf(
 # dbase2.dbf
 #
 
-write_dbase2(
+write_dbf(
     file   => catfile(qw(data dbase2.dbf)),
     header => {
-        fields => [
+        version => 0x02,
+        year    => 2023,
+        month   => 5,
+        day     => 2,
+        fields  => [
             {   name   => 'CITY',
                 type   => 'C',
                 length => 6,
