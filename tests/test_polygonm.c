@@ -34,19 +34,19 @@ static int
 test_ranges(void)
 {
     return polygonm->x_min == 1 && polygonm->y_min == 1 &&
-           polygonm->x_max == 2 && polygonm->y_max == 2;
+           polygonm->x_max == 4 && polygonm->y_max == 4;
 }
 
 static int
 test_num_parts(void)
 {
-    return polygonm->num_parts == 1;
+    return polygonm->num_parts == 2;
 }
 
 static int
 test_num_points(void)
 {
-    return polygonm->num_points == 5;
+    return polygonm->num_points == 10;
 }
 
 static int
@@ -54,10 +54,12 @@ test_points_match(void)
 {
     size_t part_num, i, j, n;
     shp_pointm_t p;
-    const shp_pointm_t points[5] = {
-        {1, 1, 1}, {1, 2, 2}, {2, 2, 3}, {2, 1, 4}, {1, 1, 5}};
+    const shp_pointm_t points[10] = {
+        {1, 1, 1}, {1, 4, 2}, {4, 4, 3}, {4, 1, 4}, {1, 1, 5},
+        {2, 2, 6}, {2, 3, 7}, {3, 3, 8}, {3, 2, 9}, {2, 2, 10},
+    };
 
-    if (polygonm->num_parts != 1) {
+    if (polygonm->num_points != 10) {
         return 0;
     }
 

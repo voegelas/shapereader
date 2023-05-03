@@ -66,7 +66,7 @@ test_points_match(void)
         {1, 0, 0, 19}, {0, 0, 0, 25}, {0, 1, 0, 26}, {1, 1, 0, 27},
         {1, 0, 0, 28}, {0, 0, 0, 29}};
 
-    if (polygonz->num_parts != 6) {
+    if (polygonz->num_points != 30) {
         return 0;
     }
 

@@ -75,7 +75,7 @@ test_points_match(void)
         {8.976038, 48.746420, 478.9, 1.43},
     };
 
-    if (polylinez->num_parts != 2) {
+    if (polylinez->num_points != 16) {
         return 0;
     }
 

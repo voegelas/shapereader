@@ -40,13 +40,13 @@ test_ranges(void)
 static int
 test_num_parts(void)
 {
-    return polylinem->num_parts == 1;
+    return polylinem->num_parts == 2;
 }
 
 static int
 test_num_points(void)
 {
-    return polylinem->num_points == 6;
+    return polylinem->num_points == 7;
 }
 
 static int
@@ -54,10 +54,11 @@ test_points_match(void)
 {
     size_t part_num, i, j, n;
     shp_pointm_t p;
-    const shp_pointm_t points[6] = {{1, 1, 1}, {2, 1, 2}, {2, 2, 3},
-                                    {3, 2, 4}, {3, 1, 5}, {4, 1, 6}};
+    const shp_pointm_t points[7] = {{1, 1, 1}, {2, 1, 2}, {2, 2, 3},
+                                    {2, 2, 4}, {3, 2, 5}, {3, 1, 6},
+                                    {4, 1, 7}};
 
-    if (polylinem->num_parts != 1) {
+    if (polylinem->num_points != 7) {
         return 0;
     }
 
