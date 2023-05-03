@@ -188,7 +188,7 @@ main(int argc, char *argv[])
     const char *dbf_filename = "multipoint.dbf";
     const char *shp_filename = "multipoint.shp";
     const char *shx_filename = "multipoint.shx";
-    FILE *dbf_fp, *shp_fp, *shx_fp;
+    FILE *dbf_stream, *shp_stream, *shx_stream;
     dbf_file_t dbf_fh;
     shp_file_t shp_fh;
     shx_file_t shx_fh;
@@ -197,30 +197,30 @@ main(int argc, char *argv[])
                             (NUM_SHP_RECORD_TESTS * NUM_RECORDS) +
                             NUM_SHX_RECORD_TESTS));
 
-    dbf_fp = fopen(dbf_filename, "rb");
-    if (dbf_fp == NULL) {
+    dbf_stream = fopen(dbf_filename, "rb");
+    if (dbf_stream == NULL) {
         fprintf(stderr, "# Cannot open file \"%s\": %s\n", dbf_filename,
                 strerror(errno));
         return 1;
     }
 
-    shp_fp = fopen(shp_filename, "rb");
-    if (shp_fp == NULL) {
+    shp_stream = fopen(shp_filename, "rb");
+    if (shp_stream == NULL) {
         fprintf(stderr, "# Cannot open file \"%s\": %s\n", shp_filename,
                 strerror(errno));
         return 1;
     }
 
-    shx_fp = fopen(shx_filename, "rb");
-    if (shx_fp == NULL) {
+    shx_stream = fopen(shx_filename, "rb");
+    if (shx_stream == NULL) {
         fprintf(stderr, "# Cannot open file \"%s\": %s\n", shx_filename,
                 strerror(errno));
         return 1;
     }
 
-    dbf_init_file(&dbf_fh, dbf_fp, NULL);
-    shp_init_file(&shp_fh, shp_fp, NULL);
-    shx_init_file(&shx_fh, shx_fp, NULL);
+    dbf_init_file(&dbf_fh, dbf_stream, NULL);
+    shp_init_file(&shp_fh, shp_stream, NULL);
+    shx_init_file(&shx_fh, shx_stream, NULL);
 
     if (dbf_read_header(&dbf_fh, &dbf_header) > 0) {
         ok(test_num_records, "number of records");
@@ -230,7 +230,7 @@ main(int argc, char *argv[])
             record_number = 0;
             while (dbf_read_record(&dbf_fh, &dbf_record) > 0) {
                 if (!dbf_record_is_deleted(dbf_record)) {
-                    file_offset = (size_t) ftell(shp_fp);
+                    file_offset = (size_t) ftell(shp_stream);
                     if (shp_read_record(&shp_fh, &shp_record) > 0) {
                         if (shx_read_record(&shx_fh, &shx_record) > 0) {
                             test_dbf();
@@ -257,9 +257,9 @@ main(int argc, char *argv[])
         }
     }
 
-    fclose(dbf_fp);
-    fclose(shp_fp);
-    fclose(shx_fp);
+    fclose(dbf_stream);
+    fclose(shp_stream);
+    fclose(shx_stream);
 
     done_testing();
 }

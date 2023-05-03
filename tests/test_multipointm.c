@@ -115,19 +115,19 @@ int
 main(int argc, char *argv[])
 {
     const char *shp_filename = "multipointm.shp";
-    FILE *shp_fp;
+    FILE *shp_stream;
     shp_file_t shp_fh;
 
     plan(8);
 
-    shp_fp = fopen(shp_filename, "rb");
-    if (shp_fp == NULL) {
+    shp_stream = fopen(shp_filename, "rb");
+    if (shp_stream == NULL) {
         fprintf(stderr, "# Cannot open file \"%s\": %s\n", shp_filename,
                 strerror(errno));
         return 1;
     }
 
-    shp_init_file(&shp_fh, shp_fp, NULL);
+    shp_init_file(&shp_fh, shp_stream, NULL);
 
     if (shp_read_header(&shp_fh, &shp_header) > 0) {
         ok(test_header_shape_type, "header shape type is multipointm");
@@ -140,7 +140,7 @@ main(int argc, char *argv[])
         }
     }
 
-    fclose(shp_fp);
+    fclose(shp_stream);
 
     done_testing();
 }
