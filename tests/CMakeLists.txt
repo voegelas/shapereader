@@ -2,6 +2,7 @@ set(tests
   byteorder
   dbase2
   dbf
+  null
   point
   pointm
   pointz

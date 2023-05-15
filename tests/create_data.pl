@@ -772,6 +772,30 @@ write_dbf(
 );
 
 #
+# null.shp
+#
+
+write_dbf(
+    file   => catfile(qw(data null.dbf)),
+    header => {
+        fields => [
+            {   name   => 'id',
+                type   => 'N',
+                length => 10,
+            },
+        ],
+    },
+    records => [[q{ }, 1], [q{ }, 2]]
+);
+
+write_shp_and_shx(
+    shp_file => catfile(qw(data null.shp)),
+    shx_file => catfile(qw(data null.shx)),
+    header   => {type => $SHP_TYPE_NULL},
+    shapes   => [{type => $SHP_TYPE_NULL}, {type => $SHP_TYPE_NULL}]
+);
+
+#
 # point.shp
 #
 
