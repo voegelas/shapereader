@@ -13,8 +13,8 @@ int tests_planned = 0;
 int tests_run = 0;
 int tests_failed = 0;
 
-const dbf_header_t *header;
-const dbf_record_t *record;
+dbf_header_t *header;
+dbf_record_t *record;
 
 size_t record_number;
 
@@ -102,11 +102,9 @@ test_field_is_capital(void)
            (field->type == DBF_TYPE_LOGICAL);
 }
 
-static int
-handle_dbf_header(dbf_file_t *fh, const dbf_header_t *h)
+static void
+test_header(void)
 {
-    header = h;
-    record_number = 0;
     ok(test_database_version, "database version matches");
     ok(test_header_day, "day matches");
     ok(test_header_month, "month matches");
@@ -119,8 +117,6 @@ handle_dbf_header(dbf_file_t *fh, const dbf_header_t *h)
     ok(test_field_latitude, "latitude is number");
     ok(test_field_longitude, "longitude is number");
     ok(test_field_is_capital, "is_capital is logical");
-    header = NULL;
-    return 1;
 }
 
 /*
@@ -166,12 +162,9 @@ test_rome(void)
     return compare_city("Rome", 41.8833, 12.4833, 'T');
 }
 
-static int
-handle_dbf_record(dbf_file_t *fh, const dbf_header_t *h,
-                  const dbf_record_t *r, size_t file_offset)
+static void
+test_record(void)
 {
-    header = h;
-    record = r;
     switch (record_number) {
     case 0:
         ok(test_milan, "test Milan");
@@ -183,8 +176,6 @@ handle_dbf_record(dbf_file_t *fh, const dbf_header_t *h,
         ok(test_rome, "test Rome");
         break;
     }
-    ++record_number;
-    return 1;
 }
 
 int
@@ -207,9 +198,16 @@ main(int argc, char *argv[])
 
     dbf_set_error(&fh, "%s", "");
 
-    if (dbf_read(&fh, handle_dbf_header, handle_dbf_record) == -1) {
-        fprintf(stderr, "# Cannot read file \"%s\": %s\n", filename,
-                fh.error);
+    if (dbf_read_header(&fh, &header) > 0) {
+        test_header();
+        record_number = header->num_records;
+        while (record_number-- > 0) {
+            if (dbf_seek_record(&fh, record_number, &record) > 0) {
+                test_record();
+                free(record);
+            }
+        }
+        free(header);
     }
 
     fclose(stream);

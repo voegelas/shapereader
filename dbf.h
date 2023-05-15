@@ -489,7 +489,9 @@ typedef struct dbf_file_t {
     size_t num_bytes;
     /** Error message */
     char error[128];
-    /* Record size from the file header */
+    /* Header size */
+    size_t header_size;
+    /* Record size */
     size_t record_size;
 } dbf_file_t;
 
@@ -642,5 +644,41 @@ extern int dbf_read_header(dbf_file_t *fh, dbf_header_t **pheader);
  * @see dbf_read_header
  */
 extern int dbf_read_record(dbf_file_t *fh, dbf_record_t **precord);
+
+/**
+ * Read a record by record number
+ *
+ * Sets the file position to the specified record number and reads the
+ * requested record.
+ *
+ * @b Example
+ *
+ * @code{.c}
+ * size_t i;
+ * dbf_header_t *header;
+ * dbf_record_t *record;
+ *
+ * if ((rc = dbf_read_header(fh, &header)) > 0) {
+ *   i = header->num_records;
+ *   while (i-- > 0) {
+ *     if ((rc = dbf_seek_record(fh, i, &record)) > 0) {
+ *       // Do something
+ *       free(record);
+ *     }
+ *   }
+ *   free(header);
+ * }
+ * @endcode
+ *
+ * @param fh a file handle.
+ * @param record_number a zero-based record number.
+ * @param[out] precord on success, a pointer to a dbf_record_t structure.
+ *                     Free the record with @c free() when you are done.
+ * @retval 1 on success.
+ * @retval 0 on end of file.
+ * @retval -1 on error.
+ */
+extern int dbf_seek_record(dbf_file_t *fh, size_t file_offset,
+                           dbf_record_t **precord);
 
 #endif

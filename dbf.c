@@ -63,6 +63,7 @@ dbf_init_file(dbf_file_t *fh, FILE *stream, void *user_data)
     fh->user_data = user_data;
     fh->num_bytes = 0;
     fh->error[0] = '\0';
+    fh->header_size = 0;
     fh->record_size = 0;
 
     return fh;
@@ -984,8 +985,6 @@ read_header_dbase3(dbf_file_t *fh, dbf_version_t version,
         goto cleanup;
     }
 
-    fh->record_size = record_size;
-
     num_fields = 0;
     n = 0;
     while (n < descriptors_size && descriptors[n] != '\r') {
@@ -1092,6 +1091,11 @@ dbf_read_header(dbf_file_t *fh, dbf_header_t **pheader)
         goto cleanup;
     }
 
+    if (*pheader != NULL) {
+        fh->header_size = (*pheader)->header_size;
+        fh->record_size = (*pheader)->record_size;
+    }
+
 cleanup:
 
     return rc;
@@ -1154,6 +1158,34 @@ dbf_read_record(dbf_file_t *fh, dbf_record_t **precord)
     }
 
     rc = 1;
+
+cleanup:
+
+    *precord = record;
+
+    return rc;
+}
+
+int
+dbf_seek_record(dbf_file_t *fh, size_t record_number, dbf_record_t **precord)
+{
+    int rc = -1;
+    size_t file_offset;
+    dbf_record_t *record = NULL;
+
+    assert(fh != NULL);
+    assert(fh->header_size > 0);
+    assert(fh->record_size > 0);
+    assert(precord != NULL);
+
+    file_offset = record_number * fh->record_size + fh->header_size;
+    if ((*fh->fsetpos)(fh, file_offset) != 0) {
+        dbf_set_error(fh, "Cannot set file position to record number %zu\n",
+                      record_number);
+        goto cleanup;
+    }
+
+    rc = dbf_read_record(fh, &record);
 
 cleanup:
 
