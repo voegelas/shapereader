@@ -187,6 +187,9 @@ extern int shx_read_record(shx_file_t *fh, shx_record_t *record);
  * Sets the file position to the specified record number and reads the
  * requested index record.
  *
+ * Please note that this function uses zero-based record numbers, whereas the
+ * record numbers in shapefiles begin at 1.
+ *
  * @param fh a file handle.
  * @param record_number a zero-based record number.
  * @param[out] record a shx_record_t structure.

@@ -250,7 +250,7 @@ sub pack_shp_header {
 
 sub pack_null {
     my %h = (
-        record_number => 0,
+        record_number => 1,
         type          => $SHP_TYPE_NULL,
         @_
     );
@@ -262,7 +262,7 @@ sub pack_null {
 
 sub pack_point {
     my %h = (
-        record_number => 0,
+        record_number => 1,
         type          => $SHP_TYPE_POINT,
         point         => [0.0, 0.0],
         @_
@@ -276,7 +276,7 @@ sub pack_point {
 
 sub pack_pointm {
     my %h = (
-        record_number => 0,
+        record_number => 1,
         type          => $SHP_TYPE_POINTM,
         point         => [0.0, 0.0, 0.0],
         @_
@@ -290,7 +290,7 @@ sub pack_pointm {
 
 sub pack_pointz {
     my %h = (
-        record_number => 0,
+        record_number => 1,
         type          => $SHP_TYPE_POINTZ,
         point         => [0.0, 0.0, 0.0, 0.0],
         @_
@@ -304,7 +304,7 @@ sub pack_pointz {
 
 sub pack_multipoint {
     my %h = (
-        record_number => 0,
+        record_number => 1,
         type          => $SHP_TYPE_MULTIPOINT,
         box           => [0.0, 0.0, 0.0, 0.0],
         points        => [],
@@ -328,7 +328,7 @@ sub pack_multipoint {
 
 sub pack_multipointm {
     my %h = (
-        record_number => 0,
+        record_number => 1,
         type          => $SHP_TYPE_MULTIPOINTM,
         box           => [0.0, 0.0, 0.0, 0.0],
         m_range       => [0.0, 0.0],
@@ -356,7 +356,7 @@ sub pack_multipointm {
 
 sub pack_multipointz {
     my %h = (
-        record_number => 0,
+        record_number => 1,
         type          => $SHP_TYPE_MULTIPOINTZ,
         box           => [0.0, 0.0, 0.0, 0.0],
         z_range       => [0.0, 0.0],
@@ -389,7 +389,7 @@ sub pack_multipointz {
 
 sub pack_polyline {
     my %h = (
-        record_number => 0,
+        record_number => 1,
         type          => $SHP_TYPE_POLYLINE,
         box           => [0.0, 0.0, 0.0, 0.0],
         parts         => [],
@@ -420,7 +420,7 @@ sub pack_polyline {
 
 sub pack_polylinem {
     my %h = (
-        record_number => 0,
+        record_number => 1,
         type          => $SHP_TYPE_POLYLINEM,
         box           => [0.0, 0.0, 0.0, 0.0],
         m_range       => [0.0, 0.0],
@@ -456,7 +456,7 @@ sub pack_polylinem {
 
 sub pack_polylinez {
     my %h = (
-        record_number => 0,
+        record_number => 1,
         type          => $SHP_TYPE_POLYLINEZ,
         box           => [0.0, 0.0, 0.0, 0.0],
         z_range       => [0.0, 0.0],
@@ -495,7 +495,7 @@ sub pack_polylinez {
 
 sub pack_polygon {
     my %h = (
-        record_number => 0,
+        record_number => 1,
         type          => $SHP_TYPE_POLYGON,
         box           => [0.0, 0.0, 0.0, 0.0],
         parts         => [],
@@ -507,7 +507,7 @@ sub pack_polygon {
 
 sub pack_polygonm {
     my %h = (
-        record_number => 0,
+        record_number => 1,
         type          => $SHP_TYPE_POLYGONM,
         box           => [0.0, 0.0, 0.0, 0.0],
         m_range       => [0.0, 0.0],
@@ -520,7 +520,7 @@ sub pack_polygonm {
 
 sub pack_polygonz {
     my %h = (
-        record_number => 0,
+        record_number => 1,
         type          => $SHP_TYPE_POLYGONZ,
         box           => [0.0, 0.0, 0.0, 0.0],
         z_range       => [0.0, 0.0],
@@ -534,7 +534,7 @@ sub pack_polygonz {
 
 sub pack_multipatch {
     my %h = (
-        record_number => 0,
+        record_number => 1,
         type          => $SHP_TYPE_POLYLINEZ,
         box           => [0.0, 0.0, 0.0, 0.0],
         z_range       => [0.0, 0.0],
@@ -618,7 +618,7 @@ sub write_shp_and_shx {
     );
     my @shapes = @{$args{shapes}};
 
-    my $record_number = 0;
+    my $record_number = 1;
     for my $shape (@shapes) {
         $shape->{record_number} = $record_number;
         ++$record_number;

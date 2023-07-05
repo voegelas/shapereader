@@ -75,7 +75,7 @@ typedef struct shp_header_t {
  * Record
  */
 typedef struct shp_record_t {
-    size_t record_number; /**< Record number */
+    size_t record_number; /**< Record number (beginning at 1) */
     size_t record_size;   /**< Content length in bytes */
     shp_type_t type;      /**< Shape type */
     union {
