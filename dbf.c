@@ -19,6 +19,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#define SIZEOF16(x) (((sizeof(x) + 15) >> 4) << 4)
+
 static size_t
 file_fread(dbf_file_t *fh, void *buf, size_t count)
 {
@@ -865,14 +867,14 @@ read_header_dbase2(dbf_file_t *fh, dbf_version_t version,
         n += 16;
     }
 
-    result_size = sizeof(*header) + num_fields * sizeof(dbf_field_t);
+    result_size = SIZEOF16(*header) + num_fields * sizeof(dbf_field_t);
     header = (dbf_header_t *) calloc(1, result_size);
     if (header == NULL) {
         dbf_set_error(fh, "Cannot allocate %zu bytes", result_size);
         goto cleanup;
     }
 
-    fields = (dbf_field_t *) (((char *) header) + sizeof(*header));
+    fields = (dbf_field_t *) (void *) (((char *) header) + SIZEOF16(*header));
 
     header->version = version;
     header->year = year;
@@ -999,14 +1001,14 @@ read_header_dbase3(dbf_file_t *fh, dbf_version_t version,
         goto cleanup;
     }
 
-    result_size = sizeof(*header) + num_fields * sizeof(dbf_field_t);
+    result_size = SIZEOF16(*header) + num_fields * sizeof(dbf_field_t);
     header = (dbf_header_t *) calloc(1, result_size);
     if (header == NULL) {
         dbf_set_error(fh, "Cannot allocate %zu bytes", result_size);
         goto cleanup;
     }
 
-    fields = (dbf_field_t *) (((char *) header) + sizeof(*header));
+    fields = (dbf_field_t *) (void *) (((char *) header) + SIZEOF16(*header));
 
     header->version = version;
     header->year = year;
