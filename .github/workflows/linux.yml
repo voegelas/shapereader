@@ -18,7 +18,7 @@ jobs:
         run: |
           mkdir build
           cd build
-          env CFLAGS="-g --coverage -std=c99 -pedantic-errors -Wall -Werror" cmake ..
+          env CFLAGS="-g --coverage -std=c99 -pedantic-errors -Wall -Wcast-align=strict -Werror" cmake ..
           make
           make test-coverage
       - name: Report coverage
