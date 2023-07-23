@@ -41,7 +41,7 @@ shp_polygonz_points(const shp_polygonz_t *polygonz, size_t part_num,
 
     /* Is the range valid? */
     num_points = 0;
-    if (i >= 0 && i < m && j >= 0 && j <= m && i < j) {
+    if (i < m && j <= m && i < j) {
         num_points = j - i;
     }
 

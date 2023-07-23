@@ -42,12 +42,12 @@ shp_multipatch_points(const shp_multipatch_t *multipatch, size_t part_num,
 
     /* Is the range valid? */
     num_points = 0;
-    if (i >= 0 && i < m && j >= 0 && j <= m && i < j) {
+    if (i < m && j <= m && i < j) {
         num_points = j - i;
     }
 
     buf = multipatch->types + n;
-    *part_type = shp_le32_to_int32(&buf[0]);
+    *part_type = (shp_part_type_t) shp_le32_to_int32(&buf[0]);
 
     return num_points;
 }
