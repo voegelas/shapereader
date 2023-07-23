@@ -109,7 +109,7 @@ test_shp(void)
 }
 
 int
-main(int argc, char *argv[])
+main(void)
 {
     const char *filename = "multipatch.shp";
     FILE *stream;

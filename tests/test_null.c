@@ -4,6 +4,8 @@
 #include <stdio.h>
 #include <string.h>
 
+#define UNUSED(x) (void)(x)
+
 int tests_planned = 0;
 int tests_run = 0;
 int tests_failed = 0;
@@ -32,6 +34,7 @@ test_record_size(void)
 static int
 handle_shp_header(shp_file_t *fh, const shp_header_t *h)
 {
+    UNUSED(fh);
     shp_header = h;
     ok(test_header_shape_type, "shape type is null");
     return 1;
@@ -41,6 +44,8 @@ static int
 handle_shp_record(shp_file_t *fh, const shp_header_t *h,
                   const shp_record_t *r, size_t offset)
 {
+    UNUSED(fh);
+    UNUSED(offset);
     shp_header = h;
     shp_record = r;
     ok(test_record_shape_type, "shape type is null");
@@ -49,7 +54,7 @@ handle_shp_record(shp_file_t *fh, const shp_header_t *h,
 }
 
 int
-main(int argc, char *argv[])
+main(void)
 {
     const char *shp_filename = "null.shp";
     FILE *shp_stream;

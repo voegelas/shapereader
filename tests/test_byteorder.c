@@ -58,7 +58,7 @@ test_le64_to_double(void)
 }
 
 int
-main(int argc, char *argv[])
+main(void)
 {
     plan(7);
     ok(test_le16_to_uint16, "test shp_le16_to_uint16");

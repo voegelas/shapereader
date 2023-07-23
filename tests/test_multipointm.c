@@ -112,7 +112,7 @@ test_shp(void)
 }
 
 int
-main(int argc, char *argv[])
+main(void)
 {
     const char *shp_filename = "multipointm.shp";
     FILE *shp_stream;

@@ -4,6 +4,8 @@
 #include <stdio.h>
 #include <string.h>
 
+#define UNUSED(x) (void)(x)
+
 #define FESTIVAL 0
 #define FROM 1
 #define TO 2
@@ -306,6 +308,7 @@ test_field_sold_out(void)
 static int
 handle_dbf_header(dbf_file_t *fh, const dbf_header_t *h)
 {
+    UNUSED(fh);
     header = h;
     record_number = 0;
     ok(test_database_version, "database version matches");
@@ -580,8 +583,10 @@ test_sold_out_is_null(void)
 
 static int
 handle_dbf_record(dbf_file_t *fh, const dbf_header_t *h,
-                  const dbf_record_t *r, size_t file_offset)
+                  const dbf_record_t *r, size_t offset)
 {
+    UNUSED(fh);
+    UNUSED(offset);
     header = h;
     record = r;
     switch (record_number) {
@@ -621,7 +626,7 @@ handle_dbf_record(dbf_file_t *fh, const dbf_header_t *h,
 }
 
 int
-main(int argc, char *argv[])
+main(void)
 {
     const char *filename = "types.dbf";
     FILE *stream;

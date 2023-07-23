@@ -183,7 +183,7 @@ test_shx(void)
 }
 
 int
-main(int argc, char *argv[])
+main(void)
 {
     const char *dbf_filename = "multipoint.dbf";
     const char *shp_filename = "multipoint.shp";

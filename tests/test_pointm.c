@@ -85,7 +85,7 @@ test_shp(void)
 }
 
 int
-main(int argc, char *argv[])
+main(void)
 {
     const char *filename = "pointm.shp";
     FILE *stream;

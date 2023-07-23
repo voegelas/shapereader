@@ -179,7 +179,7 @@ test_record(void)
 }
 
 int
-main(int argc, char *argv[])
+main(void)
 {
     const char *filename = "dbase2.dbf";
     FILE *stream;

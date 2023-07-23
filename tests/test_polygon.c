@@ -4,6 +4,8 @@
 #include <stdio.h>
 #include <string.h>
 
+#define UNUSED(x) (void)(x)
+
 int tests_planned = 0;
 int tests_run = 0;
 int tests_failed = 0;
@@ -272,6 +274,7 @@ test_seek_invalid(void)
 static int
 handle_shp_header(shp_file_t *fh, const shp_header_t *h)
 {
+    UNUSED(fh);
     shp_header = h;
     record_number = 0;
     ok(test_file_code, "file code is 9994");
@@ -289,6 +292,7 @@ static int
 handle_shp_record(shp_file_t *fh, const shp_header_t *h,
                   const shp_record_t *r, size_t offset)
 {
+    UNUSED(fh);
     shp_header = h;
     shp_record = r;
     file_offset = offset;
@@ -338,6 +342,7 @@ handle_shp_record(shp_file_t *fh, const shp_header_t *h,
 static int
 handle_shx_header(shx_file_t *fh, const shx_header_t *h)
 {
+    UNUSED(fh);
     shx_header = h;
     record_number = 0;
     ok(test_index_shape_type, "shape type is polygon");
@@ -348,6 +353,7 @@ static int
 handle_shx_record(shx_file_t *fh, const shx_header_t *h,
                   const shx_record_t *r)
 {
+    UNUSED(fh);
     shx_header = h;
     if (record_number < 6) {
         shx_records[record_number] = *r;
@@ -357,7 +363,7 @@ handle_shx_record(shx_file_t *fh, const shx_header_t *h,
 }
 
 int
-main(int argc, char *argv[])
+main(void)
 {
     const char *shp_filename = "polygon.shp";
     const char *shx_filename = "polygon.shx";
